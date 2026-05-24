@@ -26,3 +26,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# claude skills (course materials, not for redistribution)
+.claude/skills/
