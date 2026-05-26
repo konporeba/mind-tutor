@@ -128,19 +128,20 @@ This is the gated mutation. The agent prepares everything; the user runs `wrangl
 
 ---
 
-## Phase 6 — GitHub Actions auto-deploy on merge to `master` (~15 min) — **DEFERRED**
+## Phase 6 — GitHub Actions auto-deploy on merge to `master` (~15 min)
 
-> Deferred by user 2026-05-25. Manual `wrangler deploy` runs locally for now. Re-enter this phase (and the deferred items in Phase 3) when CI auto-deploy is wanted.
-
+> Re-entered 2026-05-26 after initial deferral. Phase 3's deferred token + GitHub-secrets sub-tasks completed alongside this phase.
 
 CI today (`.github/workflows/ci.yml`) only builds. Add a deploy job that runs after `ci` succeeds, gated on the `master` branch.
 
-- [ ] Edit `.github/workflows/ci.yml` (or split into a new `deploy.yml` — keeping it in one file is fine for a single deploy target):
+- [x] Phase 3 deferred items: user created scoped Cloudflare API token (`Workers Scripts:Edit`, `Account Settings:Read`, `User Memberships:Read`, account-scoped to `Konporeba@gmail.com's Account`) and added `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` (`016342b5c7cf5429f151e7773cf26c44`) to GitHub repo secrets. *(Done 2026-05-26.)*
+- [x] Edit `.github/workflows/ci.yml` (or split into a new `deploy.yml` — keeping it in one file is fine for a single deploy target):
   - Add a `deploy` job that `needs: ci`, runs only `if: github.ref == 'refs/heads/master' && github.event_name == 'push'`.
   - Steps: checkout, setup Node 22, `npm ci`, `npm run build`, then `cloudflare/wrangler-action@v3` with `apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}` and `accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}` and `command: deploy`.
   - The action does **not** automatically run `astro build` — the build step must run before the action, and the action just invokes `wrangler deploy`.
-- [ ] Pin the action by tag (`@v3`) and document in the workflow that bumping it requires re-reading the changelog (infra plan risk: `@astrojs/cloudflare` and `wrangler-action` both iterate fast).
-- [ ] **Verify** by pushing a no-op commit to a branch, opening a PR, merging, watching the deploy job in the Actions tab.
+  *(Done 2026-05-26. Build step also runs `npx astro sync` before `npm run build` to match the existing `ci` job's astro:env type generation; same `SUPABASE_URL`/`SUPABASE_KEY` repo secrets feed both build steps.)*
+- [x] Pin the action by tag (`@v3`) and document in the workflow that bumping it requires re-reading the changelog (infra plan risk: `@astrojs/cloudflare` and `wrangler-action` both iterate fast). *(Done 2026-05-26 — pinned `cloudflare/wrangler-action@v3` with an inline comment in the workflow.)*
+- [x] **Verify** by pushing a no-op commit to a branch, opening a PR, merging, watching the deploy job in the Actions tab. *(Done 2026-05-26 — see Phase 9 follow-up for the live-run details; verification was done via direct push to `master` rather than PR + merge since the repo's single-author flow doesn't gate on PRs.)*
 
 **Edge case — secrets exposed in PR previews:** the current workflow has `pull_request` triggers. Fork PRs do NOT get access to repo secrets (GitHub default), which means a fork PR's build job will fail at the `npm run build` step that needs `SUPABASE_URL`. That's fine — fork contributions need a maintainer to push the branch into the upstream repo to get a real build. Do **not** switch to `pull_request_target` to fix this; that pattern leaks secrets to attacker-controlled code.
 
