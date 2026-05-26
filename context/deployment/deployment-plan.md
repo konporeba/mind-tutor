@@ -202,11 +202,11 @@ The infra plan calls this out as the audit artifact that downstream skills consu
 
 ## Phase 9 — Commit & verify end-to-end (~5 min)
 
-- [ ] Stage and commit the changes from Phases 1, 2, 6, 8: `wrangler.jsonc` (rename), `package.json` (engines field), `.dev.vars.example`, `.github/workflows/ci.yml` (deploy job), `context/deployment/deploy-plan.md`.
-- [ ] Push to `master`; watch the CI deploy job complete; verify the live URL still serves the authenticated dashboard.
-- [ ] Stream logs with `npx wrangler tail mind-tutor` for 60 seconds while clicking through the dashboard to confirm no `Worker exceeded CPU time limit` warnings.
+- [x] Stage and commit the changes from Phases 1, 2, 6, 8: `wrangler.jsonc` (rename), `package.json` (engines field), `.dev.vars.example`, `.github/workflows/ci.yml` (deploy job), `context/deployment/deploy-plan.md`. *(Done 2026-05-26 as commit `d897a01` "Deploy mind-tutor to Cloudflare Workers, wire Cloudflare MCP". Phase 6's `.github/workflows/ci.yml` deploy-job edit was skipped since Phase 6 is deferred; commit also picked up `.gitignore` (settings.local.json exclusion) and `.mcp.json` (the MCP server defs, since the plan's literal `.claude/settings.local.json` location wouldn't be read by Claude Code — see Phase 7 correction note).)*
+- [x] Push to `master`; watch the CI deploy job complete; verify the live URL still serves the authenticated dashboard. *(Pushed 2026-05-26: `2911647..d897a01 master -> master`. CI auto-deploy job is deferred with Phase 6 so there's no auto-deploy run to watch; existing CI build workflow runs on push but doesn't deploy. Live URL still serves the authenticated dashboard — re-verified during the tail step below.)*
+- [x] Stream logs with `npx wrangler tail mind-tutor` for 60 seconds while clicking through the dashboard to confirm no `Worker exceeded CPU time limit` warnings. *(Done 2026-05-26: captured 8 requests in ~60s — full auth cycle (`/auth/signin` → POST signin → `/` → `/dashboard` → POST signout → `/` → `/auth/signin` → `/auth/signup`). Every line reported status `Ok`. Zero CPU-limit warnings, zero 5xx, zero errors. Free-tier CPU budget comfortably surviving the normal session shape.)*
 
-**Done when:** the merge auto-deploy is green and the live URL behaves identically to local dev.
+**Done when:** the merge auto-deploy is green and the live URL behaves identically to local dev. *(Phase 9 met by manual deploy + post-push tail verification; the merge-auto-deploy half travels with the deferred Phase 6.)*
 
 ---
 
