@@ -68,17 +68,19 @@ The Worker name in `X:\MindTutor\wrangler.jsonc` is currently `10x-astro-starter
 
 Token creation is browser-only. The agent cannot do this — guide the user step by step.
 
-> **Deferred with Phase 6:** the scoped API token and GitHub Actions secrets below exist only to feed CI auto-deploy. Manual `wrangler deploy` from a developer machine uses the OAuth session from `wrangler login` and does **not** need either. Revisit when Phase 6 is picked up.
+> ~~**Deferred with Phase 6:** the scoped API token and GitHub Actions secrets below exist only to feed CI auto-deploy. Manual `wrangler deploy` from a developer machine uses the OAuth session from `wrangler login` and does **not** need either. Revisit when Phase 6 is picked up.~~ *(Resolved 2026-05-26: Phase 6 was un-deferred and the API token + GitHub secrets were created alongside it. See Phase 6 line 137.)*
 
-- [ ] *(Deferred)* User creates a scoped API token at https://dash.cloudflare.com/profile/api-tokens → "Create Custom Token":
+- [x] ~~*(Deferred)*~~ User creates a scoped API token at https://dash.cloudflare.com/profile/api-tokens → "Create Custom Token":
   - **Permissions:** `Account` → `Workers Scripts` → `Edit`; `Account` → `Account Settings` → `Read`; `User` → `Memberships` → `Read`.
   - **Account Resources:** include only the MindTutor account.
   - **No** Zone, DNS, KV, R2, D1, Queues, or billing permissions (add later only when those bindings appear).
   - Copy the token immediately — it's shown once.
-- [ ] *(Deferred)* User finds the Account ID (right sidebar of the Cloudflare dashboard, any account-scoped page).
-- [ ] *(Deferred)* Add to GitHub repo secrets (Settings → Secrets and variables → Actions):
+  *(Completed 2026-05-26 under Phase 6 — see line 137.)*
+- [x] ~~*(Deferred)*~~ User finds the Account ID (right sidebar of the Cloudflare dashboard, any account-scoped page). *(Completed 2026-05-26 under Phase 6: `016342b5c7cf5429f151e7773cf26c44`.)*
+- [x] ~~*(Deferred)*~~ Add to GitHub repo secrets (Settings → Secrets and variables → Actions):
   - `CLOUDFLARE_API_TOKEN` = the token just created
   - `CLOUDFLARE_ACCOUNT_ID` = the account ID
+  *(Completed 2026-05-26 under Phase 6 — see line 137.)*
 - [x] Locally, run `npx wrangler login` (opens browser OAuth, separate from the API token, used for local CLI deploys).
 - [x] Verify with `npx wrangler whoami` — should show the account email and ID. *(Verified 2026-05-25: konporeba@gmail.com, account `016342b5c7cf5429f151e7773cf26c44`.)*
 
