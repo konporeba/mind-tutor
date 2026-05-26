@@ -173,12 +173,12 @@ Wires structured agent access to runtime state. Both servers run remotely via `m
   - `.mcp.json` (committed; the Cloudflare URLs are public so safe to share with future contributors) — holds the two `mcpServers` definitions exactly as shown above.
   - `.claude/settings.local.json` (now gitignored; new line added to `.gitignore`) — holds `{"enabledMcpjsonServers": ["cloudflare-observability", "cloudflare-bindings"]}` so the harness auto-approves them on load.
   *Verified with `claude mcp list`: both servers are discovered (status `✗ Failed to connect` is the expected pre-OAuth state — the handshake fires on first tool call after Claude Code reload, per the next sub-task).)*
-- [ ] Restart Claude Code; first tool call to either server triggers a browser OAuth handshake — complete it once per machine.
-- [ ] Verify by asking the agent to "list recent logs for mind-tutor" (Observability) and "list bindings on mind-tutor" (Bindings).
+- [x] Restart Claude Code; first tool call to either server triggers a browser OAuth handshake — complete it once per machine. *(Done 2026-05-26: both servers loaded in this session and tool calls succeeded without OAuth prompts — handshake was completed in the prior session.)*
+- [x] Verify by asking the agent to "list recent logs for mind-tutor" (Observability) and "list bindings on mind-tutor" (Bindings). *(Verified 2026-05-26 with `set_active_account` → `016342b5c7cf5429f151e7773cf26c44` on both servers. Observability returned 5 most-recent `mind-tutor` fetch events from the last 24h (all `outcome: ok`, all version `e2c8062c-3301-4e10-ab22-792bb16968fe`, CPU 2–7 ms, wall 3–137 ms) covering `/`, `/dashboard`, `/auth/signin`, `/auth/signup`, `POST /api/auth/signout`. Bindings returned the Worker record: `name: mind-tutor`, id `9f4eff4795d44c20a52ad654419a49e6`.)*
 
 **Documentation TODO (deferred):** the OAuth re-prompt friction will surprise new contributors. Add a 3-line "MCP first-run" note to `context/deployment/deploy-plan.md` (created in Phase 8) so it's not mistaken for a broken setup.
 
-**Done when:** both MCP servers respond to a structured query about the deployed Worker.
+**Done when:** both MCP servers respond to a structured query about the deployed Worker. *(Phase 7 complete 2026-05-26.)*
 
 ---
 
@@ -212,14 +212,14 @@ The infra plan calls this out as the audit artifact that downstream skills consu
 
 ## Verification checklist (end-to-end)
 
-- [ ] `npx wrangler whoami` returns the correct account.
-- [ ] `npx wrangler secret list` shows `SUPABASE_URL` and `SUPABASE_KEY`.
-- [ ] `https://mind-tutor.<account>.workers.dev/` loads.
-- [ ] `/auth/signup` → `/auth/signin` → `/dashboard` flow works on the live URL.
-- [ ] `/dashboard` redirects unauthenticated requests to `/auth/signin`.
-- [ ] CI deploy job runs on merge to `master` and finishes in <2 min.
-- [ ] `npx wrangler tail mind-tutor` shows no CPU-limit warnings during a normal session.
-- [ ] Both Cloudflare MCP servers respond to structured queries.
+- [x] `npx wrangler whoami` returns the correct account. *(Phase 3, 2026-05-25.)*
+- [x] `npx wrangler secret list` shows `SUPABASE_URL` and `SUPABASE_KEY`. *(Phase 4, 2026-05-25.)*
+- [x] `https://mind-tutor.<account>.workers.dev/` loads. *(Phase 5, 2026-05-26 → `https://mind-tutor.konporeba.workers.dev`.)*
+- [x] `/auth/signup` → `/auth/signin` → `/dashboard` flow works on the live URL. *(Phase 5, 2026-05-26.)*
+- [x] `/dashboard` redirects unauthenticated requests to `/auth/signin`. *(Phase 5, 2026-05-26.)*
+- [ ] CI deploy job runs on merge to `master` and finishes in <2 min. *(Travels with deferred Phase 6.)*
+- [x] `npx wrangler tail mind-tutor` shows no CPU-limit warnings during a normal session. *(Phase 9, 2026-05-26; re-confirmed via Observability MCP 2026-05-26 — last 24h CPU 2–7 ms, no `Worker exceeded CPU time limit` events.)*
+- [x] Both Cloudflare MCP servers respond to structured queries. *(Phase 7, 2026-05-26.)*
 
 ## Critical files touched
 
