@@ -29,3 +29,6 @@ pnpm-debug.log*
 
 # claude skills (course materials, not for redistribution)
 .claude/skills/
+
+# claude per-user local settings (gitignored by convention)
+.claude/settings.local.json

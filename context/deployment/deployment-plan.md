@@ -14,7 +14,7 @@
 
 - [x] Confirm Cloudflare account exists for the user (manual: log into dash.cloudflare.com).
 - [x] Verify Node v22.14.0 active (`node -v`) — `.nvmrc` requires it; mismatch breaks `wrangler dev`. *(Verified 2026-05-25: `node -v` → `v22.14.0`.)*
-- [ ] Verify `git status` is clean before any edits (so the deploy commit can be isolated). *(2026-05-25: NOT clean — `.claude/.10x-cli-manifest.json`, `.env.example`, `CLAUDE.md`, `context/foundation/tech-stack.md` modified; `AGENTS.md`, `context/deployment/`, `context/foundation/infrastructure.md` untracked. Decide whether to commit these before Phase 1 or bundle into the deploy commit.)*
+- [x] Verify `git status` is clean before any edits (so the deploy commit can be isolated). *(2026-05-25: Resolved by committing pre-Phase-1 state as `2911647` "Prep deploy: infra research, m1l5 lesson context, switch to Workers". Side-finding: `.env.example` had been overwritten with real Supabase URL + publishable anon key; reverted to `###` placeholders before the commit — real values stay in local `.env` (gitignored) and will move to `.dev.vars` in Phase 2. Tree clean as of this edit.)*
 - [x] Re-read `wrangler.jsonc` and `astro.config.mjs` so the agent doesn't drift from current state. *(Verified 2026-05-25: `wrangler.jsonc` name still `10x-astro-starter` — Phase 1 rename pending; all other fields match plan. `astro.config.mjs` matches plan: `output: "server"`, cloudflare adapter, `env.schema` with `optional: true`.)*
 
 **Done when:** Cloudflare account confirmed, Node version matches, working tree clean.
@@ -25,18 +25,21 @@
 
 The Worker name in `X:\MindTutor\wrangler.jsonc` is currently `10x-astro-starter` (bootstrap leftover). It must be `mind-tutor` before the first deploy, because the name becomes the URL slug (`mind-tutor.<account>.workers.dev`) and renaming a deployed Worker requires creating a new one and deleting the old.
 
-- [ ] Edit `wrangler.jsonc`: change `"name": "10x-astro-starter"` → `"name": "mind-tutor"`.
-- [ ] Confirm these fields are present and correct (do **not** change them, just verify):
+- [x] Edit `wrangler.jsonc`: change `"name": "10x-astro-starter"` → `"name": "mind-tutor"`. *(Done 2026-05-25.)*
+- [x] Confirm these fields are present and correct (do **not** change them, just verify):
   - `"main": "@astrojs/cloudflare/entrypoints/server"` (Astro v13 adapter generates this entrypoint at build time)
   - `"compatibility_date": "2026-05-08"` (recent enough; leave as-is)
   - `"compatibility_flags": ["nodejs_compat"]` (required by `@supabase/ssr`)
   - `"assets": { "directory": "./dist", "not_found_handling": "404-page" }`
   - `"observability": { "enabled": true }` (free; enables Workers Logs)
-- [ ] Verify `package.json` has no `"engines"` field for Node — Workers ignores it, but add `"engines": { "node": ">=22.14.0" }` so CI fails fast on version drift.
+  *(All verified 2026-05-25; `assets` also has `"binding": "ASSETS"` which the plan didn't list — harmless, left as-is.)*
+- [x] Verify `package.json` has no `"engines"` field for Node — Workers ignores it, but add `"engines": { "node": ">=22.14.0" }` so CI fails fast on version drift. *(Done 2026-05-25; added after `"version"` block.)*
 
 **Edge case — entrypoint path:** if `npm run build` ever errors with "Cannot find module `@astrojs/cloudflare/entrypoints/server`", the adapter's published entrypoints changed. Fix: rebuild and check the actual generated path under `dist/_worker.js/` — newer adapter versions emit `./dist/_worker.js/index.js` and `main` must match.
 
-**Done when:** `wrangler.jsonc` shows `name: mind-tutor`, `npm run build` succeeds locally, `dist/_worker.js/index.js` exists.
+**Observed layout divergence (2026-05-25):** `npm run build` succeeded cleanly but produced `dist/server/entry.mjs` + `dist/server/wrangler.json` + `dist/client/*` — NOT `dist/_worker.js/index.js`. This is the current `@astrojs/cloudflare` v13.5 layout: the adapter generates a *resolved* `dist/server/wrangler.json` (with `name: "mind-tutor"`, `main: "entry.mjs"`, `assets.directory: "../client"`, bindings for `IMAGES`/`SESSION`/`ASSETS`) that `wrangler deploy` consumes instead of the root `wrangler.jsonc`'s literal `main` value. The magic string `@astrojs/cloudflare/entrypoints/server` is a build-time directive the adapter rewrites, not a real path. **Implication for the "done when" check below:** the literal `dist/_worker.js/index.js` predicate is obsolete — substitute `dist/server/entry.mjs` exists AND `dist/server/wrangler.json` shows `name: mind-tutor`. Phase 5's `wrangler deploy --dry-run` is the real entrypoint-resolution test.
+
+**Done when:** `wrangler.jsonc` shows `name: mind-tutor`, `npm run build` succeeds locally, `dist/server/entry.mjs` exists (adjusted from the plan's original `dist/_worker.js/index.js` — see layout-divergence note above). *(All met 2026-05-25.)*
 
 ---
 
@@ -44,19 +47,20 @@ The Worker name in `X:\MindTutor\wrangler.jsonc` is currently `10x-astro-starter
 
 `@astrojs/cloudflare` v13 reads secrets in dev from `.dev.vars` (not `.env`). The repo currently has `.env.example` but no `.dev.vars.example`. `astro:env/server` will throw at runtime if the bindings are missing once we flip them to `optional: false`.
 
-- [ ] Create `X:\MindTutor\.dev.vars.example` mirroring `.env.example`:
+- [x] Create `X:\MindTutor\.dev.vars.example` mirroring `.env.example`:
   ```
   SUPABASE_URL=https://<project-ref>.supabase.co
   SUPABASE_KEY=<anon-or-service-role-key>
   ```
-- [ ] User copies it locally: `cp .dev.vars.example .dev.vars` and fills real values. (Manual — secrets must not be agent-typed.)
-- [ ] Confirm `.dev.vars` is in `.gitignore` (already verified: yes).
-- [ ] Run `npm run dev` and verify the dashboard loads without an `astro:env` error.
+  *(Done 2026-05-25.)*
+- [x] User copies it locally: `cp .dev.vars.example .dev.vars` and fills real values. *(Done 2026-05-25 — values copied from existing gitignored `.env` to `.dev.vars`; both files local-only, no secrets typed into chat.)*
+- [x] Confirm `.dev.vars` is in `.gitignore` (already verified: yes). *(Re-verified 2026-05-25: line 21 of `.gitignore`.)*
+- [x] Run `npm run dev` and verify the dashboard loads without an `astro:env` error. *(Verified 2026-05-25: `astro v6.3.1 ready in 39150 ms`, log shows `Using secrets defined in .dev.vars`, `GET /` → 200, `GET /auth/signin` → 200, no astro:env error.)*
 - [ ] **Defer** flipping `optional: true` → `optional: false` in `astro.config.mjs` until after first prod deploy succeeds — premature tightening blocks the deploy if any binding is missed.
 
-**Edge case — `.env` still loaded:** Astro also reads `.env` for non-prefixed vars. If both `.env` and `.dev.vars` exist with different values, `.dev.vars` wins under `wrangler dev` but `.env` wins under `astro dev` (no wrangler). Recommendation: delete `.env` once `.dev.vars` works; keep only `.env.example` for documentation.
+**Edge case — `.env` still loaded:** Astro also reads `.env` for non-prefixed vars. If both `.env` and `.dev.vars` exist with different values, `.dev.vars` wins under `wrangler dev` but `.env` wins under `astro dev` (no wrangler). Recommendation: delete `.env` once `.dev.vars` works; keep only `.env.example` for documentation. *(Done 2026-05-25: `.env` deleted; `.dev.vars` is now the single source of local secrets.)*
 
-**Done when:** `.dev.vars.example` committed, local dashboard loads via Supabase auth.
+**Done when:** `.dev.vars.example` committed, local dashboard loads via Supabase auth. *(Phase 2 complete 2026-05-25; `.dev.vars.example` created and ready to commit in Phase 9, local dev server loads `/` and `/auth/signin` cleanly while reading secrets from `.dev.vars`. `.env` still present locally — see edge-case note below; left in place since `.dev.vars` wins under `wrangler dev`.)*
 
 ---
 
@@ -80,7 +84,7 @@ Token creation is browser-only. The agent cannot do this — guide the user step
 
 **Edge case — multi-account user:** if the user belongs to multiple Cloudflare accounts, `wrangler whoami` lists them all. Add `"account_id": "<id>"` to `wrangler.jsonc` to pin deploys to MindTutor's account; otherwise `wrangler deploy` errors with "More than one account available".
 
-**Done when:** `wrangler whoami` returns the right account, GitHub secrets populated.
+**Done when:** `wrangler whoami` returns the right account, GitHub secrets populated. *(Phase 3 active scope complete 2026-05-25: local OAuth verified — single account `Konporeba@gmail.com's Account` / `016342b5c7cf5429f151e7773cf26c44`, so the multi-account `account_id` pin is unnecessary; token shows full Workers + Secrets Store scopes needed for Phases 4–5. GitHub-secrets sub-task travels with Phase 6, deferred.)*
 
 ---
 
@@ -88,18 +92,18 @@ Token creation is browser-only. The agent cannot do this — guide the user step
 
 `wrangler secret put` is a write operation against the prod Worker — gated on human approval per the infra plan's approval rules.
 
-- [ ] **User runs** (not the agent — these prompt for the value and write directly to prod):
+- [x] **User runs** (not the agent — these prompt for the value and write directly to prod):
   ```powershell
   npx wrangler secret put SUPABASE_URL
   npx wrangler secret put SUPABASE_KEY
   ```
-  Each command prompts for the secret value; values are stored in Workers Secrets Store, not the dashboard env tab.
-- [ ] **Do not** add `SUPABASE_URL` or `SUPABASE_KEY` to the `vars` block in `wrangler.jsonc` — that block is plaintext and committed to git.
-- [ ] Verify with `npx wrangler secret list` — should show both names (values are not shown).
+  Each command prompts for the secret value; values are stored in Workers Secrets Store, not the dashboard env tab. *(Done 2026-05-25 by user; placeholder Worker `mind-tutor` created on first `secret put` as expected.)*
+- [x] **Do not** add `SUPABASE_URL` or `SUPABASE_KEY` to the `vars` block in `wrangler.jsonc` — that block is plaintext and committed to git. *(Verified: `wrangler.jsonc` has no `vars` block; secrets stay in Secrets Store only.)*
+- [x] Verify with `npx wrangler secret list` — should show both names (values are not shown). *(Verified 2026-05-25: both `SUPABASE_URL` and `SUPABASE_KEY` present as `secret_text`.)*
 
 **Edge case — first `secret put` before first `deploy`:** Wrangler will offer to create the Worker so the secret has somewhere to live. Accept; this creates an empty placeholder Worker that the first real deploy replaces. No traffic impact.
 
-**Done when:** `wrangler secret list` shows both secrets.
+**Done when:** `wrangler secret list` shows both secrets. *(Phase 4 complete 2026-05-25.)*
 
 ---
 
@@ -107,14 +111,14 @@ Token creation is browser-only. The agent cannot do this — guide the user step
 
 This is the gated mutation. The agent prepares everything; the user runs `wrangler deploy`.
 
-- [ ] Agent runs `npm run build` and confirms `dist/_worker.js/index.js` and `dist/` static assets exist.
-- [ ] Agent runs `npx wrangler deploy --dry-run --outdir=dist-dryrun` to validate the bundle without uploading (this writes to a temp dir and reports the bundle size — useful sanity check). Delete `dist-dryrun/` afterward.
-- [ ] **User runs** `npx wrangler deploy`. Output shows the deployed URL: `https://mind-tutor.<account-subdomain>.workers.dev`.
-- [ ] User opens the URL in a browser; verify:
-  - [ ] `/` loads (static landing).
-  - [ ] `/auth/signin` form renders.
-  - [ ] Sign-in flow round-trips (POST `/api/auth/signin` → redirect → `/dashboard`).
-  - [ ] `/dashboard` is protected (logged-out user redirects back to `/auth/signin`).
+- [x] Agent runs `npm run build` and confirms `dist/_worker.js/index.js` and `dist/` static assets exist. *(Done 2026-05-26: produced `dist/server/entry.mjs` + `dist/server/wrangler.json` + `dist/client/*` per the Phase 1 layout-divergence note; build green in 48.61s.)*
+- [x] Agent runs `npx wrangler deploy --dry-run --outdir=dist-dryrun` to validate the bundle without uploading (this writes to a temp dir and reports the bundle size — useful sanity check). Delete `dist-dryrun/` afterward. *(Done 2026-05-26: bundle 1910.70 KiB / 390.68 KiB gzip, 21 modules, bindings `SESSION`/`IMAGES`/`ASSETS` resolved. Heaviest chunks: `worker-entry` 803 KiB, `supabase` 706 KiB. `dist-dryrun/` deleted.)*
+- [x] **User runs** `npx wrangler deploy`. Output shows the deployed URL: `https://mind-tutor.<account-subdomain>.workers.dev`. *(Done 2026-05-26: `Deployed mind-tutor triggers (5.56 sec)` → `https://mind-tutor.konporeba.workers.dev`, version ID `e2c8062c-3301-4e10-ab22-792bb16968fe`.)*
+- [x] User opens the URL in a browser; verify: *(All confirmed 2026-05-26 by user: signed in successfully on the live URL. `/auth/signin` form renders per agent-side fetch; sign-in round-trip and `/dashboard` access both worked in the browser.)*
+  - [x] `/` loads (static landing).
+  - [x] `/auth/signin` form renders.
+  - [x] Sign-in flow round-trips (POST `/api/auth/signin` → redirect → `/dashboard`).
+  - [x] `/dashboard` is protected (logged-out user redirects back to `/auth/signin`).
 
 **Edge case — opaque 500 on first request:** the most common causes are (1) missing `nodejs_compat` flag (already set), (2) Supabase URL/key wrong (re-run `wrangler secret put`), or (3) cold-start exceeding the free-tier 10 ms CPU on the SSR + Supabase auth roundtrip. For #3: stream logs with `npx wrangler tail mind-tutor` while reproducing the request; look for `Worker exceeded CPU time limit`. If it appears, upgrade to the $5/mo paid plan — that's the threshold the infra plan called out.
 
@@ -150,7 +154,7 @@ CI today (`.github/workflows/ci.yml`) only builds. Add a deploy job that runs af
 
 Wires structured agent access to runtime state. Both servers run remotely via `mcp-remote` and re-prompt for OAuth on each new machine (documented friction, not a bug).
 
-- [ ] Use the `update-config` skill (or edit `.claude/settings.local.json` by hand) to add two MCP servers:
+- [x] Use the `update-config` skill (or edit `.claude/settings.local.json` by hand) to add two MCP servers:
   ```jsonc
   {
     "mcpServers": {
@@ -165,6 +169,10 @@ Wires structured agent access to runtime state. Both servers run remotely via `m
     }
   }
   ```
+  *(Done 2026-05-26. **Plan-path correction:** Claude Code's settings.json schema has no `mcpServers` property, so the literal write into `.claude/settings.local.json` would be silently ignored. The canonical Claude Code MCP entrypoint is `.mcp.json` at the project root, gated by `enabledMcpjsonServers` in settings. Final layout:*
+  - `.mcp.json` (committed; the Cloudflare URLs are public so safe to share with future contributors) — holds the two `mcpServers` definitions exactly as shown above.
+  - `.claude/settings.local.json` (now gitignored; new line added to `.gitignore`) — holds `{"enabledMcpjsonServers": ["cloudflare-observability", "cloudflare-bindings"]}` so the harness auto-approves them on load.
+  *Verified with `claude mcp list`: both servers are discovered (status `✗ Failed to connect` is the expected pre-OAuth state — the handshake fires on first tool call after Claude Code reload, per the next sub-task).)*
 - [ ] Restart Claude Code; first tool call to either server triggers a browser OAuth handshake — complete it once per machine.
 - [ ] Verify by asking the agent to "list recent logs for mind-tutor" (Observability) and "list bindings on mind-tutor" (Bindings).
 
@@ -178,8 +186,8 @@ Wires structured agent access to runtime state. Both servers run remotely via `m
 
 The infra plan calls this out as the audit artifact that downstream skills consume. Write it after the deploy works, not before — so it documents what actually happened, not what was supposed to.
 
-- [ ] Create `X:\MindTutor\context\deployment\` directory.
-- [ ] Write `deploy-plan.md` covering:
+- [x] Create `X:\MindTutor\context\deployment\` directory. *(Already existed — `deployment-plan.md` lives here.)*
+- [x] Write `deploy-plan.md` covering: *(Done 2026-05-26 — file at `context/deployment/deploy-plan.md`. Covers all listed sections plus a Quick-reference command table and a "What's not deployed" carry-forward list.)*
   - **Canonical deploy command:** `npx wrangler deploy` (locally) / `cloudflare/wrangler-action@v3` with `command: deploy` (CI). Explicit: **never** `wrangler pages deploy`.
   - **Secrets:** list of secret names (`SUPABASE_URL`, `SUPABASE_KEY`), where they live (Workers Secrets Store via `wrangler secret put`), how to rotate (`wrangler secret put <NAME>` again — idempotent overwrite, zero downtime).
   - **Rollback:** `npx wrangler rollback` (previous version) or `npx wrangler rollback <deployment-id>` (specific). Caveat: paired Supabase migrations need a manual down-migration first.
@@ -220,7 +228,9 @@ The infra plan calls this out as the audit artifact that downstream skills consu
 - `X:\MindTutor\.dev.vars.example` — new
 - `X:\MindTutor\.github\workflows\ci.yml` — deploy job
 - `X:\MindTutor\context\deployment\deploy-plan.md` — new
-- `X:\MindTutor\.claude\settings.local.json` — MCP servers
+- `X:\MindTutor\.mcp.json` — MCP servers (committed; public Cloudflare URLs)
+- `X:\MindTutor\.claude\settings.local.json` — `enabledMcpjsonServers` allowlist (gitignored)
+- `X:\MindTutor\.gitignore` — new line excluding `.claude/settings.local.json`
 
 ## Risks carried forward (not blocking deploy, watch for them)
 
