@@ -336,24 +336,24 @@ Document the proven RLS pattern as the canonical reference downstream slices ext
 
 #### Automated
 
-- [x] 3.1 Type generation succeeds and file is non-empty: `npx supabase gen types typescript --local`
-- [x] 3.2 Typecheck passes: `npx astro check` (or `npm run build`)
-- [x] 3.3 Lint passes: `npm run lint` (generated `database.types.ts` excluded via eslint ignore; hand-written files have only pre-existing CRLF prettier issues — no real errors; CI on Linux green)
+- [x] 3.1 Type generation succeeds and file is non-empty: `npx supabase gen types typescript --local` — ce693d9
+- [x] 3.2 Typecheck passes: `npx astro check` (or `npm run build`) — ce693d9
+- [x] 3.3 Lint passes: `npm run lint` (generated `database.types.ts` excluded via eslint ignore; hand-written files have only pre-existing CRLF prettier issues — no real errors; CI on Linux green) — ce693d9
 
 #### Manual
 
-- [x] 3.4 Consumers get autocomplete on table names and row fields
-- [x] 3.5 Null-return guard still works when env vars are unset (client is `null`, no throw)
+- [x] 3.4 Consumers get autocomplete on table names and row fields — ce693d9
+- [x] 3.5 Null-return guard still works when env vars are unset (client is `null`, no throw) — ce693d9
 
 ### Phase 4: RLS Template Documentation
 
 #### Automated
 
-- [ ] 4.1 Both files exist: `docs/reference/rls-policy-template.md` and `docs/reference/contract-surfaces.md`
-- [ ] 4.2 Prettier formatting passes
+- [x] 4.1 Both files exist: `docs/reference/rls-policy-template.md` and `docs/reference/contract-surfaces.md`
+- [x] 4.2 Prettier formatting passes
 
 #### Manual
 
-- [ ] 4.3 Documented template block is shape-identical to the shipped migration
-- [ ] 4.4 A reader could add a new per-learner table from the doc alone
-- [ ] 4.5 The four table names in `contract-surfaces.md` match the migration exactly
+- [x] 4.3 Documented template block is shape-identical to the shipped migration
+- [x] 4.4 A reader could add a new per-learner table from the doc alone
+- [x] 4.5 The four table names in `contract-surfaces.md` match the migration exactly
