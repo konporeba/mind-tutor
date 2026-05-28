@@ -1,0 +1,3 @@
+-- Seed data for local development (loaded by `supabase db reset`).
+-- Intentionally empty: F-01 ships schema + RLS only. Add seed rows here as
+-- later slices need fixture data for local testing.
