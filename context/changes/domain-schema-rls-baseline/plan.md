@@ -324,26 +324,26 @@ Document the proven RLS pattern as the canonical reference downstream slices ext
 
 #### Automated
 
-- [x] 2.1 Isolation test passes: `npx supabase test db`
-- [x] 2.2 Test fails when run against a table with RLS disabled (sanity check, then re-enable)
+- [x] 2.1 Isolation test passes: `npx supabase test db` — 9095dcc
+- [x] 2.2 Test fails when run against a table with RLS disabled (sanity check, then re-enable) — 9095dcc
 
 #### Manual
 
-- [x] 2.3 Test covers all four tables for select/update/delete plus the `anon` no-access case
-- [x] 2.4 Assertions check counts/effects, not just absence of error
+- [x] 2.3 Test covers all four tables for select/update/delete plus the `anon` no-access case — 9095dcc
+- [x] 2.4 Assertions check counts/effects, not just absence of error — 9095dcc
 
 ### Phase 3: Typed Supabase Client
 
 #### Automated
 
-- [ ] 3.1 Type generation succeeds and file is non-empty: `npx supabase gen types typescript --local`
-- [ ] 3.2 Typecheck passes: `npx astro check` (or `npm run build`)
-- [ ] 3.3 Lint passes: `npm run lint`
+- [x] 3.1 Type generation succeeds and file is non-empty: `npx supabase gen types typescript --local`
+- [x] 3.2 Typecheck passes: `npx astro check` (or `npm run build`)
+- [x] 3.3 Lint passes: `npm run lint` (generated `database.types.ts` excluded via eslint ignore; hand-written files have only pre-existing CRLF prettier issues — no real errors; CI on Linux green)
 
 #### Manual
 
-- [ ] 3.4 Consumers get autocomplete on table names and row fields
-- [ ] 3.5 Null-return guard still works when env vars are unset (client is `null`, no throw)
+- [x] 3.4 Consumers get autocomplete on table names and row fields
+- [x] 3.5 Null-return guard still works when env vars are unset (client is `null`, no throw)
 
 ### Phase 4: RLS Template Documentation
 
