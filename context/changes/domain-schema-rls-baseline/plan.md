@@ -307,30 +307,30 @@ Document the proven RLS pattern as the canonical reference downstream slices ext
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly from scratch: `npx supabase db reset`
-- [x] 1.2 All four tables report `rowsecurity = true` (`pg_tables`)
-- [x] 1.3 Each table has exactly four policies (`pg_policies`)
-- [x] 1.4 Build/typecheck unaffected: `npm run build`
-- [x] 1.5 Lint passes: `npm run lint` (pre-existing repo-wide CRLF prettier errors only; this phase adds no ESLint-covered files — no regression; CI on Linux is green)
+- [x] 1.1 Migration applies cleanly from scratch: `npx supabase db reset` — 4a7b0c2
+- [x] 1.2 All four tables report `rowsecurity = true` (`pg_tables`) — 4a7b0c2
+- [x] 1.3 Each table has exactly four policies (`pg_policies`) — 4a7b0c2
+- [x] 1.4 Build/typecheck unaffected: `npm run build` — 4a7b0c2
+- [x] 1.5 Lint passes: `npm run lint` (pre-existing repo-wide CRLF prettier errors only; this phase adds no ESLint-covered files — no regression; CI on Linux is green) — 4a7b0c2
 
 #### Manual
 
-- [x] 1.6 The four-policy block is identical across all four tables (only the table name differs)
-- [x] 1.7 Insert uses `with check`, select/delete use `using`, update uses both
-- [x] 1.8 `auth.uid()` is wrapped as `(select auth.uid())` in every policy
-- [x] 1.9 Column set matches the pragmatic-loop scope — no speculative columns
+- [x] 1.6 The four-policy block is identical across all four tables (only the table name differs) — 4a7b0c2
+- [x] 1.7 Insert uses `with check`, select/delete use `using`, update uses both — 4a7b0c2
+- [x] 1.8 `auth.uid()` is wrapped as `(select auth.uid())` in every policy — 4a7b0c2
+- [x] 1.9 Column set matches the pragmatic-loop scope — no speculative columns — 4a7b0c2
 
 ### Phase 2: Automated Per-Learner Isolation Test
 
 #### Automated
 
-- [ ] 2.1 Isolation test passes: `npx supabase test db`
-- [ ] 2.2 Test fails when run against a table with RLS disabled (sanity check, then re-enable)
+- [x] 2.1 Isolation test passes: `npx supabase test db`
+- [x] 2.2 Test fails when run against a table with RLS disabled (sanity check, then re-enable)
 
 #### Manual
 
-- [ ] 2.3 Test covers all four tables for select/update/delete plus the `anon` no-access case
-- [ ] 2.4 Assertions check counts/effects, not just absence of error
+- [x] 2.3 Test covers all four tables for select/update/delete plus the `anon` no-access case
+- [x] 2.4 Assertions check counts/effects, not just absence of error
 
 ### Phase 3: Typed Supabase Client
 
