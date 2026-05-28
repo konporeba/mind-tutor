@@ -349,11 +349,11 @@ Document the proven RLS pattern as the canonical reference downstream slices ext
 
 #### Automated
 
-- [x] 4.1 Both files exist: `docs/reference/rls-policy-template.md` and `docs/reference/contract-surfaces.md`
-- [x] 4.2 Prettier formatting passes
+- [x] 4.1 Both files exist: `docs/reference/rls-policy-template.md` and `docs/reference/contract-surfaces.md` — edc7a98
+- [x] 4.2 Prettier formatting passes — edc7a98
 
 #### Manual
 
-- [x] 4.3 Documented template block is shape-identical to the shipped migration
-- [x] 4.4 A reader could add a new per-learner table from the doc alone
-- [x] 4.5 The four table names in `contract-surfaces.md` match the migration exactly
+- [x] 4.3 Documented template block is shape-identical to the shipped migration — edc7a98
+- [x] 4.4 A reader could add a new per-learner table from the doc alone — edc7a98
+- [x] 4.5 The four table names in `contract-surfaces.md` match the migration exactly — edc7a98

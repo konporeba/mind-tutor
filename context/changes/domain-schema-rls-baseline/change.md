@@ -1,7 +1,7 @@
 ---
 change_id: domain-schema-rls-baseline
 title: Domain schema + per-learner RLS baseline for the session loop
-status: implementing
+status: implemented
 created: 2026-05-28
 updated: 2026-05-28
 archived_at: null
