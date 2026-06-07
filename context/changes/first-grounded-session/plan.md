@@ -396,7 +396,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 4: User Interface
 
 #### Automated
-- [x] 4.1 Build + type check pass: `npm run build`
+- [x] 4.1 Build + type check pass: `npm run build` — bc27921
 - [ ] 4.2 Linting passes (incl. jsx-a11y): `npm run lint`
 
 #### Manual
