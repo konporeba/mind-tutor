@@ -374,7 +374,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 2: Generation & Scoring Services
 
 #### Automated
-- [x] 2.1 Type checking passes: `npm run build`
+- [x] 2.1 Type checking passes: `npm run build` — f24b70b
 - [ ] 2.2 Linting passes: `npm run lint`
 
 #### Manual
@@ -384,7 +384,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 3: API Routes
 
 #### Automated
-- [ ] 3.1 Type checking + build pass: `npm run build`
+- [x] 3.1 Type checking + build pass: `npm run build`
 - [ ] 3.2 Linting passes: `npm run lint`
 
 #### Manual
