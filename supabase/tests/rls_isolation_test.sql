@@ -18,7 +18,7 @@
 
 begin;
 create extension if not exists pgtap;
-select plan(23);
+select plan(29);
 
 -- ============================================================================
 -- Seed two learners and one owned row per table for each (as superuser).
@@ -43,6 +43,18 @@ insert into public.exercises (id, user_id, session_id, position, prompt) values
   ('44444444-4444-4444-4444-44444444444a', '00000000-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-11111111111a', 0, 'qa'),
   ('44444444-4444-4444-4444-44444444444b', '00000000-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-11111111111b', 0, 'qb');
 
+-- New column (S-01): seed a private extracted_text on A's material only, to prove
+-- it is reachable only under the existing materials_*_own policies.
+update public.materials
+  set extracted_text = 'secret-a-text'
+  where id = '22222222-2222-2222-2222-22222222222a';
+
+-- Storage objects (S-01): one owned object per learner under their own uid prefix
+-- in the private `materials` bucket. Path convention: {user_id}/{session_id}/{file}.
+insert into storage.objects (bucket_id, name, owner_id) values
+  ('materials', '00000000-0000-0000-0000-00000000000a/11111111-1111-1111-1111-11111111111a/a.pdf', '00000000-0000-0000-0000-00000000000a'),
+  ('materials', '00000000-0000-0000-0000-00000000000b/11111111-1111-1111-1111-11111111111b/b.pdf', '00000000-0000-0000-0000-00000000000b');
+
 -- ============================================================================
 -- Impersonate learner A.
 -- ============================================================================
@@ -62,6 +74,14 @@ select is((select count(*) from public.generated_content where id = '33333333-33
 select is((select count(*) from public.exercises)::int, 1, 'A sees only its own exercise');
 select is((select count(*) from public.exercises where id = '44444444-4444-4444-4444-44444444444b')::int, 0, 'A cannot see B exercise');
 
+-- Column isolation: A reads its own material's extracted_text, never B's.
+select is((select extracted_text from public.materials where id = '22222222-2222-2222-2222-22222222222a'), 'secret-a-text', 'A reads its own extracted_text');
+select is((select extracted_text from public.materials where id = '22222222-2222-2222-2222-22222222222b'), null::text, 'A cannot read B extracted_text');
+
+-- Storage isolation: A sees only objects under its own uid prefix, never B's.
+select is((select count(*) from storage.objects where bucket_id = 'materials')::int, 1, 'A sees only its own material object');
+select is((select count(*) from storage.objects where name like '00000000-0000-0000-0000-00000000000b/%')::int, 0, 'A cannot see B material object');
+
 -- Write attempts by A against B's rows. Under RLS these are silent 0-row no-ops.
 update public.sessions          set title    = 'hacked' where id = '11111111-1111-1111-1111-11111111111b';
 delete from public.sessions                              where id = '11111111-1111-1111-1111-11111111111b';
@@ -71,6 +91,8 @@ update public.generated_content set position = 999      where id = '33333333-333
 delete from public.generated_content                     where id = '33333333-3333-3333-3333-33333333333b';
 update public.exercises         set prompt   = 'hacked' where id = '44444444-4444-4444-4444-44444444444b';
 delete from public.exercises                             where id = '44444444-4444-4444-4444-44444444444b';
+update storage.objects set name = 'hacked' where name like '00000000-0000-0000-0000-00000000000b/%';
+delete from storage.objects                where name like '00000000-0000-0000-0000-00000000000b/%';
 
 -- ============================================================================
 -- Back to superuser: prove B's rows survived A's writes unchanged.
@@ -89,6 +111,8 @@ select is((select position from public.generated_content where id = '33333333-33
 select is((select count(*) from public.exercises where id = '44444444-4444-4444-4444-44444444444b')::int, 1, 'B exercise not deleted by A');
 select is((select prompt from public.exercises where id = '44444444-4444-4444-4444-44444444444b'), 'qb', 'B exercise not updated by A');
 
+select is((select count(*) from storage.objects where name = '00000000-0000-0000-0000-00000000000b/11111111-1111-1111-1111-11111111111b/b.pdf')::int, 1, 'B material object not deleted/renamed by A');
+
 -- ============================================================================
 -- The anon role has table grants but no policies grant it rows: default-deny.
 -- ============================================================================
@@ -98,6 +122,7 @@ select is((select count(*) from public.sessions)::int, 0, 'anon sees no sessions
 select is((select count(*) from public.materials)::int, 0, 'anon sees no materials');
 select is((select count(*) from public.generated_content)::int, 0, 'anon sees no generated_content');
 select is((select count(*) from public.exercises)::int, 0, 'anon sees no exercises');
+select is((select count(*) from storage.objects where bucket_id = 'materials')::int, 0, 'anon sees no material objects');
 
 -- anon write denial (sessions as representative; the mechanism is role-based and
 -- identical across the four tables). INSERT is rejected outright (SQLSTATE 42501,

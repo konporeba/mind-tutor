@@ -131,6 +131,7 @@ export type Database = {
       materials: {
         Row: {
           created_at: string
+          extracted_text: string | null
           filename: string
           id: string
           mime_type: string
@@ -141,6 +142,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          extracted_text?: string | null
           filename: string
           id?: string
           mime_type: string
@@ -151,6 +153,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          extracted_text?: string | null
           filename?: string
           id?: string
           mime_type?: string
