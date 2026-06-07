@@ -31,34 +31,34 @@ Established in migration `supabase/migrations/20260528202720_domain_schema_rls_b
 
 ### Columns added after baseline
 
-| Column                     | Added by                                          | Purpose                                                                |
-| -------------------------- | ------------------------------------------------- | --------------------------------------------------------------------- |
+| Column                     | Added by                                           | Purpose                                                               |
+| -------------------------- | -------------------------------------------------- | --------------------------------------------------------------------- |
 | `materials.extracted_text` | `20260607150000_first_grounded_session.sql` (S-01) | Browser-parsed source text; grounds generation + citation validation. |
 
 ## Storage
 
-| Bucket      | Visibility | Path convention                     | Owner policies                                                                                                    | Established in                                      |
-| ----------- | ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Bucket      | Visibility | Path convention                     | Owner policies                                                                                                                    | Established in                                     |
+| ----------- | ---------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
 | `materials` | private    | `{user_id}/{session_id}/{filename}` | `materials_objects_{select,insert,update,delete}_own` on `storage.objects`; owner = `(storage.foldername(name))[1] = auth.uid()`. | `20260607150000_first_grounded_session.sql` (S-01) |
 
 ## Services (generation contract)
 
 | Name                                        | What                                                                                             |
 | ------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `src/lib/services/generation/schema.ts`     | Zod contract + types for a generated session (3–5 cited theory steps + 5 MCQs) and `TheoryBody`.  |
+| `src/lib/services/generation/schema.ts`     | Zod contract + types for a generated session (3–5 cited theory steps + 5 MCQs) and `TheoryBody`. |
 | `src/lib/services/generation/generate.ts`   | `generateSession(sourceText)` — grounded single call, zod + citation validation, one retry.      |
-| `src/lib/services/generation/openrouter.ts` | OpenRouter client (`getOpenRouterClient`, `getModel`) + `GenerationError`.                        |
-| `src/lib/services/scoring.ts`               | `computeScore(exercises)` — percent correct (FR-011).                                             |
+| `src/lib/services/generation/openrouter.ts` | OpenRouter client (`getOpenRouterClient`, `getModel`) + `GenerationError`.                       |
+| `src/lib/services/scoring.ts`               | `computeScore(exercises)` — percent correct (FR-011).                                            |
 
 Persistence mapping: each theory step → one `generated_content` row (`kind 'theory'`, `body` = `TheoryBody`); each MCQ → one `exercises` row (`kind 'mcq'`, `options` jsonb, `correct_answer` = the correct option string, `feedback`).
 
 ## API routes
 
 | Route                                       | Method | What                                                                  |
-| ------------------------------------------- | ------ | -------------------------------------------------------------------- |
+| ------------------------------------------- | ------ | --------------------------------------------------------------------- |
 | `/api/sessions`                             | POST   | Validate upload, generate, persist session + file + material + steps. |
 | `/api/sessions/[id]/exercises/[exerciseId]` | POST   | Record an answer, return immediate feedback (FR-010).                 |
-| `/api/sessions/[id]/complete`               | POST   | Compute + persist the session score (FR-011).                        |
+| `/api/sessions/[id]/complete`               | POST   | Compute + persist the session score (FR-011).                         |
 
 ## Environment variables
 
@@ -69,6 +69,6 @@ Persistence mapping: each theory step → one `generated_content` row (`kind 'th
 
 ## Tests
 
-| Name                                    | What                                                                                                                                         |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Name                                    | What                                                                                                                                          |
+| --------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `supabase/tests/rls_isolation_test.sql` | pgTAP cross-account isolation proof for the four domain tables, the `materials` Storage bucket, and the `extracted_text` column (`plan(29)`). |

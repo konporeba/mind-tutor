@@ -68,8 +68,5 @@ export const POST: APIRoute = async (context) => {
     return json({ error: "Failed to record the answer" }, 500);
   }
 
-  return json(
-    { is_correct: isCorrect, feedback: exercise.feedback, correct_answer: exercise.correct_answer },
-    200,
-  );
+  return json({ is_correct: isCorrect, feedback: exercise.feedback, correct_answer: exercise.correct_answer }, 200);
 };

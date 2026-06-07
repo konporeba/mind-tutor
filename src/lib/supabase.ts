@@ -4,10 +4,7 @@ import type { AstroCookies } from "astro";
 import { SUPABASE_URL, SUPABASE_KEY } from "astro:env/server";
 import type { Database } from "@/db/database.types";
 
-export function createClient(
-  requestHeaders: Headers,
-  cookies: AstroCookies,
-): SupabaseClient<Database> | null {
+export function createClient(requestHeaders: Headers, cookies: AstroCookies): SupabaseClient<Database> | null {
   if (!SUPABASE_URL || !SUPABASE_KEY) {
     return null;
   }

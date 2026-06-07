@@ -1,5 +1,5 @@
 ---
-project: 'MindTutor'
+project: "MindTutor"
 context_type: greenfield
 created: 2026-05-24
 updated: 2026-05-24
@@ -7,27 +7,27 @@ checkpoint:
   current_phase: 8
   phases_completed: [1, 2, 3, 4, 5, 6, 7]
   crud_addendum_resolved:
-    - topic: 'CRUD coverage for domain entities'
-      decision: 'Add Update for learner profile (outside session), Delete for individual completed session, password change (no email reset). Reject: mid-session profile update, account hard-delete, password reset via email.'
-    - topic: 'profile vs session-param split'
-      decision: 'Profile is long-lived and stores BIO/background only (free-text). Per-session params (knowledge level for the uploaded material, learning goal, available time) are captured at session start via brief conversational intake (FR-018), stored on the session not the profile. FR-005 reframed: one-time onboarding captures bio. FR-015 reframed: edits bio only. Mid-session re-config of both profile and session params is locked.'
+    - topic: "CRUD coverage for domain entities"
+      decision: "Add Update for learner profile (outside session), Delete for individual completed session, password change (no email reset). Reject: mid-session profile update, account hard-delete, password reset via email."
+    - topic: "profile vs session-param split"
+      decision: "Profile is long-lived and stores BIO/background only (free-text). Per-session params (knowledge level for the uploaded material, learning goal, available time) are captured at session start via brief conversational intake (FR-018), stored on the session not the profile. FR-005 reframed: one-time onboarding captures bio. FR-015 reframed: edits bio only. Mid-session re-config of both profile and session params is locked."
   gray_areas_resolved:
-    - topic: 'primary persona scope'
-      decision: 'online course participant (MOOCs, bootcamps) — self-paced professional/personal development'
-    - topic: 'differentiating insight'
+    - topic: "primary persona scope"
+      decision: "online course participant (MOOCs, bootcamps) — self-paced professional/personal development"
+    - topic: "differentiating insight"
       decision: "personalization to learner profile (background + available time), uses learner's own uploaded materials, guided step-by-step sequencing (not just Q&A), interactive exercises generated from the materials, performance score as readiness signal"
-    - topic: 'auth model'
-      decision: 'email + password only (no OAuth, no passwordless) for MVP'
-    - topic: 'role model'
-      decision: 'flat user model — every signed-in user is a learner; no admin UI in MVP'
-    - topic: 'MVP scope cuts'
-      decision: 'drop image extraction and AI image fallback (text-only materials); cap uploads at 1–2 files; keep conversational profiling chat; keep multi-type exercises (MCQ, fill-in-the-blank, domain-specific)'
-    - topic: 'timeline budget'
-      decision: '4–5 weeks of after-hours work, hard deadline 2026-07-05 (~6 weeks from start)'
-    - topic: 'FR Socrates revisions'
-      decision: 'FR-012 demoted from fixed split to responsive split/tabs; FR-013 revised to milestone-stepped bar (not %); FR-015 dropped — mid-session resume is out of scope'
-    - topic: 'business-logic rule shape'
-      decision: 'generation rule — app generates a personalized study sequence + exercises from uploaded materials, profile, and time budget'
+    - topic: "auth model"
+      decision: "email + password only (no OAuth, no passwordless) for MVP"
+    - topic: "role model"
+      decision: "flat user model — every signed-in user is a learner; no admin UI in MVP"
+    - topic: "MVP scope cuts"
+      decision: "drop image extraction and AI image fallback (text-only materials); cap uploads at 1–2 files; keep conversational profiling chat; keep multi-type exercises (MCQ, fill-in-the-blank, domain-specific)"
+    - topic: "timeline budget"
+      decision: "4–5 weeks of after-hours work, hard deadline 2026-07-05 (~6 weeks from start)"
+    - topic: "FR Socrates revisions"
+      decision: "FR-012 demoted from fixed split to responsive split/tabs; FR-013 revised to milestone-stepped bar (not %); FR-015 dropped — mid-session resume is out of scope"
+    - topic: "business-logic rule shape"
+      decision: "generation rule — app generates a personalized study sequence + exercises from uploaded materials, profile, and time budget"
   frs_drafted: 18
   quality_check_status: accepted
 ---

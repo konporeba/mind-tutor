@@ -33,11 +33,7 @@ export const POST: APIRoute = async (context) => {
   }
 
   // Confirm the session exists and is owned by the learner (RLS-scoped).
-  const { error: sessionError } = await supabase
-    .from("sessions")
-    .select("id")
-    .eq("id", sessionId)
-    .single();
+  const { error: sessionError } = await supabase.from("sessions").select("id").eq("id", sessionId).single();
 
   if (sessionError) {
     return json({ error: "Session not found" }, 404);

@@ -21,14 +21,14 @@ Cloudflare is the only researched platform that Passes all five agent-friendly c
 
 Scored against the five criteria in `references/agent-friendly-criteria.md`. Hard filters: none triggered — the PRD calls out no realtime, no background jobs, request/response only, so the persistent-connection filter doesn't drop anyone. All six platforms have a working Astro adapter.
 
-| Platform | CLI-first | Managed/SLS | Agent docs | Stable deploy | MCP | Total |
-|---|---|---|---|---|---|---|
-| **Cloudflare Workers** | Pass | Pass | Pass | Pass | **Pass** (13 GA) | **5/5** |
-| **Vercel** | Pass | Pass | Pass | Pass | Partial (Beta, read-only) | 4.5/5 |
-| **Netlify** | Pass | Pass | Pass | Pass | **Pass** (GA Jun 2025) | **5/5** |
-| **Fly.io** | Pass | Pass | Fail (no `llms.txt`) | Pass | Partial (experimental) | 3.5/5 |
-| **Railway** | Partial (rollback dashboard-only) | Pass | Pass | Pass | Partial (beta) | 4/5 |
-| **Render** | Pass | Pass | Fail (no `llms.txt`) | Pass | Partial (no deploy trigger) | 3.5/5 |
+| Platform               | CLI-first                         | Managed/SLS | Agent docs           | Stable deploy | MCP                         | Total   |
+| ---------------------- | --------------------------------- | ----------- | -------------------- | ------------- | --------------------------- | ------- |
+| **Cloudflare Workers** | Pass                              | Pass        | Pass                 | Pass          | **Pass** (13 GA)            | **5/5** |
+| **Vercel**             | Pass                              | Pass        | Pass                 | Pass          | Partial (Beta, read-only)   | 4.5/5   |
+| **Netlify**            | Pass                              | Pass        | Pass                 | Pass          | **Pass** (GA Jun 2025)      | **5/5** |
+| **Fly.io**             | Pass                              | Pass        | Fail (no `llms.txt`) | Pass          | Partial (experimental)      | 3.5/5   |
+| **Railway**            | Partial (rollback dashboard-only) | Pass        | Pass                 | Pass          | Partial (beta)              | 4/5     |
+| **Render**             | Pass                              | Pass        | Fail (no `llms.txt`) | Pass          | Partial (no deploy trigger) | 3.5/5   |
 
 After soft-weighting (DX prioritized per interview Q2; no familiarity bias per Q3; single-region acceptable per Q4; Supabase stays per Q5) and the tech-stack alignment tilt (already adapter-pinned to Cloudflare), the leader is Cloudflare. Netlify ties on raw score but loses the alignment tilt and the body-cap comparison.
 
@@ -78,17 +78,17 @@ It's late November 2026. MindTutor shipped in week 6 (one week late), and the pr
 
 ## Risk Register
 
-| Risk | Source | Likelihood | Impact | Mitigation |
-|---|---|---|---|---|
-| 20 MB PDF parse exceeds 30 s Worker CPU limit | Devil's advocate, Pre-mortem, Research finding | M | H | From day one, route uploads directly to R2 (or Supabase Storage) and trigger parse via Queue → dedicated parser Worker. Don't parse in the request handler. |
-| `wrangler dev` doesn't reproduce prod auth/cookie bugs | Devil's advocate, Unknown unknowns | M | M | Maintain a `mind-tutor-staging` Worker. Reproduce any auth bug there before debugging locally. |
-| Old Pages tutorials lead the agent to `wrangler pages deploy` | Devil's advocate, Research finding | H | M | Lock the deploy command in `context/deployment/deploy-plan.md` as `wrangler deploy`. Add to CLAUDE.md: "Pages is deprecated for this project — use Workers." |
-| `@astrojs/cloudflare` v13→v14 breaking change after Renovate auto-PR | Unknown unknowns | M | H | Pin the adapter version exactly in `package.json` (already `^13.5.0` — consider `~13.5.0`). Require manual review on adapter upgrades. |
-| Free-tier CPU limit (10 ms) silently throttles dashboard requests in staging | Unknown unknowns | H | L | Enable the paid Workers plan from day one. Document it in `context/deployment/deploy-plan.md`. |
-| Supabase migration + Worker rollback skew | Operational reasoning (deploy/rollback) | L | H | For any deploy that includes a Supabase migration, write the down-migration in the same PR. Roll back DB first, then Worker. |
-| OAuth flow for Cloudflare MCP servers re-prompts on new machines | Unknown unknowns | H | L | Accept the friction. Document MCP setup steps in `context/deployment/deploy-plan.md` so new contributors don't think it's broken. |
-| Workers Secrets Store skipped in favor of `wrangler.jsonc` plaintext | Unknown unknowns | M | H | Use `wrangler secret put` for every secret from day one. Pre-commit hook to refuse commits to `wrangler.jsonc` containing keys matching `*_KEY|*_SECRET|*_TOKEN`. |
-| EU-only data residency promised without infra support | Devil's advocate | L | M | Don't make residency claims in MVP marketing. If required later, evaluate Smart Placement + jurisdictional restrictions (paid feature). |
+| Risk                                                                         | Source                                         | Likelihood | Impact | Mitigation                                                                                                                                                   |
+| ---------------------------------------------------------------------------- | ---------------------------------------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------- | ----------- |
+| 20 MB PDF parse exceeds 30 s Worker CPU limit                                | Devil's advocate, Pre-mortem, Research finding | M          | H      | From day one, route uploads directly to R2 (or Supabase Storage) and trigger parse via Queue → dedicated parser Worker. Don't parse in the request handler.  |
+| `wrangler dev` doesn't reproduce prod auth/cookie bugs                       | Devil's advocate, Unknown unknowns             | M          | M      | Maintain a `mind-tutor-staging` Worker. Reproduce any auth bug there before debugging locally.                                                               |
+| Old Pages tutorials lead the agent to `wrangler pages deploy`                | Devil's advocate, Research finding             | H          | M      | Lock the deploy command in `context/deployment/deploy-plan.md` as `wrangler deploy`. Add to CLAUDE.md: "Pages is deprecated for this project — use Workers." |
+| `@astrojs/cloudflare` v13→v14 breaking change after Renovate auto-PR         | Unknown unknowns                               | M          | H      | Pin the adapter version exactly in `package.json` (already `^13.5.0` — consider `~13.5.0`). Require manual review on adapter upgrades.                       |
+| Free-tier CPU limit (10 ms) silently throttles dashboard requests in staging | Unknown unknowns                               | H          | L      | Enable the paid Workers plan from day one. Document it in `context/deployment/deploy-plan.md`.                                                               |
+| Supabase migration + Worker rollback skew                                    | Operational reasoning (deploy/rollback)        | L          | H      | For any deploy that includes a Supabase migration, write the down-migration in the same PR. Roll back DB first, then Worker.                                 |
+| OAuth flow for Cloudflare MCP servers re-prompts on new machines             | Unknown unknowns                               | H          | L      | Accept the friction. Document MCP setup steps in `context/deployment/deploy-plan.md` so new contributors don't think it's broken.                            |
+| Workers Secrets Store skipped in favor of `wrangler.jsonc` plaintext         | Unknown unknowns                               | M          | H      | Use `wrangler secret put` for every secret from day one. Pre-commit hook to refuse commits to `wrangler.jsonc` containing keys matching `\*\_KEY             | \*\_SECRET | \*\_TOKEN`. |
+| EU-only data residency promised without infra support                        | Devil's advocate                               | L          | M      | Don't make residency claims in MVP marketing. If required later, evaluate Smart Placement + jurisdictional restrictions (paid feature).                      |
 
 ## Getting Started
 
@@ -98,7 +98,7 @@ The scaffold is already on the right path. These are the gaps to close, ordered.
 2. **Confirm `wrangler.jsonc` targets a Worker, not a Pages project.** It should have `main` pointing to the Astro build output (e.g. `./dist/_worker.js/index.js`) and an `assets` block (`./dist`). The adapter v13 generates this on `astro build` — verify and commit.
 3. **Set up Cloudflare account + API token.** Create a scoped API token: `Workers Scripts:Edit` for the MindTutor account, `Workers KV Storage:Edit` if KV is ever used, no DNS, no billing. Store as `CLOUDFLARE_API_TOKEN` in GitHub repository secrets alongside `CLOUDFLARE_ACCOUNT_ID`.
 4. **Move secrets out of `.env` into Workers Secrets Store.** `wrangler secret put SUPABASE_URL && wrangler secret put SUPABASE_KEY`. Keep `.dev.vars` local-only.
-5. **First deploy via Plan Mode.** Use the host's Plan Mode (`Shift+Tab` to cycle modes in Claude Code) with the prompt: *"Wykonajmy pierwsze wdrożenie w oparciu o `@infrastructure.md`, zgodnie ze stackiem z `@tech-stack.md`."* The agent emits `context/deployment/deploy-plan.md`. Review, edit, approve, then execute.
+5. **First deploy via Plan Mode.** Use the host's Plan Mode (`Shift+Tab` to cycle modes in Claude Code) with the prompt: _"Wykonajmy pierwsze wdrożenie w oparciu o `@infrastructure.md`, zgodnie ze stackiem z `@tech-stack.md`."_ The agent emits `context/deployment/deploy-plan.md`. Review, edit, approve, then execute.
 6. **Wire `cloudflare/wrangler-action@v3` in `.github/workflows/`.** Auto-deploy on merge to `master` per the `auto-deploy-on-merge` hint in tech-stack.md. CI already runs lint + build per existing `ci.yml` — add a deploy job that runs after build, gated on `github.ref == 'refs/heads/master'`.
 
 The deploy command — both locally and in CI — is `npx wrangler deploy`. Never `wrangler pages deploy`.

@@ -29,29 +29,29 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 
 ## At a glance
 
-| ID    | Change ID                       | Outcome (user can …)                                                                                  | Prerequisites    | PRD refs                                                                  | Status   |
-| ----- | ------------------------------- | ----------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------- | -------- |
-| F-01  | domain-schema-rls-baseline      | (foundation) minimal domain schema + RLS policy template are in place for the session loop            | —                | NFR (per-learner isolation), Access Control                               | ready    |
-| S-01  | first-grounded-session          | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score       | F-01             | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | proposed |
-| S-02  | per-session-intake-tailoring    | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01             | US-01, FR-018, FR-006 (partial)                                            | proposed |
-| S-03  | onboarding-bio-tailoring        | complete a one-time conversational onboarding that captures a bio reused on every later session       | S-01             | US-01, FR-005, FR-006 (full)                                               | proposed |
-| S-04  | multi-type-exercises            | encounter fill-in-the-blank and a domain-specific exercise type alongside MCQ                          | S-01             | US-01, FR-009 (full)                                                       | proposed |
-| S-05  | ask-tutor-mid-session           | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01             | US-01, FR-008                                                              | proposed |
-| S-06  | session-history-view            | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01             | FR-014 (read)                                                              | proposed |
-| S-07  | delete-session                  | delete a completed session with confirmation, removing all its data                                    | S-06             | US-03, FR-016                                                              | proposed |
-| S-08  | edit-profile-bio                | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03             | US-02, FR-015                                                              | proposed |
-| S-09  | password-change                 | change the account password by providing the current password and a new one                            | —                | FR-017                                                                    | ready    |
+| ID   | Change ID                    | Outcome (user can …)                                                                                   | Prerequisites | PRD refs                                                                                          | Status   |
+| ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------- | -------- |
+| F-01 | domain-schema-rls-baseline   | (foundation) minimal domain schema + RLS policy template are in place for the session loop             | —             | NFR (per-learner isolation), Access Control                                                       | ready    |
+| S-01 | first-grounded-session       | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score        | F-01          | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | proposed |
+| S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | proposed |
+| S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | proposed |
+| S-04 | multi-type-exercises         | encounter fill-in-the-blank and a domain-specific exercise type alongside MCQ                          | S-01          | US-01, FR-009 (full)                                                                              | proposed |
+| S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | proposed |
+| S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | proposed |
+| S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
+| S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | proposed |
+| S-09 | password-change              | change the account password by providing the current password and a new one                            | —             | FR-017                                                                                            | ready    |
 
 ## Streams
 
 Navigation aid — groups items that share a Prerequisites chain. Canonical ordering still lives in the dependency graph below.
 
-| Stream | Theme                       | Chain                                                          | Note                                                                                                  |
-| ------ | --------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| A      | Wedge & generation loop     | `F-01` → `S-01` → `S-02` → `S-03` → `S-04` → `S-05`            | The core market-feedback path: F-01 unlocks S-01 (north star), then enrichments deepen tailoring.    |
-| B      | Session lifecycle           | `S-06` → `S-07`                                                | Joins Stream A at `S-01` (history reads sessions persisted by S-01); enables the privacy-delete case.|
-| C      | Profile lifecycle           | `S-08`                                                          | Joins Stream A at `S-03` (edit requires the bio column to exist); standalone vertical after that.    |
-| D      | Auth hardening              | `S-09`                                                          | Standalone — extends the existing auth scaffold; can run in parallel with any other stream.           |
+| Stream | Theme                   | Chain                                               | Note                                                                                                  |
+| ------ | ----------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| A      | Wedge & generation loop | `F-01` → `S-01` → `S-02` → `S-03` → `S-04` → `S-05` | The core market-feedback path: F-01 unlocks S-01 (north star), then enrichments deepen tailoring.     |
+| B      | Session lifecycle       | `S-06` → `S-07`                                     | Joins Stream A at `S-01` (history reads sessions persisted by S-01); enables the privacy-delete case. |
+| C      | Profile lifecycle       | `S-08`                                              | Joins Stream A at `S-03` (edit requires the bio column to exist); standalone vertical after that.     |
+| D      | Auth hardening          | `S-09`                                              | Standalone — extends the existing auth scaffold; can run in parallel with any other stream.           |
 
 ## Baseline
 
@@ -197,18 +197,18 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Backlog Handoff
 
-| Roadmap ID | Change ID                    | Suggested issue title                                                   | Ready for `/10x-plan` | Notes                                                                       |
-| ---------- | ---------------------------- | ----------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------- |
-| F-01       | domain-schema-rls-baseline   | Establish per-learner RLS template + minimum domain schema              | yes                   | Run `/10x-plan domain-schema-rls-baseline`. Unlocks every later slice.       |
-| S-01       | first-grounded-session       | First grounded session (north star): upload → generate → exercises → score | no                   | Waiting on F-01. Resolve PDF-parse and LLM-provider unknowns in `/10x-plan`. |
-| S-02       | per-session-intake-tailoring | Per-session intake (level, goal, time) biases generation                | no                    | Waiting on S-01.                                                            |
-| S-03       | onboarding-bio-tailoring     | One-time conversational onboarding captures bio                         | no                    | Waiting on S-01.                                                            |
-| S-04       | multi-type-exercises         | Fill-in-the-blank + domain-specific exercise types                      | no                    | Waiting on S-01. User must name the domain-specific type before `/10x-plan`. |
-| S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                             | no                    | Waiting on S-01.                                                            |
-| S-06       | session-history-view         | Revisit a completed session from history                                | no                    | Waiting on S-01.                                                            |
-| S-07       | delete-session               | Delete a completed session and all its data                             | no                    | Waiting on S-06.                                                            |
-| S-08       | edit-profile-bio             | Edit profile bio outside an active session                              | no                    | Waiting on S-03.                                                            |
-| S-09       | password-change              | Change password with current-password confirmation                      | yes                   | Run `/10x-plan password-change`. Extends auth scaffold; touches no domain tables. |
+| Roadmap ID | Change ID                    | Suggested issue title                                                      | Ready for `/10x-plan` | Notes                                                                             |
+| ---------- | ---------------------------- | -------------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------- |
+| F-01       | domain-schema-rls-baseline   | Establish per-learner RLS template + minimum domain schema                 | yes                   | Run `/10x-plan domain-schema-rls-baseline`. Unlocks every later slice.            |
+| S-01       | first-grounded-session       | First grounded session (north star): upload → generate → exercises → score | no                    | Waiting on F-01. Resolve PDF-parse and LLM-provider unknowns in `/10x-plan`.      |
+| S-02       | per-session-intake-tailoring | Per-session intake (level, goal, time) biases generation                   | no                    | Waiting on S-01.                                                                  |
+| S-03       | onboarding-bio-tailoring     | One-time conversational onboarding captures bio                            | no                    | Waiting on S-01.                                                                  |
+| S-04       | multi-type-exercises         | Fill-in-the-blank + domain-specific exercise types                         | no                    | Waiting on S-01. User must name the domain-specific type before `/10x-plan`.      |
+| S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                                | no                    | Waiting on S-01.                                                                  |
+| S-06       | session-history-view         | Revisit a completed session from history                                   | no                    | Waiting on S-01.                                                                  |
+| S-07       | delete-session               | Delete a completed session and all its data                                | no                    | Waiting on S-06.                                                                  |
+| S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | no                    | Waiting on S-03.                                                                  |
+| S-09       | password-change              | Change password with current-password confirmation                         | yes                   | Run `/10x-plan password-change`. Extends auth scaffold; touches no domain tables. |
 
 ## Open Roadmap Questions
 

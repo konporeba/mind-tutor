@@ -16,19 +16,19 @@ From the dashboard a learner clicks **Start new session**, uploads a file, watch
 
 ## Key Decisions Made
 
-| Decision | Choice | Why (1 sentence) | Source |
-| --- | --- | --- | --- |
-| LLM provider | OpenRouter (OpenAI-compatible SDK) | Provider-agnostic, swap models via config with one key. | Plan |
-| PDF parsing | Client-side (pdfjs-dist in browser) | Sidesteps the 30 s Worker CPU cliff entirely — the headline MVP risk. | Plan |
-| Generation shape | Single structured call for the whole session | Simplest, atomic, easiest to ground and validate. | Plan |
-| Generation UX | Synchronous with progress indicator | LLM/fetch wait is I/O (not CPU-limited); meets "visible progress >2s". | Plan |
-| Grounding | **Per-claim source citations** (server-validated against stored text) | Inspectable enforcement of "no off-source claims"; bounds the wedge. | Plan |
-| Scoring | Percent correct, server-computed on completion | Matches FR-011; single tamper-resistant source of truth. | Plan |
-| Session size | Fixed default: ~3–5 theory steps + 5 MCQs | Reliable single-call generation; real input for the milestone UI. | Plan |
-| Upload errors | Client pre-check + server re-validation, inline error | Fast feedback + defense-in-depth (FR-004). | Plan |
-| Session flow | Dashboard → New Session → `/sessions/[id]` → completion | Clean per-session URL that S-06/S-07 plug into later. | Plan |
-| File persistence | Original bytes in private `materials` bucket + `extracted_text` column | Satisfies FR-014; feeds S-06 and citation validation without re-parsing. | Plan |
-| Verification | Extend pgTAP (Storage + column) + manual E2E checklist | Reuses F-01's harness; Vitest deferred to Module 3. | Plan |
+| Decision         | Choice                                                                 | Why (1 sentence)                                                         | Source |
+| ---------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------ |
+| LLM provider     | OpenRouter (OpenAI-compatible SDK)                                     | Provider-agnostic, swap models via config with one key.                  | Plan   |
+| PDF parsing      | Client-side (pdfjs-dist in browser)                                    | Sidesteps the 30 s Worker CPU cliff entirely — the headline MVP risk.    | Plan   |
+| Generation shape | Single structured call for the whole session                           | Simplest, atomic, easiest to ground and validate.                        | Plan   |
+| Generation UX    | Synchronous with progress indicator                                    | LLM/fetch wait is I/O (not CPU-limited); meets "visible progress >2s".   | Plan   |
+| Grounding        | **Per-claim source citations** (server-validated against stored text)  | Inspectable enforcement of "no off-source claims"; bounds the wedge.     | Plan   |
+| Scoring          | Percent correct, server-computed on completion                         | Matches FR-011; single tamper-resistant source of truth.                 | Plan   |
+| Session size     | Fixed default: ~3–5 theory steps + 5 MCQs                              | Reliable single-call generation; real input for the milestone UI.        | Plan   |
+| Upload errors    | Client pre-check + server re-validation, inline error                  | Fast feedback + defense-in-depth (FR-004).                               | Plan   |
+| Session flow     | Dashboard → New Session → `/sessions/[id]` → completion                | Clean per-session URL that S-06/S-07 plug into later.                    | Plan   |
+| File persistence | Original bytes in private `materials` bucket + `extracted_text` column | Satisfies FR-014; feeds S-06 and citation validation without re-parsing. | Plan   |
+| Verification     | Extend pgTAP (Storage + column) + manual E2E checklist                 | Reuses F-01's harness; Vitest deferred to Module 3.                      | Plan   |
 
 ## Scope
 
@@ -42,13 +42,13 @@ Browser parses the file (pdfjs-dist / `file.text()`) → posts extracted text + 
 
 ## Phases at a Glance
 
-| Phase | What it delivers | Key risk |
-| --- | --- | --- |
-| 1. Schema, Storage & env | `extracted_text` column, private bucket + path RLS, OpenRouter env, deps, types, pgTAP | Storage path-prefix policy written subtly wrong |
-| 2. Generation & scoring services | Grounded prompt + validated/retried OpenRouter call + scoring | OpenRouter JSON not strictly schema-enforced — must validate, not trust |
-| 3. API routes | create+generate, answer, complete (auth-gated) | Half-created session on generation failure left in broken state |
-| 4. UI | New Session, run page (responsive, milestone, citations), completion | Multi-panel state + responsive layout complexity |
-| 5. E2E verification & docs | pgTAP + manual checklist + contract-surfaces update | Cross-account/Storage isolation regression |
+| Phase                            | What it delivers                                                                       | Key risk                                                                |
+| -------------------------------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| 1. Schema, Storage & env         | `extracted_text` column, private bucket + path RLS, OpenRouter env, deps, types, pgTAP | Storage path-prefix policy written subtly wrong                         |
+| 2. Generation & scoring services | Grounded prompt + validated/retried OpenRouter call + scoring                          | OpenRouter JSON not strictly schema-enforced — must validate, not trust |
+| 3. API routes                    | create+generate, answer, complete (auth-gated)                                         | Half-created session on generation failure left in broken state         |
+| 4. UI                            | New Session, run page (responsive, milestone, citations), completion                   | Multi-panel state + responsive layout complexity                        |
+| 5. E2E verification & docs       | pgTAP + manual checklist + contract-surfaces update                                    | Cross-account/Storage isolation regression                              |
 
 **Prerequisites:** F-01 (done); local Supabase (Docker) running; an OpenRouter API key in `.dev.vars`.
 **Estimated effort:** ~2–3 focused after-hours sessions across the 5 phases (Phase 4 is the largest).

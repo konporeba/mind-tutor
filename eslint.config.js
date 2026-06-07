@@ -65,6 +65,11 @@ const astroConfig = tseslint.config({
     "astro/no-set-html-directive": "error",
     "astro/no-unused-css-selector": "warn",
     "astro/prefer-class-list-directive": "warn",
+    // astro-eslint-parser doesn't give this type-aware rule a real function scope
+    // for frontmatter `return Astro.redirect(...)` statements, which crashes the
+    // rule ("Expected node to have a parent"). Frontmatter is not a JSX event
+    // handler, so the rule adds no value here — turn it off for .astro files.
+    "@typescript-eslint/no-misused-promises": "off",
   },
 });
 

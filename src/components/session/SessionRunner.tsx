@@ -36,14 +36,7 @@ interface Props {
   exercises: ExerciseView[];
 }
 
-export default function SessionRunner({
-  sessionId,
-  title,
-  initialStatus,
-  initialScore,
-  theory,
-  exercises,
-}: Props) {
+export default function SessionRunner({ sessionId, title, initialStatus, initialScore, theory, exercises }: Props) {
   // Seed results from persisted (already-answered) exercises so a reload restores state.
   const seededResults = useMemo<Map<string, Result>>(() => {
     const seed = new Map<string, Result>();
@@ -185,91 +178,90 @@ export default function SessionRunner({
             Exercise {current + 1} of {exercises.length}
           </h2>
           <div className="space-y-4">
-              <p className="font-medium text-white">{exercise.prompt}</p>
-              <div className="space-y-2">
-                {exercise.options.map((option) => {
-                  const isCorrectOption = currentResult?.correct_answer === option;
-                  const wasPicked = currentResult?.picked === option;
-                  return (
-                    <button
-                      key={option}
-                      type="button"
-                      disabled={!!currentResult || pending}
-                      onClick={() => answer(exercise, option)}
-                      className={
-                        "w-full rounded-lg border px-4 py-2.5 text-left text-sm transition-colors " +
-                        (currentResult
-                          ? isCorrectOption
-                            ? "border-green-400/60 bg-green-500/20"
-                            : wasPicked
-                              ? "border-red-400/60 bg-red-500/20"
-                              : "border-white/10 bg-white/5 opacity-60"
-                          : "border-white/15 bg-white/5 hover:bg-white/15")
-                      }
-                    >
-                      {option}
-                    </button>
-                  );
-                })}
+            <p className="font-medium text-white">{exercise.prompt}</p>
+            <div className="space-y-2">
+              {exercise.options.map((option) => {
+                const isCorrectOption = currentResult?.correct_answer === option;
+                const wasPicked = currentResult?.picked === option;
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    disabled={!!currentResult || pending}
+                    onClick={() => answer(exercise, option)}
+                    className={
+                      "w-full rounded-lg border px-4 py-2.5 text-left text-sm transition-colors " +
+                      (currentResult
+                        ? isCorrectOption
+                          ? "border-green-400/60 bg-green-500/20"
+                          : wasPicked
+                            ? "border-red-400/60 bg-red-500/20"
+                            : "border-white/10 bg-white/5 opacity-60"
+                        : "border-white/15 bg-white/5 hover:bg-white/15")
+                    }
+                  >
+                    {option}
+                  </button>
+                );
+              })}
+            </div>
+
+            {currentResult && (
+              <div
+                className={
+                  "space-y-1 rounded-lg p-3 text-sm " + (currentResult.is_correct ? "bg-green-500/20" : "bg-red-500/20")
+                }
+              >
+                <p className="flex items-center gap-1.5 font-semibold">
+                  {currentResult.is_correct ? (
+                    <>
+                      <Check className="size-4" /> Correct
+                    </>
+                  ) : (
+                    <>
+                      <X className="size-4" /> Not quite
+                    </>
+                  )}
+                </p>
+                {currentResult.feedback && <p className="text-blue-100/90">{currentResult.feedback}</p>}
               </div>
+            )}
 
-              {currentResult && (
-                <div
-                  className={
-                    "space-y-1 rounded-lg p-3 text-sm " +
-                    (currentResult.is_correct ? "bg-green-500/20" : "bg-red-500/20")
-                  }
-                >
-                  <p className="flex items-center gap-1.5 font-semibold">
-                    {currentResult.is_correct ? (
-                      <>
-                        <Check className="size-4" /> Correct
-                      </>
-                    ) : (
-                      <>
-                        <X className="size-4" /> Not quite
-                      </>
-                    )}
-                  </p>
-                  {currentResult.feedback && <p className="text-blue-100/90">{currentResult.feedback}</p>}
-                </div>
-              )}
-
-              <div className="flex justify-between gap-2 pt-2">
+            <div className="flex justify-between gap-2 pt-2">
+              <button
+                type="button"
+                disabled={current === 0}
+                onClick={() => {
+                  setCurrent((c) => Math.max(0, c - 1));
+                }}
+                className="rounded-lg border border-white/15 px-3 py-1.5 text-sm transition-colors hover:bg-white/10 disabled:opacity-40"
+              >
+                Previous
+              </button>
+              {current < exercises.length - 1 ? (
                 <button
                   type="button"
-                  disabled={current === 0}
                   onClick={() => {
-                    setCurrent((c) => Math.max(0, c - 1));
-                  }}
-                  className="rounded-lg border border-white/15 px-3 py-1.5 text-sm transition-colors hover:bg-white/10 disabled:opacity-40"
-                >
-                  Previous
-                </button>
-                {current < exercises.length - 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => {
                     setCurrent((c) => Math.min(exercises.length - 1, c + 1));
                   }}
-                    className="rounded-lg border border-white/15 px-3 py-1.5 text-sm transition-colors hover:bg-white/10"
+                  className="rounded-lg border border-white/15 px-3 py-1.5 text-sm transition-colors hover:bg-white/10"
+                >
+                  Next
+                </button>
+              ) : (
+                !completed && (
+                  <button
+                    type="button"
+                    disabled={!allAnswered || pending}
+                    onClick={finish}
+                    className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
                   >
-                    Next
+                    Finish session
                   </button>
-                ) : (
-                  !completed && (
-                    <button
-                      type="button"
-                      disabled={!allAnswered || pending}
-                      onClick={finish}
-                      className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
-                    >
-                      Finish session
-                    </button>
-                  )
-                )}
-              </div>
+                )
+              )}
             </div>
+          </div>
         </section>
       </div>
     </div>

@@ -7,13 +7,7 @@
 // response is parsed, zod-validated, and citation-checked; any failure retries
 // the call once before throwing GenerationError.
 
-import {
-  GeneratedSessionSchema,
-  MCQ_COUNT,
-  THEORY_MAX,
-  THEORY_MIN,
-  type GeneratedSession,
-} from "./schema";
+import { GeneratedSessionSchema, MCQ_COUNT, THEORY_MAX, THEORY_MIN, type GeneratedSession } from "./schema";
 import { GenerationError, getModel, getOpenRouterClient } from "./openrouter";
 
 // Cap how much source we send so we stay within model context and bounded cost.

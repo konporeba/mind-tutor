@@ -66,13 +66,14 @@ Add the server endpoint that verifies the current password and updates it, redir
 **Intent**: Accept the change-password form POST, verify the current password via re-auth, reject on failure, otherwise update the password and signal success — all while keeping the session valid. Mirrors the structure of `signin.ts`/`signup.ts`.
 
 **Contract**: `export const POST: APIRoute`. Reads `currentPassword`, `newPassword`, `confirmPassword` from `formData`. Resolves the current user's email from `context.locals.user` (populated by middleware) for the verify call. Behaviour, in order:
-  1. Build client via `createClient(headers, cookies)`; if `null` → redirect `/account?error=Supabase is not configured` (encoded), matching the existing guard.
-  2. If no authenticated user/email on `context.locals` → redirect `/auth/signin`.
-  3. Server-side guard rails (defense-in-depth behind the client validation): `newPassword` length ≥ 8, `newPassword === confirmPassword`, `newPassword !== currentPassword` → on any failure redirect `/account?error=<message>`.
-  4. Verify: `signInWithPassword({ email, password: currentPassword })`; on error → redirect `/account?error=Current password is incorrect`.
-  5. Update: `updateUser({ password: newPassword })`; on error → redirect `/account?error=<error.message>`.
-  6. Success → redirect `/account?success=Password updated`.
-  All redirects use `encodeURIComponent` on the message, exactly as `signin.ts:16` does.
+
+1. Build client via `createClient(headers, cookies)`; if `null` → redirect `/account?error=Supabase is not configured` (encoded), matching the existing guard.
+2. If no authenticated user/email on `context.locals` → redirect `/auth/signin`.
+3. Server-side guard rails (defense-in-depth behind the client validation): `newPassword` length ≥ 8, `newPassword === confirmPassword`, `newPassword !== currentPassword` → on any failure redirect `/account?error=<message>`.
+4. Verify: `signInWithPassword({ email, password: currentPassword })`; on error → redirect `/account?error=Current password is incorrect`.
+5. Update: `updateUser({ password: newPassword })`; on error → redirect `/account?error=<error.message>`.
+6. Success → redirect `/account?success=Password updated`.
+   All redirects use `encodeURIComponent` on the message, exactly as `signin.ts:16` does.
 
 ### Success Criteria:
 

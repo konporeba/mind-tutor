@@ -1,0 +1,15 @@
+# Normalize line endings: store LF in the repo, let Git handle the working tree.
+# Without this, Windows checkouts (core.autocrlf=true) produce CRLF working trees
+# that Prettier/ESLint flag repo-wide. LF keeps `npm run lint` green on every OS.
+* text=auto eol=lf
+
+# Binary assets must never be normalized.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary

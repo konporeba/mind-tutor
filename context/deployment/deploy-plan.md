@@ -27,10 +27,10 @@ CI auto-deploy is **deferred** (Phase 6). When picked up, the CI side uses `clou
 
 ## Secrets
 
-| Name | Where | Used by | How to read it |
-|---|---|---|---|
+| Name           | Where                                              | Used by                                      | How to read it                      |
+| -------------- | -------------------------------------------------- | -------------------------------------------- | ----------------------------------- |
 | `SUPABASE_URL` | Workers Secrets Store (prod) + `.dev.vars` (local) | `src/lib/supabase.ts` via `astro:env/server` | `wrangler secret list` (names only) |
-| `SUPABASE_KEY` | Workers Secrets Store (prod) + `.dev.vars` (local) | `src/lib/supabase.ts` via `astro:env/server` | same |
+| `SUPABASE_KEY` | Workers Secrets Store (prod) + `.dev.vars` (local) | `src/lib/supabase.ts` via `astro:env/server` | same                                |
 
 ### Rotate
 
@@ -65,7 +65,7 @@ Rollback is instant — atomic flip on Cloudflare's edge.
 If the rollback target predates a Supabase schema change that's already applied to the prod project, the older code may break against the newer schema. Order of operations for a rollback that crosses a schema boundary:
 
 1. Apply the matching Supabase down-migration first (manual: `supabase db reset` is destructive — write a real down-migration).
-2. *Then* `wrangler rollback`.
+2. _Then_ `wrangler rollback`.
 
 This is the same constraint that forward-deploys have in reverse — schema and code are coupled.
 
@@ -89,11 +89,13 @@ The agent may freely run: `wrangler whoami`, `wrangler secret list`, `wrangler d
 Two paths:
 
 **CLI (always available):**
+
 ```powershell
 npx wrangler tail mind-tutor          # live log stream
 ```
 
 **MCP (after one-time OAuth — see next section):**
+
 - `cloudflare-observability` MCP server → structured queries against Workers Logs.
 - `cloudflare-bindings` MCP server → list/inspect bindings (KV, Secrets, etc.) on `mind-tutor`.
 
@@ -118,16 +120,18 @@ MindTutor runs on Cloudflare's **free tier**. The relevant ceiling is the 10 ms 
 **Symptom:** Opaque 500s from the live URL under any kind of sustained traffic, especially first request after a quiet period.
 
 **Diagnosis:**
+
 ```powershell
 npx wrangler tail mind-tutor
 ```
+
 Reproduce the request while tailing. Look for `Worker exceeded CPU time limit`.
 
 **Fix:** Upgrade to the **$5/mo paid plan** (Workers Paid). That raises the CPU ceiling to 50 ms and unlocks higher limits across the board. The $5 is the threshold the infra plan called out — don't pre-upgrade, but don't hesitate either once you see the symptom.
 
 ---
 
-## What's *not* deployed (carried forward)
+## What's _not_ deployed (carried forward)
 
 - **R2 / Queues** — deferred until the PDF-upload feature lands. When it does, route uploads via R2 + Queue; never parse PDFs in the request handler.
 - **Staging Worker** — single prod Worker only for MVP. A staging environment is the natural follow-up once the deploy cadence justifies it.
@@ -139,14 +143,14 @@ Reproduce the request while tailing. Look for `Worker exceeded CPU time limit`.
 
 ## Quick reference
 
-| Task | Command |
-|---|---|
-| First deploy | `npm run build && npx wrangler deploy` |
-| Subsequent deploy | `npx wrangler deploy` (build runs implicitly via the adapter's hook) |
-| Dry-run (validate bundle) | `npx wrangler deploy --dry-run --outdir=dist-dryrun` |
-| Stream live logs | `npx wrangler tail mind-tutor` |
-| List secret names | `npx wrangler secret list` |
-| Rotate a secret | `npx wrangler secret put <NAME>` |
-| List versions | `npx wrangler deployments list mind-tutor` |
-| Rollback | `npx wrangler rollback [version-id]` |
-| Verify auth | `npx wrangler whoami` |
+| Task                      | Command                                                              |
+| ------------------------- | -------------------------------------------------------------------- |
+| First deploy              | `npm run build && npx wrangler deploy`                               |
+| Subsequent deploy         | `npx wrangler deploy` (build runs implicitly via the adapter's hook) |
+| Dry-run (validate bundle) | `npx wrangler deploy --dry-run --outdir=dist-dryrun`                 |
+| Stream live logs          | `npx wrangler tail mind-tutor`                                       |
+| List secret names         | `npx wrangler secret list`                                           |
+| Rotate a secret           | `npx wrangler secret put <NAME>`                                     |
+| List versions             | `npx wrangler deployments list mind-tutor`                           |
+| Rollback                  | `npx wrangler rollback [version-id]`                                 |
+| Verify auth               | `npx wrangler whoami`                                                |

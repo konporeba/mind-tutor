@@ -65,6 +65,7 @@ Lay the data + infra groundwork: persist extracted text, create the private file
 **Intent**: Add the column needed to persist parsed text and create the Storage bucket + policies for original files, without altering F-01's tables/policies.
 
 **Contract**:
+
 - `alter table public.materials add column extracted_text text;` (nullable — additive, no backfill).
 - Create a **private** Storage bucket `materials` via `storage.buckets` insert (id/name `materials`, `public = false`).
 - Four `storage.objects` policies scoped to `bucket_id = 'materials'`, role `authenticated`, ownership by path prefix using `(storage.foldername(name))[1] = (select auth.uid())::text` for select/insert/update/delete — the Storage analogue of the table RLS template. Document the path convention `{user_id}/{session_id}/{filename}` in a SQL comment.
@@ -104,6 +105,7 @@ Lay the data + infra groundwork: persist extracted text, create the private file
 ### Success Criteria:
 
 #### Automated Verification:
+
 - Migration applies cleanly: `npx supabase db reset`
 - All four domain tables still report RLS enabled; `materials` bucket exists and is private
 - Isolation test passes: `npx supabase test db`
@@ -111,6 +113,7 @@ Lay the data + infra groundwork: persist extracted text, create the private file
 - Linting passes: `npm run lint`
 
 #### Manual Verification:
+
 - The `materials` bucket is visible in Supabase Studio and not public
 - A file uploaded under one user's prefix is not listable by another user via the client
 
@@ -141,6 +144,7 @@ Pure server-side business logic (no routes, no UI): the grounded generation cont
 **Intent**: Build a grounding-first prompt that injects the full source text and forbids outside knowledge, call OpenRouter, validate, and retry once.
 
 **Contract**: `generateSession(sourceText: string): Promise<GeneratedSession>`.
+
 - System prompt: only use facts present in the provided source; every theory step must include a `citation` quoting the source span it derives from; produce exactly 5 MCQs with one correct option and short feedback; request `response_format: { type: "json_object" }`.
 - After parse + `zodSchema.safeParse`, **validate every `citation` is a substring of `sourceText`**; on any failure (bad JSON, schema miss, citation not found), retry the call once, then throw a typed `GenerationError`.
 - `openrouter.ts` instantiates `openai` with the OpenRouter `baseURL` + key from `astro:env/server`; throws a typed error if the key is unset.
@@ -156,10 +160,12 @@ Pure server-side business logic (no routes, no UI): the grounded generation cont
 ### Success Criteria:
 
 #### Automated Verification:
+
 - Type checking passes: `npm run build`
 - Linting passes: `npm run lint`
 
 #### Manual Verification:
+
 - A dev harness (temporary script or REPL) run against a real `.md` sample returns 3–5 cited theory steps + 5 valid MCQs, and every citation appears verbatim in the source
 - Feeding deliberately malformed/thin text triggers exactly one retry then a clean typed error (no unhandled crash)
 
@@ -210,10 +216,12 @@ Wire the server endpoints that orchestrate persistence + generation + scoring. A
 ### Success Criteria:
 
 #### Automated Verification:
+
 - Type checking + build pass: `npm run build`
 - Linting passes: `npm run lint`
 
 #### Manual Verification:
+
 - `POST /api/sessions` with a real file creates a session and returns an id; rows exist in all relevant tables and the file exists in Storage under the user prefix
 - Oversize/unsupported payloads return an explanatory 400 with no rows written
 - Answering an exercise returns correct feedback; completing returns the right percentage
@@ -266,10 +274,12 @@ The learner-facing flow: dashboard entry, New Session page (client parse + valid
 ### Success Criteria:
 
 #### Automated Verification:
+
 - Build + type check pass: `npm run build`
 - Linting passes (incl. jsx-a11y): `npm run lint`
 
 #### Manual Verification:
+
 - Full happy path in a browser: dashboard → upload a real PDF and a `.md` → progress shows → session renders with cited theory + 5 MCQs → answer all → score appears
 - Responsive: side-by-side on a wide window, tabbed/stacked when narrowed (FR-012)
 - Milestone bar reflects the sequence and highlights the current step (FR-013)
@@ -307,10 +317,12 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Success Criteria:
 
 #### Automated Verification:
+
 - `npx supabase test db` passes (table + Storage isolation)
 - `npm run lint` and `npm run build` are green
 
 #### Manual Verification:
+
 - The full E2E checklist passes end-to-end in one sitting (PRD primary success criterion)
 - Cross-account negative test confirms isolation (NFR)
 - Grounding spot-check confirms no off-source claims (NFR / wedge)
@@ -322,10 +334,12 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ## Testing Strategy
 
 ### Automated (pgTAP, reusing F-01's harness):
+
 - Table RLS isolation for the four tables (existing) + the new `extracted_text` column.
 - Storage object isolation: learner B denied select/insert/update/delete under learner A's prefix in bucket `materials`.
 
 ### Manual:
+
 1. Sign in; from dashboard click Start new session.
 2. Upload a real lecture PDF; confirm progress indicator, then a session with 3–5 cited theory steps + 5 MCQs.
 3. Repeat with a `.md` and a `.txt` file.
@@ -361,6 +375,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 1: Schema, Storage & Environment Foundation
 
 #### Automated
+
 - [ ] 1.1 Migration applies cleanly: `npx supabase db reset`
 - [ ] 1.2 Four tables RLS-enabled; `materials` bucket exists and is private
 - [ ] 1.3 Isolation test passes: `npx supabase test db`
@@ -368,26 +383,31 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 - [ ] 1.5 Linting passes: `npm run lint`
 
 #### Manual
+
 - [ ] 1.6 `materials` bucket visible in Studio and not public
 - [ ] 1.7 One user's file not listable by another user via the client
 
 ### Phase 2: Generation & Scoring Services
 
 #### Automated
+
 - [x] 2.1 Type checking passes: `npm run build` — f24b70b
 - [ ] 2.2 Linting passes: `npm run lint`
 
 #### Manual
+
 - [ ] 2.3 Harness against a real sample returns 3–5 cited theory steps + 5 valid MCQs; citations trace to source
 - [ ] 2.4 Malformed/thin text triggers one retry then a clean typed error
 
 ### Phase 3: API Routes
 
 #### Automated
+
 - [x] 3.1 Type checking + build pass: `npm run build` — 7b9fe4e
 - [ ] 3.2 Linting passes: `npm run lint`
 
 #### Manual
+
 - [ ] 3.3 `POST /api/sessions` creates a session, rows in all tables, file in Storage under user prefix
 - [ ] 3.4 Oversize/unsupported payloads return explanatory 400 with no rows written
 - [ ] 3.5 Answering returns correct feedback; completing returns the right percentage
@@ -396,10 +416,12 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 4: User Interface
 
 #### Automated
+
 - [x] 4.1 Build + type check pass: `npm run build` — bc27921
 - [ ] 4.2 Linting passes (incl. jsx-a11y): `npm run lint`
 
 #### Manual
+
 - [ ] 4.3 Full happy path in browser (dashboard → upload PDF + .md → progress → cited theory + 5 MCQs → answer all → score)
 - [ ] 4.4 Responsive: side-by-side wide, tabbed/stacked narrow (FR-012)
 - [ ] 4.5 Milestone bar reflects sequence and highlights current step (FR-013)
@@ -409,10 +431,12 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 5: End-to-End Verification & Contract Documentation
 
 #### Automated
+
 - [ ] 5.1 `npx supabase test db` passes (table + Storage isolation)
 - [ ] 5.2 `npm run lint` and `npm run build` green
 
 #### Manual
+
 - [ ] 5.3 Full E2E checklist passes in one sitting (PRD primary criterion)
 - [ ] 5.4 Cross-account negative test confirms isolation (NFR)
 - [ ] 5.5 Grounding spot-check confirms no off-source claims (NFR / wedge)

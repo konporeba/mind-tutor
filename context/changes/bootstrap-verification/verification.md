@@ -42,10 +42,10 @@ Solo learner-developer shipping MindTutor in 5 weeks after-hours, with a hard de
 
 ## Pre-scaffold verification
 
-| Signal       | Value                                                          | Severity | Notes                                                                 |
-| ------------ | -------------------------------------------------------------- | -------- | --------------------------------------------------------------------- |
-| npm package  | not run                                                        | n/a      | cmd_template starts with `git clone`; no `create-*` CLI to look up    |
-| GitHub repo  | przeprogramowani/10x-astro-starter last pushed 2026-05-17      | fresh    | from card.docs_url; 7 days old at scaffold time                       |
+| Signal      | Value                                                     | Severity | Notes                                                              |
+| ----------- | --------------------------------------------------------- | -------- | ------------------------------------------------------------------ |
+| npm package | not run                                                   | n/a      | cmd_template starts with `git clone`; no `create-*` CLI to look up |
+| GitHub repo | przeprogramowani/10x-astro-starter last pushed 2026-05-17 | fresh    | from card.docs_url; 7 days old at scaffold time                    |
 
 ## Scaffold log
 
@@ -72,7 +72,7 @@ None.
 
 #### HIGH findings
 
-- **`devalue`** (range `5.6.3 - 5.8.0`) — transitive. Advisory: *Svelte devalue: DoS via sparse array deserialization* (GHSA-77vg-94rm-hx3p, CWE-770, CVSS 7.5). Fix available via dependency update (`npm audit fix`).
+- **`devalue`** (range `5.6.3 - 5.8.0`) — transitive. Advisory: _Svelte devalue: DoS via sparse array deserialization_ (GHSA-77vg-94rm-hx3p, CWE-770, CVSS 7.5). Fix available via dependency update (`npm audit fix`).
 
 #### MODERATE findings
 
@@ -82,8 +82,8 @@ None.
 - **`miniflare`** — transitive (via `ws`). Effects `@cloudflare/vite-plugin`, `wrangler`. Fix available.
 - **`volar-service-yaml`** — transitive (via `yaml-language-server`). Effects `@astrojs/language-server`. Fix via `@astrojs/check` major bump.
 - **`wrangler`** (range `3.108.0 - 4.93.0`) — DIRECT. Via `miniflare`. Effects `@cloudflare/vite-plugin`. Fix available.
-- **`ws`** (range `8.0.0 - 8.20.0`) — transitive. Advisory: *Uninitialized memory disclosure* (GHSA-58qx-3vcg-4xpx, CWE-908, CVSS 4.4). Fix available.
-- **`yaml`** (range `2.0.0 - 2.8.2`) — transitive (via `yaml-language-server`). Advisory: *Stack Overflow via deeply nested YAML collections* (GHSA-48c2-rrv3-qjmp, CWE-674, CVSS 4.3). Fix via `@astrojs/check` major bump.
+- **`ws`** (range `8.0.0 - 8.20.0`) — transitive. Advisory: _Uninitialized memory disclosure_ (GHSA-58qx-3vcg-4xpx, CWE-908, CVSS 4.4). Fix available.
+- **`yaml`** (range `2.0.0 - 2.8.2`) — transitive (via `yaml-language-server`). Advisory: _Stack Overflow via deeply nested YAML collections_ (GHSA-48c2-rrv3-qjmp, CWE-674, CVSS 4.3). Fix via `@astrojs/check` major bump.
 - **`yaml-language-server`** — transitive (via `yaml`). Effects `volar-service-yaml`. Fix via `@astrojs/check` major bump.
 
 #### LOW / INFO findings
@@ -92,27 +92,28 @@ None.
 
 ## Hints recorded but not acted on
 
-| Hint                       | Value                              |
-| -------------------------- | ---------------------------------- |
-| bootstrapper_confidence    | first-class                        |
-| quality_override           | false                              |
-| path_taken                 | standard                           |
-| self_check_answers         | null                               |
-| team_size                  | solo                               |
-| deployment_target          | cloudflare-pages                   |
-| ci_provider                | github-actions                     |
-| ci_default_flow            | auto-deploy-on-merge               |
-| has_auth                   | true                               |
-| has_payments               | false                              |
-| has_realtime               | false                              |
-| has_ai                     | true                               |
-| has_background_jobs        | false                              |
+| Hint                    | Value                |
+| ----------------------- | -------------------- |
+| bootstrapper_confidence | first-class          |
+| quality_override        | false                |
+| path_taken              | standard             |
+| self_check_answers      | null                 |
+| team_size               | solo                 |
+| deployment_target       | cloudflare-pages     |
+| ci_provider             | github-actions       |
+| ci_default_flow         | auto-deploy-on-merge |
+| has_auth                | true                 |
+| has_payments            | false                |
+| has_realtime            | false                |
+| has_ai                  | true                 |
+| has_background_jobs     | false                |
 
 ## Next steps
 
 Next: a future skill will set up agent context (CLAUDE.md, AGENTS.md). For now, your project is scaffolded and verified — happy hacking.
 
 Useful manual steps in the meantime:
+
 - `git init` (if you have not already) to start your own repo history.
 - Review any `.scaffold` siblings the conflict policy created and decide which version of each file to keep. Here: `CLAUDE.md.scaffold` (starter's agent-context file) vs `CLAUDE.md` (your existing 10xDevs lesson 1+2 instructions). A common move is to merge the starter's repo/runtime conventions into your file.
 - Address audit findings per your project's risk tolerance — start with `npm audit fix` for non-breaking fixes; the `@astrojs/check` 0.9.3 → 0.9.2 downgrade is SemVer-major so review before applying.

@@ -16,13 +16,13 @@ A learner opens a new protected `/account` page, fills in current + new + confir
 
 ## Key Decisions Made
 
-| Decision               | Choice                                             | Why (1 sentence)                                                                              | Source |
-| ---------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------ |
-| Where the UI lives     | New `/account` page                                | Matches the roadmap's "account view" wording and gives S-08 (bio edit) a home later.          | Plan   |
-| Current-pwd verify     | Server-side re-auth (`signInWithPassword`) then `updateUser` | Supabase's `updateUser` ignores the current password, so we must verify it ourselves.         | Plan   |
-| Password rules         | ≥8 chars + confirm field + must differ from current | Sensible baseline above Supabase's min-6; confirm prevents typo lockout.                       | Plan   |
-| Success/error UX       | Stay logged in; redirect to `/account` with `?success`/`?error` | Reuses the established `ServerError` + searchParams convention; satisfies "no forced logout".  | Plan   |
-| Testing                | Lint/build gates + manual-on-staging               | No test harness exists today; the real cookie-rotation risk only manifests on a real Worker.   | Plan   |
+| Decision           | Choice                                                          | Why (1 sentence)                                                                              | Source |
+| ------------------ | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------ |
+| Where the UI lives | New `/account` page                                             | Matches the roadmap's "account view" wording and gives S-08 (bio edit) a home later.          | Plan   |
+| Current-pwd verify | Server-side re-auth (`signInWithPassword`) then `updateUser`    | Supabase's `updateUser` ignores the current password, so we must verify it ourselves.         | Plan   |
+| Password rules     | ≥8 chars + confirm field + must differ from current             | Sensible baseline above Supabase's min-6; confirm prevents typo lockout.                      | Plan   |
+| Success/error UX   | Stay logged in; redirect to `/account` with `?success`/`?error` | Reuses the established `ServerError` + searchParams convention; satisfies "no forced logout". | Plan   |
+| Testing            | Lint/build gates + manual-on-staging                            | No test harness exists today; the real cookie-rotation risk only manifests on a real Worker.  | Plan   |
 
 ## Scope
 
@@ -36,10 +36,10 @@ A learner opens a new protected `/account` page, fills in current + new + confir
 
 ## Phases at a Glance
 
-| Phase                          | What it delivers                                  | Key risk                                                            |
-| ------------------------------ | ------------------------------------------------- | ------------------------------------------------------------------- |
-| 1. Backend route               | `change-password` route: verify → update          | Verify-then-update ordering; session token rotation through cookies |
-| 2. Frontend account view       | `/account` page, form island, banner, middleware  | `Set-Cookie` rotation must keep the session alive on the Workers runtime |
+| Phase                    | What it delivers                                 | Key risk                                                                 |
+| ------------------------ | ------------------------------------------------ | ------------------------------------------------------------------------ |
+| 1. Backend route         | `change-password` route: verify → update         | Verify-then-update ordering; session token rotation through cookies      |
+| 2. Frontend account view | `/account` page, form island, banner, middleware | `Set-Cookie` rotation must keep the session alive on the Workers runtime |
 
 **Prerequisites:** none — extends existing auth scaffold, touches no domain tables.
 **Estimated effort:** ~1 session across 2 phases (≈5 small files, all mirroring existing patterns).

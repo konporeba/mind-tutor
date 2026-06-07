@@ -1,4 +1,5 @@
 <!-- IMPL-REVIEW-REPORT -->
+
 # Implementation Review: Domain Schema + Per-Learner RLS Baseline
 
 - **Plan**: context/changes/domain-schema-rls-baseline/plan.md
@@ -9,16 +10,16 @@
 
 ## Verdicts
 
-| Dimension | Verdict |
-|-----------|---------|
-| Plan Adherence | PASS |
-| Scope Discipline | PASS |
-| Safety & Quality | PASS |
-| Architecture | PASS |
-| Pattern Consistency | PASS |
-| Success Criteria | PASS |
+| Dimension           | Verdict |
+| ------------------- | ------- |
+| Plan Adherence      | PASS    |
+| Scope Discipline    | PASS    |
+| Safety & Quality    | PASS    |
+| Architecture        | PASS    |
+| Pattern Consistency | PASS    |
+| Success Criteria    | PASS    |
 
-Headline roadmap risk (a wrong RLS pattern propagating to future tables) is provably handled: all 16 policies use `(select auth.uid())`, insert/update carry `with check`, `anon` is default-denied (no anon policy), and the pgTAP test asserts cross-account write *effect* (not just no-error) across all four tables. All planned deliverables MATCH; the only deviations are additive and benign (per-child `session_id` indexes, `Insert`/`Update` aliases in `src/types.ts`, anticipated `supabase/seed.sql` and the `eslint.config.js` ignore for generated types).
+Headline roadmap risk (a wrong RLS pattern propagating to future tables) is provably handled: all 16 policies use `(select auth.uid())`, insert/update carry `with check`, `anon` is default-denied (no anon policy), and the pgTAP test asserts cross-account write _effect_ (not just no-error) across all four tables. All planned deliverables MATCH; the only deviations are additive and benign (per-child `session_id` indexes, `Insert`/`Update` aliases in `src/types.ts`, anticipated `supabase/seed.sql` and the `eslint.config.js` ignore for generated types).
 
 ## Findings
 

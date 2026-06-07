@@ -16,15 +16,15 @@ Four tables exist, each with a denormalized `user_id`, FK cascade to `sessions`/
 
 ## Key Decisions Made
 
-| Decision                     | Choice                                               | Why (1 sentence)                                                                              | Source |
-| ---------------------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------ |
-| RLS ownership model          | Denormalized `user_id` on every table                | Simplest, fastest (no joins), and the template copies verbatim to any future table.           | Plan   |
-| Schema granularity           | Pragmatic columns sized to the known loop            | S-01 builds against a real schema; additive tweaks are cheap, speculative full-model isn't.   | Plan   |
-| Storage bucket               | Deferred to S-01 (`materials.storage_path` hook)     | Storage RLS is best built with the upload code that exercises it; keeps F-01 to one surface.  | Plan   |
-| TypeScript types             | Generate `database.types.ts` + typed client          | Sets the typed-client convention at the foundation; types can't drift from the migration.     | Plan   |
-| Referential cleanup          | FK `ON DELETE CASCADE` (child→session, session→user) | S-07 inherits atomic DB cascade; PRD chose hard-delete, so soft-delete is out.                | Plan   |
-| RLS template home            | `docs/reference/rls-policy-template.md` + registry   | Discoverable canonical place downstream `/10x-plan` runs cite; names registered for renames.  | Plan   |
-| Isolation verification       | Automated SQL/pgTAP test on local Supabase           | Exercises RLS exactly as Postgres enforces it — the only real proof, repeatable in CI.        | Plan   |
+| Decision               | Choice                                               | Why (1 sentence)                                                                             | Source |
+| ---------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------ |
+| RLS ownership model    | Denormalized `user_id` on every table                | Simplest, fastest (no joins), and the template copies verbatim to any future table.          | Plan   |
+| Schema granularity     | Pragmatic columns sized to the known loop            | S-01 builds against a real schema; additive tweaks are cheap, speculative full-model isn't.  | Plan   |
+| Storage bucket         | Deferred to S-01 (`materials.storage_path` hook)     | Storage RLS is best built with the upload code that exercises it; keeps F-01 to one surface. | Plan   |
+| TypeScript types       | Generate `database.types.ts` + typed client          | Sets the typed-client convention at the foundation; types can't drift from the migration.    | Plan   |
+| Referential cleanup    | FK `ON DELETE CASCADE` (child→session, session→user) | S-07 inherits atomic DB cascade; PRD chose hard-delete, so soft-delete is out.               | Plan   |
+| RLS template home      | `docs/reference/rls-policy-template.md` + registry   | Discoverable canonical place downstream `/10x-plan` runs cite; names registered for renames. | Plan   |
+| Isolation verification | Automated SQL/pgTAP test on local Supabase           | Exercises RLS exactly as Postgres enforces it — the only real proof, repeatable in CI.       | Plan   |
 
 ## Scope
 
@@ -38,12 +38,12 @@ One baseline migration creates all four tables and their RLS together (they form
 
 ## Phases at a Glance
 
-| Phase                          | What it delivers                                            | Key risk                                                            |
-| ------------------------------ | ----------------------------------------------------------- | ------------------------------------------------------------------- |
-| 1. Schema + RLS migration      | 4 tables, cascades, indexes, uniform RLS block              | A subtly weak policy (missing `with check`, bare `auth.uid()`)      |
-| 2. Isolation test              | Automated cross-account denial proof across all 4 tables    | A test that passes on "no error" instead of checking row effects    |
-| 3. Typed client                | `database.types.ts` + `createServerClient<Database>`        | Breaking the existing null-return guard when env vars are unset     |
-| 4. Template documentation      | `rls-policy-template.md` + contract-surfaces registry       | Doc drifting from the shipped migration                             |
+| Phase                     | What it delivers                                         | Key risk                                                         |
+| ------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------- |
+| 1. Schema + RLS migration | 4 tables, cascades, indexes, uniform RLS block           | A subtly weak policy (missing `with check`, bare `auth.uid()`)   |
+| 2. Isolation test         | Automated cross-account denial proof across all 4 tables | A test that passes on "no error" instead of checking row effects |
+| 3. Typed client           | `database.types.ts` + `createServerClient<Database>`     | Breaking the existing null-return guard when env vars are unset  |
+| 4. Template documentation | `rls-policy-template.md` + contract-surfaces registry    | Doc drifting from the shipped migration                          |
 
 **Prerequisites:** Docker + `npx supabase start` available locally (needed for `db reset`, `test db`, and `gen types --local`).
 **Estimated effort:** ~1 focused session across 4 small, well-gated phases.

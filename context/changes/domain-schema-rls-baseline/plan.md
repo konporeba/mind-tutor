@@ -42,7 +42,7 @@ After this plan:
 
 ## Implementation Approach
 
-One baseline migration creates all four tables and their RLS in a single file, because they form one cohesive ownership unit and the RLS block is the deliverable being templated. Immediately after, an automated SQL test proves cross-account isolation — front-loaded as Phase 2 because it validates the roadmap's highest risk before any further work builds on the schema. Then the client is typed from the generated schema, and finally the proven pattern is documented (documenting *after* proving avoids enshrining an untested template).
+One baseline migration creates all four tables and their RLS in a single file, because they form one cohesive ownership unit and the RLS block is the deliverable being templated. Immediately after, an automated SQL test proves cross-account isolation — front-loaded as Phase 2 because it validates the roadmap's highest risk before any further work builds on the schema. Then the client is typed from the generated schema, and finally the proven pattern is documented (documenting _after_ proving avoids enshrining an untested template).
 
 The RLS pattern is **denormalized `user_id` on every table** with a uniform policy `user_id = (select auth.uid())`. The `(select …)` wrapper is deliberate — Postgres caches it per-statement, which is Supabase's documented performance guidance for RLS. Uniformity is the feature: a new table in any future slice copies the same four-policy block verbatim.
 
@@ -167,7 +167,7 @@ set local role anon;
 #### Manual Verification:
 
 - The test covers all four tables for all three operations (select / update / delete) plus the `anon` no-access case
-- Assertions check *counts/effects*, not just absence of error (a permissive policy returning B's rows must fail the test)
+- Assertions check _counts/effects_, not just absence of error (a permissive policy returning B's rows must fail the test)
 
 **Implementation Note**: After Phase 2 passes, pause for manual confirmation that the test genuinely exercises cross-account denial (not just "no error thrown") before proceeding.
 
@@ -234,7 +234,7 @@ Document the proven RLS pattern as the canonical reference downstream slices ext
 
 **File**: `docs/reference/rls-policy-template.md`
 
-**Intent**: Give every future `/10x-plan` and implementer one canonical place to copy the per-learner RLS pattern from, so no slice re-derives it. Documents the *proven* block from Phase 1/2, not a guess.
+**Intent**: Give every future `/10x-plan` and implementer one canonical place to copy the per-learner RLS pattern from, so no slice re-derives it. Documents the _proven_ block from Phase 1/2, not a guess.
 
 **Contract**: A reference doc containing: (a) the copy-paste enable-RLS + four-policy block with a `<table>` placeholder; (b) the per-table conventions — denormalized `user_id uuid not null references auth.users(id) on delete cascade`, `create index on <table>(user_id)`, policy naming `<table>_<op>_own`, role `authenticated`, `(select auth.uid())` wrapper, `with check` on insert/update; (c) the verification recipe — how to add the table to `supabase/tests/rls_isolation_test.sql` and run `supabase test db`; (d) a "regenerate types after every migration" reminder pointing at Phase 3's command.
 

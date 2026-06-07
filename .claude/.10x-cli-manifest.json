@@ -9,20 +9,13 @@
   "files": {
     "skills": {
       "10x-init": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-shape": {
-        "files": [
-          "references/prd-schema.md",
-          "SKILL.md"
-        ]
+        "files": ["references/prd-schema.md", "SKILL.md"]
       },
       "10x-prd": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-tech-stack-selector": {
         "files": [
@@ -36,10 +29,7 @@
         ]
       },
       "10x-stack-assess": {
-        "files": [
-          "references/agent-friendly-criteria.md",
-          "SKILL.md"
-        ]
+        "files": ["references/agent-friendly-criteria.md", "SKILL.md"]
       },
       "10x-bootstrapper": {
         "files": [
@@ -54,67 +44,40 @@
         ]
       },
       "10x-health-check": {
-        "files": [
-          "references/health-check-schema.md",
-          "SKILL.md"
-        ]
+        "files": ["references/health-check-schema.md", "SKILL.md"]
       },
       "10x-agents-md": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-rule-review": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-lesson": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-infra-research": {
-        "files": [
-          "references/agent-friendly-criteria.md",
-          "SKILL.md"
-        ]
+        "files": ["references/agent-friendly-criteria.md", "SKILL.md"]
       },
       "10x-roadmap": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-new": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-plan": {
-        "files": [
-          "references/progress-format.md",
-          "SKILL.md"
-        ]
+        "files": ["references/progress-format.md", "SKILL.md"]
       },
       "10x-plan-review": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-implement": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-archive": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       },
       "10x-impl-review": {
-        "files": [
-          "SKILL.md"
-        ]
+        "files": ["SKILL.md"]
       }
     },
     "prompts": [
