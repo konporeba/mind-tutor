@@ -374,7 +374,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 2: Generation & Scoring Services
 
 #### Automated
-- [ ] 2.1 Type checking passes: `npm run build`
+- [x] 2.1 Type checking passes: `npm run build`
 - [ ] 2.2 Linting passes: `npm run lint`
 
 #### Manual
