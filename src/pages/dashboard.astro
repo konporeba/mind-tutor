@@ -16,6 +16,12 @@ const { user } = Astro.locals;
       <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
       <div class="mt-6 flex items-center justify-center gap-3">
         <a
+          href="/sessions/new"
+          class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+        >
+          Start new session
+        </a>
+        <a
           href="/account"
           class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
         >

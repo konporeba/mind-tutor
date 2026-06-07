@@ -384,7 +384,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 3: API Routes
 
 #### Automated
-- [x] 3.1 Type checking + build pass: `npm run build`
+- [x] 3.1 Type checking + build pass: `npm run build` — 7b9fe4e
 - [ ] 3.2 Linting passes: `npm run lint`
 
 #### Manual
@@ -396,7 +396,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 ### Phase 4: User Interface
 
 #### Automated
-- [ ] 4.1 Build + type check pass: `npm run build`
+- [x] 4.1 Build + type check pass: `npm run build`
 - [ ] 4.2 Linting passes (incl. jsx-a11y): `npm run lint`
 
 #### Manual
