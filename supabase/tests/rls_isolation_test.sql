@@ -18,7 +18,7 @@
 
 begin;
 create extension if not exists pgtap;
-select plan(20);
+select plan(23);
 
 -- ============================================================================
 -- Seed two learners and one owned row per table for each (as superuser).
@@ -99,6 +99,25 @@ select is((select count(*) from public.materials)::int, 0, 'anon sees no materia
 select is((select count(*) from public.generated_content)::int, 0, 'anon sees no generated_content');
 select is((select count(*) from public.exercises)::int, 0, 'anon sees no exercises');
 
+-- anon write denial (sessions as representative; the mechanism is role-based and
+-- identical across the four tables). INSERT is rejected outright (SQLSTATE 42501,
+-- covers both RLS WITH CHECK and a missing grant); UPDATE/DELETE are silent
+-- 0-row no-ops, proven by effect from the superuser vantage point below.
+select throws_ok(
+  $$ insert into public.sessions (user_id, status)
+     values ('00000000-0000-0000-0000-00000000000a', 'active') $$,
+  '42501',
+  null,
+  'anon cannot insert a session'
+);
+
+update public.sessions set title = 'anon-edit' where id = '11111111-1111-1111-1111-11111111111a';
+delete from public.sessions                     where id = '11111111-1111-1111-1111-11111111111a';
+
 reset role;
+
+select is((select count(*) from public.sessions where id = '11111111-1111-1111-1111-11111111111a')::int, 1, 'anon did not delete A session');
+select is((select title from public.sessions where id = '11111111-1111-1111-1111-11111111111a'), null::text, 'anon did not update A session');
+
 select * from finish();
 rollback;
