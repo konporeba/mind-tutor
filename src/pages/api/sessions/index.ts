@@ -65,6 +65,7 @@ export const POST: APIRoute = async (context) => {
     generated = await generateSession(extractedText);
   } catch (err) {
     if (err instanceof GenerationError) {
+      console.error("[api/sessions] generation failed:", err.message);
       return json({ error: "Could not generate a session from this material. Please try again." }, 502);
     }
     throw err;
