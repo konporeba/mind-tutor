@@ -308,9 +308,9 @@ No new per-request server work beyond a few small form fields and the same singl
 ### Phase 2: Generation tailoring
 
 #### Automated
-- [x] 2.1 Build green: `npm run build`
-- [x] 2.2 Lint green: `npm run lint`
-- [x] 2.3 No type errors via build (callers updated in Phase 3)
+- [x] 2.1 Build green: `npm run build` — ee92bdb
+- [x] 2.2 Lint green: `npm run lint` — ee92bdb
+- [x] 2.3 No type errors via build (callers updated in Phase 3) — ee92bdb
 
 #### Manual
 - [ ] 2.4 Built messages show level/goal/time/counts, different per intake
@@ -319,8 +319,8 @@ No new per-request server work beyond a few small form fields and the same singl
 ### Phase 3: API wiring
 
 #### Automated
-- [ ] 3.1 Build green: `npm run build`
-- [ ] 3.2 Lint green: `npm run lint`
+- [x] 3.1 Build green: `npm run build`
+- [x] 3.2 Lint green: `npm run lint`
 
 #### Manual
 - [ ] 3.3 POST without intake → 400, no session created
