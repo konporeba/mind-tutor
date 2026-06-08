@@ -4,11 +4,7 @@
 // limit. PDFs are parsed with pdf.js; .txt/.md are read as raw text (markdown is
 // NOT rendered or stripped — the AI sees the raw source, per PRD).
 
-import * as pdfjsLib from "pdfjs-dist";
 import type { TextItem } from "pdfjs-dist/types/src/display/api";
-import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
 
 export const MAX_SIZE_BYTES = 20 * 1024 * 1024; // 20 MB (NFR)
 export const ALLOWED_EXTENSIONS = ["pdf", "txt", "md"] as const;
@@ -29,7 +25,19 @@ export function validateFile(file: File): string | null {
   return null;
 }
 
+// pdf.js pulls in browser-only globals (DOMMatrix, etc.) at module-eval time, so
+// it must NOT be imported at the top level — Astro SSRs this island (client:load)
+// on the Cloudflare Worker, where those globals don't exist. Loading it lazily,
+// inside the browser-only parse path, keeps it out of the SSR module graph.
+let workerConfigured = false;
+
 async function parsePdf(file: File): Promise<string> {
+  const pdfjsLib = await import("pdfjs-dist");
+  if (!workerConfigured) {
+    const workerSrc = (await import("pdfjs-dist/build/pdf.worker.min.mjs?url")).default;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerSrc;
+    workerConfigured = true;
+  }
   const data = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data }).promise;
   const pages: string[] = [];
