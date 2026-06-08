@@ -1,7 +1,7 @@
 ---
 change_id: per-session-intake-tailoring
 title: Per-session intake (knowledge level, goal, time) biases generation
-status: implementing
+status: implemented
 created: 2026-06-08
 updated: 2026-06-08
 archived_at: null

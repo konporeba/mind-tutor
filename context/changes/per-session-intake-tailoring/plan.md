@@ -340,9 +340,9 @@ No new per-request server work beyond a few small form fields and the same singl
 ### Phase 5: Verification (Vitest)
 
 #### Automated
-- [x] 5.1 `npm run test` passes locally
-- [ ] 5.2 CI `ci` job runs the test step and is green
-- [x] 5.3 Build + lint still green
+- [x] 5.1 `npm run test` passes locally — 20763c3
+- [x] 5.2 CI `ci` job runs the test step and is green — 20763c3
+- [x] 5.3 Build + lint still green — 20763c3
 
 #### Manual
-- [x] 5.4 Breaking the sizing map fails the test (assertion has teeth)
+- [x] 5.4 Breaking the sizing map fails the test (assertion has teeth) — 20763c3
