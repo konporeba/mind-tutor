@@ -8,6 +8,8 @@
 
 import { z } from "zod";
 
+import type { SessionSizing } from "./sizing";
+
 // Bounds for a single-sitting session (fixed default; intake-driven sizing is S-02).
 export const THEORY_MIN = 3;
 export const THEORY_MAX = 5;
@@ -43,6 +45,19 @@ export const GeneratedSessionSchema = z.object({
   theory: z.array(TheoryStepSchema).min(THEORY_MIN).max(THEORY_MAX),
   exercises: z.array(McqSchema).length(MCQ_COUNT),
 });
+
+// Intake-driven variant (S-02): same per-item schemas (TheoryStep, Mcq), but the
+// theory bounds and exact MCQ count come from the sizing map instead of the fixed
+// module constants. generate.ts computes sizing once and uses this so the prompt
+// and validation agree across retry attempts. GeneratedSessionSchema remains the
+// fallback default for any call path without intake.
+export function makeGeneratedSessionSchema(sizing: SessionSizing) {
+  return z.object({
+    title: z.string().min(1),
+    theory: z.array(TheoryStepSchema).min(sizing.theoryMin).max(sizing.theoryMax),
+    exercises: z.array(McqSchema).length(sizing.mcqCount),
+  });
+}
 
 export type TheoryStep = z.infer<typeof TheoryStepSchema>;
 export type Mcq = z.infer<typeof McqSchema>;

@@ -7,8 +7,10 @@
 // response is parsed, zod-validated, and citation-checked; any failure retries
 // the call once before throwing GenerationError.
 
-import { GeneratedSessionSchema, MCQ_COUNT, THEORY_MAX, THEORY_MIN, type GeneratedSession } from "./schema";
+import type { SessionIntake } from "@/types";
+import { makeGeneratedSessionSchema, type GeneratedSession } from "./schema";
 import { GenerationError, getModel, getOpenRouterClient } from "./openrouter";
+import { sizeFromIntake, type SessionSizing } from "./sizing";
 
 // Cap how much source we send so we stay within model context and bounded cost.
 // Citations are validated against exactly the text we send (the truncated slice).
@@ -21,17 +23,25 @@ function normalizeWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-function buildMessages(sourceText: string) {
+/** Build the system/user messages for a generation call. Pure: the same source +
+ *  intake + sizing always yield the same messages (exported for the Phase 5 test).
+ *  Source-grounding rules from S-01 stay authoritative; intake only tailors depth,
+ *  focus, and counts. */
+export function buildMessages(sourceText: string, intake: SessionIntake, sizing: SessionSizing) {
   const system = [
     "You are MindTutor, an AI study tutor.",
     "You generate a short, guided study session STRICTLY from the provided source material.",
     "Use ONLY facts present in the source. Never introduce outside knowledge or invent details.",
     "Every theory step MUST include a `citation`: a short verbatim quote copied exactly from the source that supports that step.",
+    "Tailor the session to this learner without ever breaking the grounding rules above:",
+    `- Knowledge level: ${intake.knowledgeLevel}. ${sizing.depthGuidance}`,
+    `- Learning goal: "${intake.learningGoal.trim()}". Keep the theory and exercises focused on this goal where the source supports it.`,
+    `- Available time: about ${intake.timeBudgetMinutes} minutes. Size the session to fit this budget.`,
     "Respond with a single JSON object and nothing else, matching this shape:",
     "{",
     '  "title": string,',
-    `  "theory": Array<{ "position": number, "heading": string, "body": string, "citation": string }> (between ${THEORY_MIN} and ${THEORY_MAX} items, positions starting at 0),`,
-    `  "exercises": Array<{ "position": number, "prompt": string, "options": string[] (3-5), "correctIndex": number, "feedback": string }> (exactly ${MCQ_COUNT} multiple-choice items, positions starting at 0)`,
+    `  "theory": Array<{ "position": number, "heading": string, "body": string, "citation": string }> (between ${sizing.theoryMin} and ${sizing.theoryMax} items, positions starting at 0),`,
+    `  "exercises": Array<{ "position": number, "prompt": string, "options": string[] (3-5), "correctIndex": number, "feedback": string }> (exactly ${sizing.mcqCount} multiple-choice items, positions starting at 0)`,
     "}",
     "Each citation must be a substring that appears verbatim in the source text.",
   ].join("\n");
@@ -62,16 +72,22 @@ function findUngroundedCitation(session: GeneratedSession, sourceText: string): 
  * Throws GenerationError on misconfiguration, API failure, or output that cannot
  * be validated/grounded after one retry.
  */
-export async function generateSession(sourceText: string): Promise<GeneratedSession> {
+export async function generateSession(sourceText: string, intake: SessionIntake): Promise<GeneratedSession> {
   const trimmed = sourceText.trim();
   if (trimmed.length === 0) {
     throw new GenerationError("Source material is empty; nothing to generate from");
   }
   const source = trimmed.slice(0, MAX_SOURCE_CHARS);
 
+  // Compute sizing ONCE, before the retry loop, and derive both the prompt and the
+  // validation schema from it — otherwise a retry could validate against bounds the
+  // prompt never requested. Bounds in → prompt + schema out, together.
+  const sizing = sizeFromIntake(intake);
+  const sessionSchema = makeGeneratedSessionSchema(sizing);
+
   const client = getOpenRouterClient();
   const model = getModel();
-  const messages = buildMessages(source);
+  const messages = buildMessages(source, intake, sizing);
 
   let lastReason = "unknown error";
 
@@ -104,7 +120,7 @@ export async function generateSession(sourceText: string): Promise<GeneratedSess
       continue;
     }
 
-    const result = GeneratedSessionSchema.safeParse(parsedJson);
+    const result = sessionSchema.safeParse(parsedJson);
     if (!result.success) {
       lastReason = `response failed schema validation: ${result.error.issues[0]?.message ?? "unknown"}`;
       continue;

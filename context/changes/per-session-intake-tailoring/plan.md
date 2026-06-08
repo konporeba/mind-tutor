@@ -295,22 +295,22 @@ No new per-request server work beyond a few small form fields and the same singl
 ### Phase 1: Schema & intake foundation
 
 #### Automated
-- [x] 1.1 Migration applies cleanly: `npx supabase db reset`
-- [x] 1.2 pgTAP suite green: `npx supabase test db`
-- [x] 1.3 Generated types match after Prettier (no drift)
-- [x] 1.4 Build green: `npm run build`
-- [x] 1.5 Lint green: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npx supabase db reset` — 740a161
+- [x] 1.2 pgTAP suite green: `npx supabase test db` — 740a161
+- [x] 1.3 Generated types match after Prettier (no drift) — 740a161
+- [x] 1.4 Build green: `npm run build` — 740a161
+- [x] 1.5 Lint green: `npm run lint` — 740a161
 
 #### Manual
-- [x] 1.6 Check constraints reject invalid level / time in Studio
-- [x] 1.7 `sizeFromIntake` returns distinct shapes for (15, novice) vs (60, advanced)
+- [x] 1.6 Check constraints reject invalid level / time in Studio — 740a161
+- [x] 1.7 `sizeFromIntake` returns distinct shapes for (15, novice) vs (60, advanced) — 740a161
 
 ### Phase 2: Generation tailoring
 
 #### Automated
-- [ ] 2.1 Build green: `npm run build`
-- [ ] 2.2 Lint green: `npm run lint`
-- [ ] 2.3 No type errors via build (callers updated in Phase 3)
+- [x] 2.1 Build green: `npm run build`
+- [x] 2.2 Lint green: `npm run lint`
+- [x] 2.3 No type errors via build (callers updated in Phase 3)
 
 #### Manual
 - [ ] 2.4 Built messages show level/goal/time/counts, different per intake
