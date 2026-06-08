@@ -376,11 +376,11 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 
 #### Automated
 
-- [ ] 1.1 Migration applies cleanly: `npx supabase db reset`
-- [ ] 1.2 Four tables RLS-enabled; `materials` bucket exists and is private
-- [ ] 1.3 Isolation test passes: `npx supabase test db`
-- [ ] 1.4 Types regenerate without drift: `npx supabase gen types --local` + `npm run build`
-- [ ] 1.5 Linting passes: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npx supabase db reset`
+- [x] 1.2 Four tables RLS-enabled; `materials` bucket exists and is private
+- [x] 1.3 Isolation test passes: `npx supabase test db`
+- [x] 1.4 Types regenerate without drift: `npx supabase gen types --local` + `npm run build`
+- [x] 1.5 Linting passes: `npm run lint`
 
 #### Manual
 
@@ -392,7 +392,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 #### Automated
 
 - [x] 2.1 Type checking passes: `npm run build` — f24b70b
-- [ ] 2.2 Linting passes: `npm run lint`
+- [x] 2.2 Linting passes: `npm run lint`
 
 #### Manual
 
@@ -404,7 +404,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 #### Automated
 
 - [x] 3.1 Type checking + build pass: `npm run build` — 7b9fe4e
-- [ ] 3.2 Linting passes: `npm run lint`
+- [x] 3.2 Linting passes: `npm run lint`
 
 #### Manual
 
@@ -418,7 +418,7 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 #### Automated
 
 - [x] 4.1 Build + type check pass: `npm run build` — bc27921
-- [ ] 4.2 Linting passes (incl. jsx-a11y): `npm run lint`
+- [x] 4.2 Linting passes (incl. jsx-a11y): `npm run lint`
 
 #### Manual
 
@@ -432,8 +432,8 @@ Prove cross-account isolation across the whole loop, run the manual E2E checklis
 
 #### Automated
 
-- [ ] 5.1 `npx supabase test db` passes (table + Storage isolation)
-- [ ] 5.2 `npm run lint` and `npm run build` green
+- [x] 5.1 `npx supabase test db` passes (table + Storage isolation)
+- [x] 5.2 `npm run lint` and `npm run build` green
 
 #### Manual
 

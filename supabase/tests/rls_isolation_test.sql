@@ -79,8 +79,18 @@ select is((select extracted_text from public.materials where id = '22222222-2222
 select is((select extracted_text from public.materials where id = '22222222-2222-2222-2222-22222222222b'), null::text, 'A cannot read B extracted_text');
 
 -- Storage isolation: A sees only objects under its own uid prefix, never B's.
+-- (Direct DELETE/UPDATE on storage.objects is blocked for everyone by Supabase's
+-- storage.protect_delete trigger, so storage isolation is proven via SELECT
+-- visibility + INSERT denial under another learner's prefix.)
 select is((select count(*) from storage.objects where bucket_id = 'materials')::int, 1, 'A sees only its own material object');
 select is((select count(*) from storage.objects where name like '00000000-0000-0000-0000-00000000000b/%')::int, 0, 'A cannot see B material object');
+select throws_ok(
+  $$ insert into storage.objects (bucket_id, name, owner_id)
+     values ('materials', '00000000-0000-0000-0000-00000000000b/11111111-1111-1111-1111-11111111111b/hack.pdf', '00000000-0000-0000-0000-00000000000a') $$,
+  '42501',
+  null,
+  'A cannot insert a storage object under B prefix'
+);
 
 -- Write attempts by A against B's rows. Under RLS these are silent 0-row no-ops.
 update public.sessions          set title    = 'hacked' where id = '11111111-1111-1111-1111-11111111111b';
@@ -91,8 +101,6 @@ update public.generated_content set position = 999      where id = '33333333-333
 delete from public.generated_content                     where id = '33333333-3333-3333-3333-33333333333b';
 update public.exercises         set prompt   = 'hacked' where id = '44444444-4444-4444-4444-44444444444b';
 delete from public.exercises                             where id = '44444444-4444-4444-4444-44444444444b';
-update storage.objects set name = 'hacked' where name like '00000000-0000-0000-0000-00000000000b/%';
-delete from storage.objects                where name like '00000000-0000-0000-0000-00000000000b/%';
 
 -- ============================================================================
 -- Back to superuser: prove B's rows survived A's writes unchanged.
@@ -110,8 +118,6 @@ select is((select position from public.generated_content where id = '33333333-33
 
 select is((select count(*) from public.exercises where id = '44444444-4444-4444-4444-44444444444b')::int, 1, 'B exercise not deleted by A');
 select is((select prompt from public.exercises where id = '44444444-4444-4444-4444-44444444444b'), 'qb', 'B exercise not updated by A');
-
-select is((select count(*) from storage.objects where name = '00000000-0000-0000-0000-00000000000b/11111111-1111-1111-1111-11111111111b/b.pdf')::int, 1, 'B material object not deleted/renamed by A');
 
 -- ============================================================================
 -- The anon role has table grants but no policies grant it rows: default-deny.
