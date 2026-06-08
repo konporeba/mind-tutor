@@ -313,8 +313,8 @@ No new per-request server work beyond a few small form fields and the same singl
 - [x] 2.3 No type errors via build (callers updated in Phase 3) — ee92bdb
 
 #### Manual
-- [x] 2.4 Built messages show level/goal/time/counts, different per intake
-- [x] 2.5 Live (15, novice) returns fewer steps/MCQs than (60, advanced)
+- [x] 2.4 Built messages show level/goal/time/counts, different per intake — 6d6c8af
+- [x] 2.5 Live (15, novice) returns fewer steps/MCQs than (60, advanced) — 6d6c8af
 
 ### Phase 3: API wiring
 
@@ -323,26 +323,26 @@ No new per-request server work beyond a few small form fields and the same singl
 - [x] 3.2 Lint green: `npm run lint` — bad9579
 
 #### Manual
-- [x] 3.3 POST without intake → 400, no session created
-- [x] 3.4 POST with valid intake → session row carries the three values
+- [x] 3.3 POST without intake → 400, no session created — 6d6c8af
+- [x] 3.4 POST with valid intake → session row carries the three values — 6d6c8af
 
 ### Phase 4: Intake UI
 
 #### Automated
-- [x] 4.1 Build green: `npm run build`
-- [x] 4.2 Lint green: `npm run lint`
+- [x] 4.1 Build green: `npm run build` — 6d6c8af
+- [x] 4.2 Lint green: `npm run lint` — 6d6c8af
 
 #### Manual
-- [x] 4.3 "Start session" disabled until file + all three fields set
-- [x] 4.4 Goal length cap enforced; level/time selectors usable by keyboard + click
-- [x] 4.5 End-to-end: session sized per chosen time/level; goal reflected in focus
+- [x] 4.3 "Start session" disabled until file + all three fields set — 6d6c8af
+- [x] 4.4 Goal length cap enforced; level/time selectors usable by keyboard + click — 6d6c8af
+- [x] 4.5 End-to-end: session sized per chosen time/level; goal reflected in focus — 6d6c8af
 
 ### Phase 5: Verification (Vitest)
 
 #### Automated
-- [ ] 5.1 `npm run test` passes locally
+- [x] 5.1 `npm run test` passes locally
 - [ ] 5.2 CI `ci` job runs the test step and is green
-- [ ] 5.3 Build + lint still green
+- [x] 5.3 Build + lint still green
 
 #### Manual
-- [ ] 5.4 Breaking the sizing map fails the test (assertion has teeth)
+- [x] 5.4 Breaking the sizing map fails the test (assertion has teeth)
