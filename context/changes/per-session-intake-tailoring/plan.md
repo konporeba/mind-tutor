@@ -313,29 +313,29 @@ No new per-request server work beyond a few small form fields and the same singl
 - [x] 2.3 No type errors via build (callers updated in Phase 3) — ee92bdb
 
 #### Manual
-- [ ] 2.4 Built messages show level/goal/time/counts, different per intake
-- [ ] 2.5 Live (15, novice) returns fewer steps/MCQs than (60, advanced)
+- [x] 2.4 Built messages show level/goal/time/counts, different per intake
+- [x] 2.5 Live (15, novice) returns fewer steps/MCQs than (60, advanced)
 
 ### Phase 3: API wiring
 
 #### Automated
-- [x] 3.1 Build green: `npm run build`
-- [x] 3.2 Lint green: `npm run lint`
+- [x] 3.1 Build green: `npm run build` — bad9579
+- [x] 3.2 Lint green: `npm run lint` — bad9579
 
 #### Manual
-- [ ] 3.3 POST without intake → 400, no session created
-- [ ] 3.4 POST with valid intake → session row carries the three values
+- [x] 3.3 POST without intake → 400, no session created
+- [x] 3.4 POST with valid intake → session row carries the three values
 
 ### Phase 4: Intake UI
 
 #### Automated
-- [ ] 4.1 Build green: `npm run build`
-- [ ] 4.2 Lint green: `npm run lint`
+- [x] 4.1 Build green: `npm run build`
+- [x] 4.2 Lint green: `npm run lint`
 
 #### Manual
-- [ ] 4.3 "Start session" disabled until file + all three fields set
-- [ ] 4.4 Goal length cap enforced; level/time selectors usable by keyboard + click
-- [ ] 4.5 End-to-end: session sized per chosen time/level; goal reflected in focus
+- [x] 4.3 "Start session" disabled until file + all three fields set
+- [x] 4.4 Goal length cap enforced; level/time selectors usable by keyboard + click
+- [x] 4.5 End-to-end: session sized per chosen time/level; goal reflected in focus
 
 ### Phase 5: Verification (Vitest)
 
