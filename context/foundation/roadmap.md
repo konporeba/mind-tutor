@@ -33,7 +33,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------- | -------- |
 | F-01 | domain-schema-rls-baseline   | (foundation) minimal domain schema + RLS policy template are in place for the session loop             | —             | NFR (per-learner isolation), Access Control                                                       | done     |
 | S-01 | first-grounded-session       | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score        | F-01          | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | done     |
-| S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | proposed |
+| S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | done     |
 | S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | proposed |
 | S-04 | multi-type-exercises         | encounter fill-in-the-blank and a domain-specific exercise type alongside MCQ                          | S-01          | US-01, FR-009 (full)                                                                              | proposed |
 | S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | proposed |
@@ -108,7 +108,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - What's the verification that intake values actually changed the prompt (FR-006 says "measurably change the generated prompt")? A prompt-level diff harness or a manual review pattern? Owner: `/10x-plan`. Block: no.
 - **Risk:** Conversational intake adds session-start friction; if the chat exceeds 3 turns it erodes the UX every session. Bound it at prompt level. Sequenced before S-03 (bio) because per-session params change generation per-session, while bio is static — for market-feedback bias, the per-session signal is the more useful one to ship next.
-- **Status:** proposed
+- **Status:** done
 
 ### S-03: Onboarding bio tailoring
 
@@ -240,5 +240,6 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 | F-01       | domain-schema-rls-baseline | 2026-06-08 | Domain schema + per-learner RLS template + private `materials` Storage bucket live on prod Supabase. Migrations pushed via transaction pooler.                     |
 | S-01       | first-grounded-session     | 2026-06-08 | North star shipped: upload → grounded theory + MCQs → score → history. OpenRouter generation; client-side PDF parse (pdf.js lazy-loaded to avoid SSR `DOMMatrix`). |
 | S-09       | password-change            | 2026-06-08 | Change password with current-password confirmation; no forced logout on token rotation. Verified live.                                                            |
+| S-02       | per-session-intake-tailoring | 2026-06-08 | Per-session intake (level, goal, time) tailors generation: typed nullable columns on `sessions`, pure sizing map drives theory/MCQ counts + prompt depth, gated 3-field intake UI, first Vitest harness. Archived → `context/archive/2026-06-08-per-session-intake-tailoring/`. |
 
 _`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._
