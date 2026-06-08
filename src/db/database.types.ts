@@ -171,8 +171,11 @@ export type Database = {
           completed_at: string | null;
           created_at: string;
           id: string;
+          knowledge_level: string | null;
+          learning_goal: string | null;
           score: number | null;
           status: string;
+          time_budget_minutes: number | null;
           title: string | null;
           updated_at: string;
           user_id: string;
@@ -181,8 +184,11 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string;
           id?: string;
+          knowledge_level?: string | null;
+          learning_goal?: string | null;
           score?: number | null;
           status?: string;
+          time_budget_minutes?: number | null;
           title?: string | null;
           updated_at?: string;
           user_id: string;
@@ -191,8 +197,11 @@ export type Database = {
           completed_at?: string | null;
           created_at?: string;
           id?: string;
+          knowledge_level?: string | null;
+          learning_goal?: string | null;
           score?: number | null;
           status?: string;
+          time_budget_minutes?: number | null;
           title?: string | null;
           updated_at?: string;
           user_id?: string;
