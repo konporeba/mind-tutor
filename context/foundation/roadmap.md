@@ -3,7 +3,7 @@ project: MindTutor
 version: 1
 status: draft
 created: 2026-05-28
-updated: 2026-05-28
+updated: 2026-06-08
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -31,8 +31,8 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 
 | ID   | Change ID                    | Outcome (user can …)                                                                                   | Prerequisites | PRD refs                                                                                          | Status   |
 | ---- | ---------------------------- | ------------------------------------------------------------------------------------------------------ | ------------- | ------------------------------------------------------------------------------------------------- | -------- |
-| F-01 | domain-schema-rls-baseline   | (foundation) minimal domain schema + RLS policy template are in place for the session loop             | —             | NFR (per-learner isolation), Access Control                                                       | ready    |
-| S-01 | first-grounded-session       | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score        | F-01          | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | proposed |
+| F-01 | domain-schema-rls-baseline   | (foundation) minimal domain schema + RLS policy template are in place for the session loop             | —             | NFR (per-learner isolation), Access Control                                                       | done     |
+| S-01 | first-grounded-session       | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score        | F-01          | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | done     |
 | S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | proposed |
 | S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | proposed |
 | S-04 | multi-type-exercises         | encounter fill-in-the-blank and a domain-specific exercise type alongside MCQ                          | S-01          | US-01, FR-009 (full)                                                                              | proposed |
@@ -40,7 +40,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | proposed |
 | S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
 | S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | proposed |
-| S-09 | password-change              | change the account password by providing the current password and a new one                            | —             | FR-017                                                                                            | ready    |
+| S-09 | password-change              | change the account password by providing the current password and a new one                            | —             | FR-017                                                                                            | done     |
 
 ## Streams
 
@@ -78,7 +78,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** RLS configuration getting per-learner isolation wrong on the first table propagates to every subsequent table. Foundationizing it now (with a documented pattern S-01 reuses) is cheaper than retrofitting policies once five tables exist.
-- **Status:** ready
+- **Status:** done (deployed to prod 2026-06-08)
 
 ## Slices
 
@@ -94,7 +94,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - Which LLM provider/model (OpenAI, Anthropic via OpenRouter, etc.) gets wired? `infrastructure.md` names `OPENAI_API_KEY` as an example only — the PRD does not pin a provider. Owner: user. Block: no — `/10x-plan` resolves this at the planning step.
   - How is PDF text extracted under the Workers 30 s CPU limit (the #1 risk in `infrastructure.md`)? Pure-JS parser inside the Worker, or upload-to-Storage + queued parse Worker? Owner: user / `/10x-plan`. Block: no — both paths are buildable; the call belongs to `/10x-plan`.
 - **Risk:** This is the wedge proof and the largest slice; it covers the upload→parse→generate→exercise→score loop with seven user-visible FRs. Sequenced first because nothing downstream matters unless this loop works. The two load-bearing risks are (a) PDF parse exceeding the 30 s Worker CPU limit on dense files — the recommended mitigation (Storage + queued parse Worker) is named in `infrastructure.md` and should be baked in from day one, not retrofitted; (b) prompt grounding — if the AI invents claims not in the source, the wedge is broken. Both must be verified explicitly when `/10x-plan` writes the plan for this slice.
-- **Status:** proposed
+- **Resolved in delivery:** LLM provider = OpenRouter (`OPENROUTER_MODEL`, default `openai/gpt-4o-mini`); PDF text extraction runs **client-side** in the browser island (keeps it off the Worker CPU limit), with pdf.js lazy-loaded so it never enters the SSR bundle.
+- **Status:** done (deployed to prod 2026-06-08)
 
 ### S-02: Per-session intake tailoring
 
@@ -193,22 +194,22 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Supabase rotates the session token on password change; the load-bearing detail is keeping the cookie/session valid through the rotation so the learner is not forced to re-login. The Workers `Set-Cookie` semantics (flagged in `infrastructure.md` risk register) make this subtler than it looks — verify on staging, not just `wrangler dev`.
-- **Status:** ready
+- **Status:** done (deployed to prod 2026-06-08)
 
 ## Backlog Handoff
 
 | Roadmap ID | Change ID                    | Suggested issue title                                                      | Ready for `/10x-plan` | Notes                                                                             |
 | ---------- | ---------------------------- | -------------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------- |
-| F-01       | domain-schema-rls-baseline   | Establish per-learner RLS template + minimum domain schema                 | yes                   | Run `/10x-plan domain-schema-rls-baseline`. Unlocks every later slice.            |
-| S-01       | first-grounded-session       | First grounded session (north star): upload → generate → exercises → score | no                    | Waiting on F-01. Resolve PDF-parse and LLM-provider unknowns in `/10x-plan`.      |
-| S-02       | per-session-intake-tailoring | Per-session intake (level, goal, time) biases generation                   | no                    | Waiting on S-01.                                                                  |
-| S-03       | onboarding-bio-tailoring     | One-time conversational onboarding captures bio                            | no                    | Waiting on S-01.                                                                  |
-| S-04       | multi-type-exercises         | Fill-in-the-blank + domain-specific exercise types                         | no                    | Waiting on S-01. User must name the domain-specific type before `/10x-plan`.      |
-| S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                                | no                    | Waiting on S-01.                                                                  |
-| S-06       | session-history-view         | Revisit a completed session from history                                   | no                    | Waiting on S-01.                                                                  |
+| F-01       | domain-schema-rls-baseline   | Establish per-learner RLS template + minimum domain schema                 | — (done)              | Shipped 2026-06-08. Unlocked every later slice.                                   |
+| S-01       | first-grounded-session       | First grounded session (north star): upload → generate → exercises → score | — (done)              | Shipped 2026-06-08. PDF-parse (client-side) + LLM-provider (OpenRouter) resolved. |
+| S-02       | per-session-intake-tailoring | Per-session intake (level, goal, time) biases generation                   | yes                   | S-01 done — ready to plan.                                                        |
+| S-03       | onboarding-bio-tailoring     | One-time conversational onboarding captures bio                            | yes                   | S-01 done — ready to plan.                                                        |
+| S-04       | multi-type-exercises         | Fill-in-the-blank + domain-specific exercise types                         | no                    | S-01 done, but user must name the domain-specific type before `/10x-plan`.        |
+| S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                                | yes                   | S-01 done — ready to plan.                                                        |
+| S-06       | session-history-view         | Revisit a completed session from history                                   | yes                   | S-01 done — ready to plan.                                                        |
 | S-07       | delete-session               | Delete a completed session and all its data                                | no                    | Waiting on S-06.                                                                  |
 | S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | no                    | Waiting on S-03.                                                                  |
-| S-09       | password-change              | Change password with current-password confirmation                         | yes                   | Run `/10x-plan password-change`. Extends auth scaffold; touches no domain tables. |
+| S-09       | password-change              | Change password with current-password confirmation                         | — (done)              | Shipped 2026-06-08. Extends auth scaffold; touches no domain tables.              |
 
 ## Open Roadmap Questions
 
@@ -234,4 +235,10 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 
 ## Done
 
-_(Empty on first generation. `/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives.)_
+| Roadmap ID | Change ID                  | Completed  | Notes                                                                                                                                                              |
+| ---------- | -------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| F-01       | domain-schema-rls-baseline | 2026-06-08 | Domain schema + per-learner RLS template + private `materials` Storage bucket live on prod Supabase. Migrations pushed via transaction pooler.                     |
+| S-01       | first-grounded-session     | 2026-06-08 | North star shipped: upload → grounded theory + MCQs → score → history. OpenRouter generation; client-side PDF parse (pdf.js lazy-loaded to avoid SSR `DOMMatrix`). |
+| S-09       | password-change            | 2026-06-08 | Change password with current-password confirmation; no forced logout on token rotation. Verified live.                                                            |
+
+_`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._
