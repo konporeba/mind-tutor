@@ -1,10 +1,10 @@
 ---
 change_id: first-grounded-session
 title: First grounded session (north star) — upload → generate → exercises → score
-status: implementing
+status: archived
 created: 2026-06-07
-updated: 2026-06-07
-archived_at: null
+updated: 2026-06-08
+archived_at: 2026-06-08T17:36:23Z
 ---
 
 ## Notes
