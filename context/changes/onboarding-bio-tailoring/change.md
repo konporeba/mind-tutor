@@ -1,7 +1,7 @@
 ---
 change_id: onboarding-bio-tailoring
 title: One-time conversational onboarding captures a bio reused on every session
-status: implementing
+status: implemented
 created: 2026-06-09
 updated: 2026-06-09
 ---

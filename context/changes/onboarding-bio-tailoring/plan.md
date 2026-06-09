@@ -361,10 +361,10 @@ The middleware adds **one cheap `profiles` read** on authenticated requests to g
 
 #### Automated
 
-- [x] 5.1 `npm run test` passes locally (new bio cases + existing suite)
-- [ ] 5.2 CI `ci` job runs the test step and is green
-- [x] 5.3 Build + lint still green
+- [x] 5.1 `npm run test` passes locally (new bio cases + existing suite) — 3228e4d
+- [x] 5.2 CI `ci` job runs the test step and is green — 3228e4d
+- [x] 5.3 Build + lint still green — 3228e4d
 
 #### Manual
 
-- [x] 5.4 Stubbing `buildMessages` to ignore the bio fails the new assertions (teeth)
+- [x] 5.4 Stubbing `buildMessages` to ignore the bio fails the new assertions (teeth) — 3228e4d
