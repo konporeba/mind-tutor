@@ -371,22 +371,22 @@ rollout (it marks §3 Phase 1 `complete` and presents Phase 2).
 
 #### Automated
 
-- [x] 2.1 All six failure-mode cases + recovery + exhaustion present and passing: `npm test`
-- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 All six failure-mode cases + recovery + exhaustion present and passing: `npm test` — 8a11563
+- [x] 2.2 Linting passes: `npm run lint` — 8a11563
 
 #### Manual
 
-- [ ] 2.3 Each failure case fails for its intended branch (spot-check)
+- [x] 2.3 Each failure case fails for its intended branch (spot-check) — 8a11563
 
 ### Phase 3: Risk #1 structural grounding + cookbook & per-phase note
 
 #### Automated
 
-- [ ] 3.1 Grounding cases incl. tolerance edges present and passing: `npm test`
-- [ ] 3.2 Full suite green: `npm test`
-- [ ] 3.3 Linting passes: `npm run lint`
+- [x] 3.1 Grounding cases incl. tolerance edges present and passing: `npm test`
+- [x] 3.2 Full suite green: `npm test`
+- [x] 3.3 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.4 `test-plan.md` §6.1/§6.2/§6.7 read as actionable guidance
-- [ ] 3.5 Re-running `/10x-test-plan` recognizes Phase 1 as complete
+- [x] 3.4 `test-plan.md` §6.1/§6.2/§6.7 read as actionable guidance
+- [x] 3.5 Re-running `/10x-test-plan` recognizes Phase 1 as complete

@@ -1,0 +1,248 @@
+# Test Plan
+
+> Phased test rollout for this project. Strategy is frozen at the top
+> (§1–§5); cookbook patterns at the bottom (§6) fill in as phases ship.
+> Read before writing any new test.
+>
+> Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
+>
+> Last updated: 2026-06-09 (Phase 1 change opened)
+
+## 1. Strategy
+
+Tests follow three non-negotiable principles for this project:
+
+1. **Cost × signal.** The cheapest test that gives a real signal for the
+   risk wins. Do not promote to e2e because e2e "feels safer." Do not put a
+   vision model on top of a deterministic visual diff that already catches
+   the regression. For MindTutor specifically: most risk lives in the
+   generation service and the session API, both reachable by unit/integration
+   with the OpenRouter edge stubbed — reserve the expensive AI-native judge
+   (Phase 4) for the one risk no deterministic check covers cheaply.
+2. **User concerns are first-class evidence.** Risks anchored in "the team
+   is worried about X, and the failure would surface somewhere in <area>"
+   carry the same weight as PRD lines or hot-spot data. Every top risk here
+   traces to a Phase 2 interview answer or a PRD/roadmap line.
+3. **Risks are scenarios, not code locations.** This plan documents *what
+   could fail* and *why we believe it's likely* — drawn from documents,
+   interview, and codebase *signal* (churn, structure, test base). It does
+   NOT claim to know which line owns the failure. That knowledge is
+   produced by `/10x-research` during each rollout phase. If the plan and
+   research disagree about where the failure lives, research is the
+   ground truth.
+
+Hot-spot scope used for likelihood weighting: `src/` (excluding docs,
+fixtures, archive, build output, and `node_modules`).
+
+## 2. Risk Map
+
+The top failure scenarios this project must protect against, ordered by
+risk = impact × likelihood. Risks are failure scenarios in user / business
+terms, not test names. The Source column cites the *evidence that surfaced
+this risk* — never a specific file as "where the failure lives" (that is
+research's job, see §1 principle #3).
+
+| # | Risk (failure scenario) | Impact | Likelihood | Source (evidence — not anchor) |
+|---|--------------------------|--------|------------|--------------------------------|
+| 1 | **Grounding failure** — generated theory, exercises, or feedback contain claims not traceable to the uploaded file, and the learner trusts ungrounded content | High | High | interview Q1; PRD NFR ("no facts that cannot be traced to the source files"); roadmap S-01 named risk; hot-spot dir `src/lib/services/` (13 commits/30d) |
+| 2 | **Generation pipeline silently fails** — a valid file plus complete intake still yields no session (OpenRouter error, malformed/partial JSON, schema-parse throw, exercise-shaping failure) | High | High | interview Q2 (lived incident) + Q3 (lowest-confidence area); PRD primary Success Criterion (~80% one-sitting completion) + reliability Guardrail; hot-spot dirs `src/pages/api/` (14), `src/lib/services/` (13) |
+| 3 | **Cross-learner isolation / IDOR** — a learner reads or mutates another learner's session, materials, exercises, or score through the API by guessing IDs | High | Medium | interview Q4; PRD NFR (per-learner isolation) + Access Control (flat model, gated routes); F-01 RLS baseline; roadmap S-06 "deliberate cross-account read test"; hot-spot dir `src/pages/api/` |
+| 4 | **Performance score miscomputed** — the score does not reflect percentage correct, or fails to aggregate across exercise types; the readiness signal is wrong | High | Medium | PRD FR-011 + Business Logic ("the score is the closing artifact") + Success Criterion (secondary: score calibration); hot-spot dir `src/lib/services/` |
+| 5 | **Upload / parse error not surfaced** — an unsupported, corrupted, oversize, or empty-extraction file silently breaks or returns an opaque error instead of a clean explanatory message before generation runs | Medium | Medium | PRD FR-004 + NFR (20 MB cap, reject before processing); infrastructure.md risk register (PDF parse cliff, now client-side); interview Q2 (adjacent) |
+
+**Impact × Likelihood rubric.** High = user loses access/data or the wedge
+breaks publicly / area changes weekly or we have already been burned here.
+Medium = feature degrades with a workaround / touched occasionally, has been
+a bug source. Low = cosmetic / stable code. Ordering protects High × High
+(Risks #1, #2) first.
+
+**Abuse / security lens.** Risk #3 is the explicit authorization/IDOR row —
+it does not surface from the happy-path interview because the happy path
+excludes the attacker. Untrusted-input / server-side zod validation parity
+folds into Phase 2's API contract work. Secret/PII leakage (OpenRouter key
+escaping into the client bundle) and resource abuse (mass session-creation /
+costly generation in a loop) are watch-items recorded in §7, not top rows.
+
+### Risk Response Guidance
+
+| Risk | What would prove protection | Must challenge | Context `/10x-research` must ground | Likely cheapest layer | Anti-pattern to avoid |
+|------|-----------------------------|----------------|--------------------------------------|-----------------------|-----------------------|
+| #1 | Every factual claim in generated theory/exercise/feedback maps to a span in the source fixture; off-source claims are flagged | "Output looks plausible, therefore it is grounded" | Where the prompt injects source text; what the output schema carries; whether spans/citations exist to anchor claims | Structural/contract checks (Phase 1) cheaply; an **AI-native LLM-judge** for the semantic remainder (Phase 4) | Oracle problem — asserting expected values lifted from the model's own output, which green-lights current behaviour including hallucination |
+| #2 | Given a valid source + intake, the service returns schema-valid output **or** a clean recoverable error the route/UI can surface — never a silent break | "A 200 from OpenRouter means success" (the JSON can still fail schema parse) | The OpenRouter client boundary; the JSON parse + zod schema path; how errors propagate from service to route to UI | Integration on the generation service with the **OpenRouter edge stubbed** (stub already wired in `vitest.config.ts`) | Happy-path-only (the current test); over-mocking the schema parse so the real failure mode is never exercised |
+| #3 | A non-owner receives 403/404 (not data) on every session-scoped read **and** mutation endpoint | "Logged-in implies authorized for this resource id" | Each session-scoped endpoint's ownership/RLS enforcement; the auth/session shape needed to drive a second identity in tests | Integration test hitting endpoints with a **second authenticated identity** | Testing only that the owner CAN read; never asserting the non-owner is denied |
+| #4 | Score equals an independently-computed percentage correct over a fixture of known answers, across MCQ and future exercise types | "A final number is present, therefore it is right" | Where the score is computed; how per-exercise correctness aggregates into the total | Unit test on the scoring logic with a hand-built fixture | Expected value copied from the scoring code itself (oracle problem) |
+| #5 | A corrupt/oversize/unsupported/empty-extraction input yields a clean explanatory error before generation runs | "Empty extracted text means no content, so proceed" | The upload validation path; client parse to empty/corrupt handling; the FR-004 error surface | Unit/integration on the validation + parse-error path | Testing only the happy parse; asserting a silent pass-through of empty content into generation |
+
+## 3. Phased Rollout
+
+Each row is a discrete rollout phase that will open its own change folder
+via `/10x-new`. Status moves left-to-right through the values below; the
+orchestrator updates Status as artifacts appear on disk.
+
+| # | Phase name | Goal (one line) | Risks covered | Test types | Status | Change folder |
+|---|------------|-----------------|----------------|------------|--------|---------------|
+| 1 | Generation pipeline contract & failure modes | Prove valid input never silently fails, malformed LLM JSON yields a clean recoverable error, and output is schema-valid and structurally drawn from the source | #2, structural #1 | unit + integration (OpenRouter stubbed) | change opened | context/changes/testing-generation-pipeline-contract/ |
+| 2 | Cross-learner isolation across the session API | Prove a non-owner is denied (403/404) on every session-scoped read and mutation endpoint | #3 | integration (second identity) + server-side validation | not started | — |
+| 3 | Score correctness + upload/parse error surfacing | Prove score equals independently-computed percent correct, and bad input yields a clean explanatory error rather than a silent break | #4, #5 | unit + integration | not started | — |
+| 4 | Grounding fidelity (the wedge) | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch | semantic #1 | AI-native LLM-judge | not started | — |
+
+**Status vocabulary** (fixed — parser literals): `not started` →
+`change opened` → `researched` → `planned` → `implementing` → `complete`.
+
+Order rationale: Phase 1 attacks the two High × High risks at the cheapest
+layer and extends the only existing test cluster (highest churn + the lived
+incident). Phase 2 is the security floor and bootstraps API-route testing
+(currently zero). Phase 3 is deterministic correctness, cheap once the
+harness exists. Phase 4 is the most expensive and least deterministic layer,
+depends on the Phase 1 harness, and covers only the semantic grounding
+remainder — last by cost × signal.
+
+## 4. Stack
+
+The classic test base for this project. AI-native tools carry a `checked:`
+date so future readers can see which lines need re-verification.
+
+| Layer | Tool | Version | Notes |
+|-------|------|---------|-------|
+| unit + integration | Vitest | ^4.1.8 | `node` env, `@/*` alias, `astro:env/server` stubbed; `npm test` = `vitest run`. Only 2 tests today, both in `src/lib/services/generation/` — test base is **sparse** |
+| API mocking | (network-edge stub) | n/a | OpenRouter is stubbed via the `astro:env/server` alias in `vitest.config.ts`; no MSW yet — Phase 1 decides whether MSW is warranted for the session API |
+| API / route integration | none yet — see Phase 2 | — | Session API routes have zero tests; Phase 2 bootstraps this |
+| e2e | none yet — not currently scoped | — | No Playwright/Cypress installed; no e2e phase in this rollout (cost × signal — service + route integration covers the top risks) |
+| accessibility | `eslint-plugin-jsx-a11y` (lint-time only) | 6.10.2 | Static a11y lint exists; no runtime a11y testing scoped |
+| (optional) AI-native | LLM-judge — checked: 2026-06-09 | n/a | Grounding fidelity (Phase 4). **When NOT to use:** when a deterministic structural check (claim maps to a source span) already catches the regression — do not layer a judge on top of a check that already fails for the right reason |
+
+**Stack grounding tools (current session):**
+- Docs: Cloudflare docs MCP available; **Context7 — not available in current session**; checked: 2026-06-09
+- Search: **Exa.ai / web-search MCP — not available in current session**; checked: 2026-06-09
+- Runtime/browser: **Playwright / browser MCP — not available in current session**; not used this rollout; checked: 2026-06-09
+- Provider/platform: Supabase MCP and Cloudflare-bindings MCP available, `gh` CLI present — relevant to Phase 5-style CI gates and to verifying RLS for Phase 2; checked: 2026-06-09
+
+## 5. Quality Gates
+
+The full set of gates that must pass before a change reaches production.
+"Required after §3 Phase <N>" means the gate is enforced once that rollout
+phase lands; before that, the gate is `planned`.
+
+| Gate | Where | Required? | Catches |
+|------|-------|-----------|---------|
+| lint + typecheck | local (husky/lint-staged) + CI | required | syntactic / type drift; `eslint` + `astro check` |
+| unit + integration | local + CI | required after §3 Phase 1 | generation-pipeline logic regressions and silent failures |
+| API isolation integration | CI on PR | required after §3 Phase 2 | cross-learner IDOR / RLS regressions |
+| score + upload-error tests | local + CI | required after §3 Phase 3 | miscomputed score; unhandled bad-input paths |
+| AI-native grounding judge | CI on PR (or pre-merge) | optional after §3 Phase 4 | off-source claims classic checks miss |
+
+CI today (`.github/workflows/ci.yml`) runs lint + build only; wiring the
+test step into CI is owned by the named rollout phases above plus the
+Module-1/Module-2 CI lessons — this guide names the gates, it does not write
+the YAML.
+
+## 6. Cookbook Patterns
+
+How to add new tests in this project. Each sub-section is filled in once the
+relevant rollout phase ships; before that, it reads "TBD — see §3 Phase N."
+
+### 6.1 Adding a unit test
+
+- **Location & naming:** co-locate as `*.test.ts` beside the module under test;
+  `vitest.config.ts` includes `src/**/*.test.ts`. Run with `npm test` (=`vitest run`)
+  or `npm run test:watch`.
+- **Reference units (pure logic):** `src/lib/services/generation/sizing.test.ts`
+  (intake → sizing map) and `src/lib/services/generation/generate.test.ts`
+  (`buildMessages` prompt construction). These need no mocks — keep pure logic pure.
+- For a service that calls an external edge (LLM/DB), see §6.2 — mock the seam, do
+  not test the edge. Score/aggregation units land in Phase 3 (see §3).
+
+### 6.2 Adding an integration test (generation service)
+
+Pattern landed in Phase 1. Reference:
+`src/lib/services/generation/generate.session.test.ts`, with shared helpers in
+`src/test/generation/` (`openrouter-mock.ts`, `completion-builder.ts`).
+
+- **Mock the seam, not the edge.** The `astro:env/server` alias in
+  `vitest.config.ts` only *resolves* the import graph (dummy env values) — it does
+  **not** intercept the network call. Drive the service by mocking the single client
+  seam `getOpenRouterClient`. **Decision: `vi.mock`, not MSW** — one function seam, no
+  real HTTP, so MSW (the §4 open question) is not warranted for the generation service.
+- **Keep the real errors.** The mock factory must spread `importOriginal()` so the real
+  `GenerationError` (tests assert `instanceof`) and `getModel` survive; override only
+  `getOpenRouterClient`. The `create` spy must be created with `vi.hoisted` because
+  `vi.mock` is hoisted above imports:
+
+  ```ts
+  const { create } = vi.hoisted(() => ({ create: vi.fn() }));
+  vi.mock("@/lib/services/generation/openrouter", async (importOriginal) => ({
+    ...(await importOriginal<typeof import("@/lib/services/generation/openrouter")>()),
+    getOpenRouterClient: () => fakeOpenRouterClient(create),
+  }));
+  ```
+
+- **Build off one valid baseline.** `buildValidSession(intake, overrides?)` returns a
+  schema-valid, source-grounded session for the intake's sizing; each failure/grounding
+  case is a one-line `overrides` delta (bad `correctIndex`, ungrounded citation, etc.).
+  Script responses with `create.mockResolvedValue(makeCompletion(json))`; use
+  `mockResolvedValueOnce(...).mockResolvedValueOnce(...)` to exercise the retry loop.
+- **Assert structure + grounding, never model wording** (oracle problem; §2 Risk #1/#2,
+  §7). Failure-mode cases assert `instanceof GenerationError` + a branch-specific message
+  substring. Run with `npm test`.
+
+### 6.3 Adding a test for a new API endpoint
+
+- TBD — see §3 Phase 2 for the cross-learner isolation pattern (drive a
+  session-scoped endpoint with a second authenticated identity and assert
+  403/404, not data).
+
+### 6.4 Adding a score / aggregation test
+
+- TBD — see §3 Phase 3 for the "score equals independently-computed percent
+  correct over a known-answer fixture" pattern.
+
+### 6.5 Adding an upload / parse error-path test
+
+- TBD — see §3 Phase 3 for the "bad input surfaces a clean explanatory error
+  before generation" pattern.
+
+### 6.6 Adding an AI-native grounding check
+
+- TBD — see §3 Phase 4 for the LLM-judge "no off-source claims" pattern and
+  its "When NOT to use" boundary (§4).
+
+### 6.7 Per-rollout-phase notes
+
+(Optional. After each phase lands, `/10x-implement` appends a 2–3 line note
+here capturing anything surprising the rollout phase taught.)
+
+- **Phase 1 (generation contract & failure modes):** the "wired stub" only resolves
+  the import graph — the real seam to control is `getOpenRouterClient`, and
+  `GenerationError`/`getModel` must survive the `vi.mock` via `importOriginal`.
+  Grounding (`findUngroundedCitation`) is validated against the **60k-truncated** slice
+  and checks `theory[].citation` only — `body`/`feedback` prose is the Phase 4 judge's
+  job. Full contract (happy path, 6 failure modes, retry recovery/exhaustion, grounding
+  + case/whitespace/truncation tolerances) lives in `generate.session.test.ts`.
+
+## 7. What We Deliberately Don't Test
+
+Exclusions agreed during the rollout (Phase 2 interview, Q5). Future
+contributors should respect these unless the underlying assumption changes.
+
+- **Marketing / static pages** — no business logic; trivial to eyeball.
+  Re-evaluate if a static page gains interactive or auth-gated behaviour.
+  (Source: Phase 2 interview Q5.)
+- **shadcn/ui primitives in `src/components/ui/`** — vendored, "new-york"
+  variant; the upstream library is the test. Re-evaluate only if we fork or
+  heavily customise a primitive. (Source: Phase 2 interview Q5.)
+- **Exact LLM output wording** — non-deterministic; asserting verbatim text
+  is brittle and catches nothing. Test structure, schema-validity, and
+  grounding instead (see Risks #1, #2). (Watch-item, not from Q5.)
+
+## 8. Freshness Ledger
+
+- Strategy (§1–§5) last reviewed: 2026-06-09
+- Stack versions last verified: 2026-06-09
+- AI-native tool references last verified: 2026-06-09
+
+Refresh (`/10x-test-plan --refresh`) when:
+
+- a new top-3 risk surfaces from the roadmap or archive,
+- a recommended tool's `checked:` date is older than three months,
+- the project's tech stack changes (new framework, new test runner),
+- §7 negative-space no longer matches what the team believes.

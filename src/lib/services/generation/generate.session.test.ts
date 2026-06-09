@@ -19,9 +19,11 @@ vi.mock("@/lib/services/generation/openrouter", async (importOriginal) => ({
 }));
 
 import {
+  buildLargeSource,
   buildValidSession,
   buildValidSessionJson,
   DEFAULT_INTAKE,
+  FILLER_SPAN,
   SMALL_SOURCE,
 } from "@/test/generation/completion-builder";
 import { sizeFromIntake } from "./sizing";
@@ -149,5 +151,55 @@ describe("generateSession — retry semantics (MAX_ATTEMPTS = 2)", () => {
     expect(err).toBeInstanceOf(GenerationError);
     expect((err as GenerationError).message).toContain("after 2 attempts");
     expect(create).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("generateSession — structural grounding (Risk #1, structural only)", () => {
+  // The ungrounded → GenerationError anchor lives in the failure-modes block above
+  // ("ungrounded citation"); here we pin the matcher's documented tolerances.
+
+  it("accepts a session whose every theory citation is a verbatim span of the source", async () => {
+    create.mockResolvedValue(makeCompletion(buildValidSessionJson(DEFAULT_INTAKE)));
+
+    const session = await generateSession(SMALL_SOURCE, DEFAULT_INTAKE);
+    expect(session.theory.length).toBeGreaterThan(0);
+  });
+
+  it("grounds a citation that differs from the source only in letter case", async () => {
+    const session = buildValidSession(DEFAULT_INTAKE);
+    // Uppercased copy of a real source span: the matcher lowercases both sides.
+    session.theory[0].citation = session.theory[0].citation.toUpperCase();
+    create.mockResolvedValue(makeCompletion(JSON.stringify(session)));
+
+    await expect(generateSession(SMALL_SOURCE, DEFAULT_INTAKE)).resolves.toBeDefined();
+  });
+
+  it("grounds a citation that differs from the source only in whitespace", async () => {
+    const session = buildValidSession(DEFAULT_INTAKE);
+    const span = session.theory[0].citation;
+    // Re-space the span with a newline + doubled spaces: whitespace is normalized away.
+    session.theory[0].citation = span.replace(" ", "\n\n").replace(" ", "   ");
+    create.mockResolvedValue(makeCompletion(JSON.stringify(session)));
+
+    await expect(generateSession(SMALL_SOURCE, DEFAULT_INTAKE)).resolves.toBeDefined();
+  });
+
+  it("flags a citation whose only occurrence sits beyond the 60k source truncation", async () => {
+    const citedSpan = "Photosynthesis converts light energy into chemical energy stored in glucose.";
+    const largeSource = buildLargeSource(citedSpan); // citedSpan placed only after char 61_000
+
+    const session = buildValidSession(DEFAULT_INTAKE, {
+      theory: [
+        { position: 0, heading: "A", body: "B", citation: FILLER_SPAN }, // groundable within the slice
+        { position: 1, heading: "A", body: "B", citation: FILLER_SPAN },
+        { position: 2, heading: "A", body: "B", citation: citedSpan }, // truncated away → ungrounded
+      ],
+    });
+    create.mockResolvedValue(makeCompletion(JSON.stringify(session)));
+
+    const err = await rejection(generateSession(largeSource, DEFAULT_INTAKE));
+
+    expect(err).toBeInstanceOf(GenerationError);
+    expect((err as GenerationError).message).toContain("citation not found in source");
   });
 });
