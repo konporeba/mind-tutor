@@ -24,19 +24,33 @@ function normalizeWhitespace(text: string): string {
 }
 
 /** Build the system/user messages for a generation call. Pure: the same source +
- *  intake + sizing always yield the same messages (exported for the Phase 5 test).
- *  Source-grounding rules from S-01 stay authoritative; intake only tailors depth,
- *  focus, and counts. */
-export function buildMessages(sourceText: string, intake: SessionIntake, sizing: SessionSizing) {
+ *  intake + sizing + bio always yield the same messages (exported for the Phase 5
+ *  test). Source-grounding rules from S-01 stay authoritative; intake tailors depth,
+ *  focus, and counts; the optional profile bio (S-03) adds long-term idiom/framing
+ *  only — when absent, the bio line is omitted entirely (prompt is unchanged). */
+export function buildMessages(sourceText: string, intake: SessionIntake, sizing: SessionSizing, bio?: string | null) {
+  // Per-learner tailoring block. The bio line is appended only when a bio exists,
+  // so a null/empty bio leaves the prompt byte-identical to the S-02 output.
+  const tailoring = [
+    "Tailor the session to this learner without ever breaking the grounding rules above:",
+    `- Knowledge level: ${intake.knowledgeLevel}. ${sizing.depthGuidance}`,
+    `- Learning goal: "${intake.learningGoal.trim()}". Keep the theory and exercises focused on this goal where the source supports it.`,
+    `- Available time: about ${intake.timeBudgetMinutes} minutes. Size the session to fit this budget.`,
+  ];
+
+  const trimmedBio = bio?.trim().replace(/\.+$/, "");
+  if (trimmedBio) {
+    tailoring.push(
+      `- Learner background: ${trimmedBio}. Use this to set the idiom, examples, and default depth of explanation, and to gauge what the learner already finds familiar. This shapes tone and framing only — it does NOT override the knowledge level, learning goal, time budget, or the theory/exercise counts above.`,
+    );
+  }
+
   const system = [
     "You are MindTutor, an AI study tutor.",
     "You generate a short, guided study session STRICTLY from the provided source material.",
     "Use ONLY facts present in the source. Never introduce outside knowledge or invent details.",
     "Every theory step MUST include a `citation`: a short verbatim quote copied exactly from the source that supports that step.",
-    "Tailor the session to this learner without ever breaking the grounding rules above:",
-    `- Knowledge level: ${intake.knowledgeLevel}. ${sizing.depthGuidance}`,
-    `- Learning goal: "${intake.learningGoal.trim()}". Keep the theory and exercises focused on this goal where the source supports it.`,
-    `- Available time: about ${intake.timeBudgetMinutes} minutes. Size the session to fit this budget.`,
+    ...tailoring,
     "Respond with a single JSON object and nothing else, matching this shape:",
     "{",
     '  "title": string,',
@@ -69,10 +83,16 @@ function findUngroundedCitation(session: GeneratedSession, sourceText: string): 
 
 /**
  * Generate a grounded session from already-extracted source text.
- * Throws GenerationError on misconfiguration, API failure, or output that cannot
- * be validated/grounded after one retry.
+ * The optional `bio` (S-03) is the learner's profile background; when present it
+ * tailors idiom/framing, when null/empty it is ignored. Throws GenerationError on
+ * misconfiguration, API failure, or output that cannot be validated/grounded
+ * after one retry.
  */
-export async function generateSession(sourceText: string, intake: SessionIntake): Promise<GeneratedSession> {
+export async function generateSession(
+  sourceText: string,
+  intake: SessionIntake,
+  bio?: string | null,
+): Promise<GeneratedSession> {
   const trimmed = sourceText.trim();
   if (trimmed.length === 0) {
     throw new GenerationError("Source material is empty; nothing to generate from");
@@ -87,7 +107,7 @@ export async function generateSession(sourceText: string, intake: SessionIntake)
 
   const client = getOpenRouterClient();
   const model = getModel();
-  const messages = buildMessages(source, intake, sizing);
+  const messages = buildMessages(source, intake, sizing, bio);
 
   let lastReason = "unknown error";
 

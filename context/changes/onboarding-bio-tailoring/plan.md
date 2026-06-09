@@ -306,29 +306,29 @@ The middleware adds **one cheap `profiles` read** on authenticated requests to g
 
 #### Automated
 
-- [x] 1.1 Migration applies cleanly: `npx supabase db reset`
-- [x] 1.2 pgTAP suite green: `npx supabase test db`
-- [x] 1.3 Generated types match after Prettier (no drift)
-- [x] 1.4 Build green: `npm run build`
-- [x] 1.5 Lint green: `npm run lint`
+- [x] 1.1 Migration applies cleanly: `npx supabase db reset` — ccb66fe
+- [x] 1.2 pgTAP suite green: `npx supabase test db` — ccb66fe
+- [x] 1.3 Generated types match after Prettier (no drift) — ccb66fe
+- [x] 1.4 Build green: `npm run build` — ccb66fe
+- [x] 1.5 Lint green: `npm run lint` — ccb66fe
 
 #### Manual
 
-- [x] 1.6 Cross-account `profiles` read returns no rows (RLS isolation)
-- [x] 1.7 `onboarded_at` defaults to null on a minimal inserted row
+- [x] 1.6 Cross-account `profiles` read returns no rows (RLS isolation) — ccb66fe
+- [x] 1.7 `onboarded_at` defaults to null on a minimal inserted row — ccb66fe
 
 ### Phase 2: Bio in generation
 
 #### Automated
 
-- [ ] 2.1 Build green: `npm run build`
-- [ ] 2.2 Lint green: `npm run lint`
-- [ ] 2.3 No type errors via build (caller updated in Phase 3)
+- [x] 2.1 Build green: `npm run build`
+- [x] 2.2 Lint green: `npm run lint`
+- [x] 2.3 No type errors via build (caller updated in Phase 3)
 
 #### Manual
 
-- [ ] 2.4 Non-empty bio adds the framing line; null bio matches pre-change messages exactly
-- [ ] 2.5 Two bios on same source + intake yield different prose, same counts
+- [x] 2.4 Non-empty bio adds the framing line; null bio matches pre-change messages exactly
+- [x] 2.5 Two bios on same source + intake yield different prose, same counts
 
 ### Phase 3: Distill service + API wiring
 
