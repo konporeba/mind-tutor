@@ -347,24 +347,24 @@ The middleware adds **one cheap `profiles` read** on authenticated requests to g
 
 #### Automated
 
-- [x] 4.1 Build green: `npm run build`
-- [x] 4.2 Lint green: `npm run lint`
+- [x] 4.1 Build green: `npm run build` — 69f35f1
+- [x] 4.2 Lint green: `npm run lint` — 69f35f1
 
 #### Manual
 
-- [x] 4.3 Not-yet-onboarded learner is forced to `/onboarding` from every gated surface
-- [x] 4.4 No redirect loop: `/onboarding`, auth routes, signout reachable while not onboarded
-- [x] 4.5 Completing onboarding stores bio + `onboarded_at` and lands on `/dashboard`; revisiting `/onboarding` redirects away
-- [x] 4.6 Already-onboarded learner is never gated
+- [x] 4.3 Not-yet-onboarded learner is forced to `/onboarding` from every gated surface — 69f35f1
+- [x] 4.4 No redirect loop: `/onboarding`, auth routes, signout reachable while not onboarded — 69f35f1
+- [x] 4.5 Completing onboarding stores bio + `onboarded_at` and lands on `/dashboard`; revisiting `/onboarding` redirects away — 69f35f1
+- [x] 4.6 Already-onboarded learner is never gated — 69f35f1
 
 ### Phase 5: Verification (Vitest)
 
 #### Automated
 
-- [ ] 5.1 `npm run test` passes locally (new bio cases + existing suite)
+- [x] 5.1 `npm run test` passes locally (new bio cases + existing suite)
 - [ ] 5.2 CI `ci` job runs the test step and is green
-- [ ] 5.3 Build + lint still green
+- [x] 5.3 Build + lint still green
 
 #### Manual
 
-- [ ] 5.4 Stubbing `buildMessages` to ignore the bio fails the new assertions (teeth)
+- [x] 5.4 Stubbing `buildMessages` to ignore the bio fails the new assertions (teeth)
