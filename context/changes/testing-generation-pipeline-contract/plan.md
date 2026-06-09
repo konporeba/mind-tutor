@@ -359,20 +359,20 @@ rollout (it marks §3 Phase 1 `complete` and presents Phase 2).
 
 #### Automated
 
-- [x] 1.1 New helper + test files exist under `src/test/generation/` and `src/lib/services/generation/`
-- [x] 1.2 Tests pass: `npm test`
-- [x] 1.3 Linting passes: `npm run lint`
+- [x] 1.1 New helper + test files exist under `src/test/generation/` and `src/lib/services/generation/` — 50008d8
+- [x] 1.2 Tests pass: `npm test` — 50008d8
+- [x] 1.3 Linting passes: `npm run lint` — 50008d8
 
 #### Manual
 
-- [ ] 1.4 Mock seam reaches the real parse/validate/ground path (broken citation fails for the right reason)
+- [x] 1.4 Mock seam reaches the real parse/validate/ground path (broken citation fails for the right reason) — 50008d8
 
 ### Phase 2: Risk #2 — failure modes + retry semantics
 
 #### Automated
 
-- [ ] 2.1 All six failure-mode cases + recovery + exhaustion present and passing: `npm test`
-- [ ] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 All six failure-mode cases + recovery + exhaustion present and passing: `npm test`
+- [x] 2.2 Linting passes: `npm run lint`
 
 #### Manual
 
