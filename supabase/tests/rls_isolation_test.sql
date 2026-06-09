@@ -18,7 +18,7 @@
 
 begin;
 create extension if not exists pgtap;
-select plan(29);
+select plan(34);
 
 -- ============================================================================
 -- Seed two learners and one owned row per table for each (as superuser).
@@ -42,6 +42,11 @@ insert into public.generated_content (id, user_id, session_id, kind, position) v
 insert into public.exercises (id, user_id, session_id, position, prompt) values
   ('44444444-4444-4444-4444-44444444444a', '00000000-0000-0000-0000-00000000000a', '11111111-1111-1111-1111-11111111111a', 0, 'qa'),
   ('44444444-4444-4444-4444-44444444444b', '00000000-0000-0000-0000-00000000000b', '11111111-1111-1111-1111-11111111111b', 0, 'qb');
+
+-- Profiles (S-03): one bio row per learner, keyed on user_id (the PK).
+insert into public.profiles (user_id, bio) values
+  ('00000000-0000-0000-0000-00000000000a', 'bio-a'),
+  ('00000000-0000-0000-0000-00000000000b', 'bio-b');
 
 -- New column (S-01): seed a private extracted_text on A's material only, to prove
 -- it is reachable only under the existing materials_*_own policies.
@@ -74,6 +79,9 @@ select is((select count(*) from public.generated_content where id = '33333333-33
 select is((select count(*) from public.exercises)::int, 1, 'A sees only its own exercise');
 select is((select count(*) from public.exercises where id = '44444444-4444-4444-4444-44444444444b')::int, 0, 'A cannot see B exercise');
 
+select is((select count(*) from public.profiles)::int, 1, 'A sees only its own profile');
+select is((select count(*) from public.profiles where user_id = '00000000-0000-0000-0000-00000000000b')::int, 0, 'A cannot see B profile');
+
 -- Column isolation: A reads its own material's extracted_text, never B's.
 select is((select extracted_text from public.materials where id = '22222222-2222-2222-2222-22222222222a'), 'secret-a-text', 'A reads its own extracted_text');
 select is((select extracted_text from public.materials where id = '22222222-2222-2222-2222-22222222222b'), null::text, 'A cannot read B extracted_text');
@@ -101,6 +109,8 @@ update public.generated_content set position = 999      where id = '33333333-333
 delete from public.generated_content                     where id = '33333333-3333-3333-3333-33333333333b';
 update public.exercises         set prompt   = 'hacked' where id = '44444444-4444-4444-4444-44444444444b';
 delete from public.exercises                             where id = '44444444-4444-4444-4444-44444444444b';
+update public.profiles          set bio      = 'hacked' where user_id = '00000000-0000-0000-0000-00000000000b';
+delete from public.profiles                              where user_id = '00000000-0000-0000-0000-00000000000b';
 
 -- ============================================================================
 -- Back to superuser: prove B's rows survived A's writes unchanged.
@@ -119,6 +129,9 @@ select is((select position from public.generated_content where id = '33333333-33
 select is((select count(*) from public.exercises where id = '44444444-4444-4444-4444-44444444444b')::int, 1, 'B exercise not deleted by A');
 select is((select prompt from public.exercises where id = '44444444-4444-4444-4444-44444444444b'), 'qb', 'B exercise not updated by A');
 
+select is((select count(*) from public.profiles where user_id = '00000000-0000-0000-0000-00000000000b')::int, 1, 'B profile not deleted by A');
+select is((select bio from public.profiles where user_id = '00000000-0000-0000-0000-00000000000b'), 'bio-b', 'B profile not updated by A');
+
 -- ============================================================================
 -- The anon role has table grants but no policies grant it rows: default-deny.
 -- ============================================================================
@@ -128,6 +141,7 @@ select is((select count(*) from public.sessions)::int, 0, 'anon sees no sessions
 select is((select count(*) from public.materials)::int, 0, 'anon sees no materials');
 select is((select count(*) from public.generated_content)::int, 0, 'anon sees no generated_content');
 select is((select count(*) from public.exercises)::int, 0, 'anon sees no exercises');
+select is((select count(*) from public.profiles)::int, 0, 'anon sees no profiles');
 select is((select count(*) from storage.objects where bucket_id = 'materials')::int, 0, 'anon sees no material objects');
 
 -- anon write denial (sessions as representative; the mechanism is role-based and

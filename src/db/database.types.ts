@@ -166,6 +166,30 @@ export type Database = {
           },
         ];
       };
+      profiles: {
+        Row: {
+          bio: string | null;
+          created_at: string;
+          onboarded_at: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          bio?: string | null;
+          created_at?: string;
+          onboarded_at?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          bio?: string | null;
+          created_at?: string;
+          onboarded_at?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       sessions: {
         Row: {
           completed_at: string | null;

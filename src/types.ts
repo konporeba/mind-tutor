@@ -23,6 +23,21 @@ export type Exercise = Tables["exercises"]["Row"];
 export type ExerciseInsert = Tables["exercises"]["Insert"];
 export type ExerciseUpdate = Tables["exercises"]["Update"];
 
+export type Profile = Tables["profiles"]["Row"];
+export type ProfileInsert = Tables["profiles"]["Insert"];
+export type ProfileUpdate = Tables["profiles"]["Update"];
+
+// --- Onboarding bio (S-03) -------------------------------------------------
+// The free-text learner background captured once at onboarding (FR-005) and
+// reused on every later session to set long-term idiom/depth (the bio half of
+// FR-006). Stored on `profiles.bio`. Capped so the distilled (or raw-fallback)
+// bio stays a bounded prompt ingredient.
+
+export const BIO_MAX = 1000;
+
+/** Free-text learner background, trimmed, <= BIO_MAX chars. Null = not captured. */
+export type LearnerBio = string;
+
 // --- Per-session intake (S-02) ---------------------------------------------
 // The three FR-018 values captured at session start. Canonical shape shared by
 // the generation service, the API layer, and the new-session form. Persisted as
