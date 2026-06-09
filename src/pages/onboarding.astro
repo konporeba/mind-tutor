@@ -1,0 +1,36 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import OnboardingChat from "@/components/onboarding/OnboardingChat";
+import { createClient } from "@/lib/supabase";
+
+const { user } = Astro.locals;
+if (!user) {
+  return Astro.redirect("/auth/signin");
+}
+
+// Already-onboarded learners should never see the flow again; a direct visit
+// after completion bounces to the dashboard (mirrors the middleware gate).
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (supabase) {
+  const { data: profile } = await supabase.from("profiles").select("onboarded_at").eq("user_id", user.id).maybeSingle();
+  if (profile?.onboarded_at) {
+    return Astro.redirect("/dashboard");
+  }
+}
+---
+
+<Layout title="Welcome to MindTutor">
+  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+      <h1
+        class="mb-2 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
+      >
+        Let's get to know you
+      </h1>
+      <p class="mb-6 text-center text-sm text-blue-100/70">
+        A few quick questions so your tutor can pitch every session at the right level. This takes about a minute.
+      </p>
+      <OnboardingChat client:load />
+    </div>
+  </div>
+</Layout>

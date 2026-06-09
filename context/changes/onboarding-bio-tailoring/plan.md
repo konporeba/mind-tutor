@@ -334,28 +334,28 @@ The middleware adds **one cheap `profiles` read** on authenticated requests to g
 
 #### Automated
 
-- [x] 3.1 Build green: `npm run build`
-- [x] 3.2 Lint green: `npm run lint`
+- [x] 3.1 Build green: `npm run build` — 3e3ca17
+- [x] 3.2 Lint green: `npm run lint` — 3e3ca17
 
 #### Manual
 
-- [x] 3.3 `POST /api/onboarding` upserts a `profiles` row with non-null bio + `onboarded_at` (no duplicate on second POST)
-- [x] 3.4 Distill failure path stores concatenated raw answers as the bio
-- [x] 3.5 Session creation loads the bio into the generation messages
+- [x] 3.3 `POST /api/onboarding` upserts a `profiles` row with non-null bio + `onboarded_at` (no duplicate on second POST) — 3e3ca17
+- [x] 3.4 Distill failure path stores concatenated raw answers as the bio — 3e3ca17
+- [x] 3.5 Session creation loads the bio into the generation messages — 3e3ca17
 
 ### Phase 4: Onboarding gate + UI
 
 #### Automated
 
-- [ ] 4.1 Build green: `npm run build`
-- [ ] 4.2 Lint green: `npm run lint`
+- [x] 4.1 Build green: `npm run build`
+- [x] 4.2 Lint green: `npm run lint`
 
 #### Manual
 
-- [ ] 4.3 Not-yet-onboarded learner is forced to `/onboarding` from every gated surface
-- [ ] 4.4 No redirect loop: `/onboarding`, auth routes, signout reachable while not onboarded
-- [ ] 4.5 Completing onboarding stores bio + `onboarded_at` and lands on `/dashboard`; revisiting `/onboarding` redirects away
-- [ ] 4.6 Already-onboarded learner is never gated
+- [x] 4.3 Not-yet-onboarded learner is forced to `/onboarding` from every gated surface
+- [x] 4.4 No redirect loop: `/onboarding`, auth routes, signout reachable while not onboarded
+- [x] 4.5 Completing onboarding stores bio + `onboarded_at` and lands on `/dashboard`; revisiting `/onboarding` redirects away
+- [x] 4.6 Already-onboarded learner is never gated
 
 ### Phase 5: Verification (Vitest)
 
