@@ -84,10 +84,16 @@ export const POST: APIRoute = async (context) => {
   }
   const intake: SessionIntake = intakeResult.data;
 
+  // --- Load the learner's stored bio (S-03) to tailor generation ---
+  // Single read by user_id; a missing row / null bio is a valid first-class state
+  // (historical sessions, skipped onboarding) and is passed through unchanged.
+  const { data: profile } = await supabase.from("profiles").select("bio").eq("user_id", user.id).maybeSingle();
+  const bio = profile?.bio ?? null;
+
   // --- Generate first; on failure nothing is persisted ---
   let generated;
   try {
-    generated = await generateSession(extractedText, intake);
+    generated = await generateSession(extractedText, intake, bio);
   } catch (err) {
     if (err instanceof GenerationError) {
       console.error("[api/sessions] generation failed:", err.message);

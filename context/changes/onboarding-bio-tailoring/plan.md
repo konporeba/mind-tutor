@@ -321,27 +321,27 @@ The middleware adds **one cheap `profiles` read** on authenticated requests to g
 
 #### Automated
 
-- [x] 2.1 Build green: `npm run build`
-- [x] 2.2 Lint green: `npm run lint`
-- [x] 2.3 No type errors via build (caller updated in Phase 3)
+- [x] 2.1 Build green: `npm run build` — ee48987
+- [x] 2.2 Lint green: `npm run lint` — ee48987
+- [x] 2.3 No type errors via build (caller updated in Phase 3) — ee48987
 
 #### Manual
 
-- [x] 2.4 Non-empty bio adds the framing line; null bio matches pre-change messages exactly
-- [x] 2.5 Two bios on same source + intake yield different prose, same counts
+- [x] 2.4 Non-empty bio adds the framing line; null bio matches pre-change messages exactly — ee48987
+- [x] 2.5 Two bios on same source + intake yield different prose, same counts — ee48987
 
 ### Phase 3: Distill service + API wiring
 
 #### Automated
 
-- [ ] 3.1 Build green: `npm run build`
-- [ ] 3.2 Lint green: `npm run lint`
+- [x] 3.1 Build green: `npm run build`
+- [x] 3.2 Lint green: `npm run lint`
 
 #### Manual
 
-- [ ] 3.3 `POST /api/onboarding` upserts a `profiles` row with non-null bio + `onboarded_at` (no duplicate on second POST)
-- [ ] 3.4 Distill failure path stores concatenated raw answers as the bio
-- [ ] 3.5 Session creation loads the bio into the generation messages
+- [x] 3.3 `POST /api/onboarding` upserts a `profiles` row with non-null bio + `onboarded_at` (no duplicate on second POST)
+- [x] 3.4 Distill failure path stores concatenated raw answers as the bio
+- [x] 3.5 Session creation loads the bio into the generation messages
 
 ### Phase 4: Onboarding gate + UI
 
