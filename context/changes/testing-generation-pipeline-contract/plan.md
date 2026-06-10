@@ -382,11 +382,11 @@ rollout (it marks §3 Phase 1 `complete` and presents Phase 2).
 
 #### Automated
 
-- [x] 3.1 Grounding cases incl. tolerance edges present and passing: `npm test`
-- [x] 3.2 Full suite green: `npm test`
-- [x] 3.3 Linting passes: `npm run lint`
+- [x] 3.1 Grounding cases incl. tolerance edges present and passing: `npm test` — e6b6d6d
+- [x] 3.2 Full suite green: `npm test` — e6b6d6d
+- [x] 3.3 Linting passes: `npm run lint` — e6b6d6d
 
 #### Manual
 
-- [x] 3.4 `test-plan.md` §6.1/§6.2/§6.7 read as actionable guidance
-- [x] 3.5 Re-running `/10x-test-plan` recognizes Phase 1 as complete
+- [x] 3.4 `test-plan.md` §6.1/§6.2/§6.7 read as actionable guidance — e6b6d6d
+- [x] 3.5 Re-running `/10x-test-plan` recognizes Phase 1 as complete — e6b6d6d
