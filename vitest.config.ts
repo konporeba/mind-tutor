@@ -1,5 +1,5 @@
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 // First JS unit-test harness for this repo (S-02). Scoped to pure-logic modules
 // (sizing map + prompt builder) — no DOM, no network. The `@/*` alias mirrors
@@ -16,5 +16,9 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
+    // DB-backed integration specs (`*.integration.test.ts`) require local Supabase and
+    // run via `npm run test:integration` (vitest.integration.config.ts) — keep them out
+    // of the default suite so `npm test` needs no Supabase.
+    exclude: [...configDefaults.exclude, "**/*.integration.test.ts"],
   },
 });
