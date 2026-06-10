@@ -337,27 +337,27 @@ Capture the pattern so the next contributor can add an API-isolation test withou
 
 #### Automated
 
-- [x] 2.1 Isolation spec passes against local Supabase: `npm run test:integration`
-- [x] 2.2 Owner-can controls pass (denials are not vacuous)
-- [x] 2.3 Default suite still green: `npm test`
+- [x] 2.1 Isolation spec passes against local Supabase: `npm run test:integration` — 55e531a
+- [x] 2.2 Owner-can controls pass (denials are not vacuous) — 55e531a
+- [x] 2.3 Default suite still green: `npm test` — 55e531a
 
 #### Manual
 
-- [x] 2.4 Loosening one policy locally fails the matching assertion (signal check); revert after
+- [x] 2.4 Loosening one policy locally fails the matching assertion (signal check); revert after — 55e531a
 
 ### Phase 3: Handler-layer 404-translation slices
 
 #### Automated
 
-- [ ] 3.1 Both handler slices pass against local Supabase: `npm run test:integration`
-- [ ] 3.2 Owner-200 controls pass in both files
-- [ ] 3.3 Default suite still green: `npm test`
-- [ ] 3.4 Linting passes: `npm run lint`
+- [x] 3.1 Both handler slices pass against local Supabase: `npm run test:integration`
+- [x] 3.2 Owner-200 controls pass in both files
+- [x] 3.3 Default suite still green: `npm test`
+- [x] 3.4 Linting passes: `npm run lint`
 
 #### Manual
 
-- [ ] 3.5 `vi.mock` factory documents why a real authed client is not the forbidden anti-pattern
-- [ ] 3.6 Non-existent id also yields 404 (uniform non-enumerable response)
+- [x] 3.5 `vi.mock` factory documents why a real authed client is not the forbidden anti-pattern
+- [x] 3.6 Non-existent id also yields 404 (uniform non-enumerable response)
 
 ### Phase 4: Cookbook update (test-plan.md §6.3 + §6.7)
 
