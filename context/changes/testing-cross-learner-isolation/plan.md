@@ -349,24 +349,24 @@ Capture the pattern so the next contributor can add an API-isolation test withou
 
 #### Automated
 
-- [x] 3.1 Both handler slices pass against local Supabase: `npm run test:integration`
-- [x] 3.2 Owner-200 controls pass in both files
-- [x] 3.3 Default suite still green: `npm test`
-- [x] 3.4 Linting passes: `npm run lint`
+- [x] 3.1 Both handler slices pass against local Supabase: `npm run test:integration` — 4230679
+- [x] 3.2 Owner-200 controls pass in both files — 4230679
+- [x] 3.3 Default suite still green: `npm test` — 4230679
+- [x] 3.4 Linting passes: `npm run lint` — 4230679
 
 #### Manual
 
-- [x] 3.5 `vi.mock` factory documents why a real authed client is not the forbidden anti-pattern
-- [x] 3.6 Non-existent id also yields 404 (uniform non-enumerable response)
+- [x] 3.5 `vi.mock` factory documents why a real authed client is not the forbidden anti-pattern — 4230679
+- [x] 3.6 Non-existent id also yields 404 (uniform non-enumerable response) — 4230679
 
 ### Phase 4: Cookbook update (test-plan.md §6.3 + §6.7)
 
 #### Automated
 
-- [ ] 4.1 §6.3 no longer reads "TBD — see §3 Phase 2"
-- [ ] 4.2 Markdown formats cleanly: `npx prettier --check context/foundation/test-plan.md`
+- [x] 4.1 §6.3 no longer reads "TBD — see §3 Phase 2"
+- [x] 4.2 Markdown formats cleanly: `npx prettier --check context/foundation/test-plan.md`
 
 #### Manual
 
-- [ ] 4.3 A reader can follow §6.3 to add a new endpoint isolation test
-- [ ] 4.4 §6.7 note and §4 row accurately reflect what shipped
+- [x] 4.3 A reader can follow §6.3 to add a new endpoint isolation test
+- [x] 4.4 §6.7 note and §4 row accurately reflect what shipped
