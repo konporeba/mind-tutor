@@ -1,10 +1,10 @@
 ---
 change_id: testing-cross-learner-isolation
 title: Cross-learner isolation across the session API (Risk #3, IDOR)
-status: impl_reviewed
+status: archived
 created: 2026-06-10
 updated: 2026-06-10
-archived_at: null
+archived_at: 2026-06-10T19:35:04Z
 ---
 
 ## Notes
