@@ -1,7 +1,7 @@
 ---
 change_id: testing-cross-learner-isolation
 title: Cross-learner isolation across the session API (Risk #3, IDOR)
-status: implementing
+status: implemented
 created: 2026-06-10
 updated: 2026-06-10
 archived_at: null
