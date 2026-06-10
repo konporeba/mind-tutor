@@ -1,7 +1,7 @@
 ---
 change_id: testing-generation-pipeline-contract
 title: Generation pipeline contract & failure modes (test rollout Phase 1)
-status: implemented
+status: impl_reviewed
 created: 2026-06-09
 updated: 2026-06-10
 archived_at: null

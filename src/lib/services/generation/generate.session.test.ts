@@ -201,5 +201,8 @@ describe("generateSession — structural grounding (Risk #1, structural only)", 
 
     expect(err).toBeInstanceOf(GenerationError);
     expect((err as GenerationError).message).toContain("citation not found in source");
+    // Pin the failure to the beyond-cap span specifically (not the in-slice filler):
+    // the error embeds the first 60 chars of the offending citation.
+    expect((err as GenerationError).message).toContain("Photosynthesis converts light energy");
   });
 });
