@@ -323,27 +323,27 @@ Capture the pattern so the next contributor can add an API-isolation test withou
 
 #### Automated
 
-- [x] 1.1 Default suite unaffected and green without Supabase: `npm test`
-- [x] 1.2 Type checking passes: `npx astro check`
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 Integration runner executes against started local Supabase: `npm run test:integration`
+- [x] 1.1 Default suite unaffected and green without Supabase: `npm test` — 1a67923
+- [x] 1.2 Type checking passes: `npx astro check` — 1a67923
+- [x] 1.3 Linting passes: `npm run lint` — 1a67923
+- [x] 1.4 Integration runner executes against started local Supabase: `npm run test:integration` — 1a67923
 
 #### Manual
 
-- [x] 1.5 `supabase status` keys match `env.ts`; missing-env run fails fast naming `npx supabase start`
-- [x] 1.6 Re-running `test:integration` twice reuses users A/B without "already exists" errors
+- [x] 1.5 `supabase status` keys match `env.ts`; missing-env run fails fast naming `npx supabase start` — 1a67923
+- [x] 1.6 Re-running `test:integration` twice reuses users A/B without "already exists" errors — 1a67923
 
 ### Phase 2: RLS-layer two-identity isolation
 
 #### Automated
 
-- [ ] 2.1 Isolation spec passes against local Supabase: `npm run test:integration`
-- [ ] 2.2 Owner-can controls pass (denials are not vacuous)
-- [ ] 2.3 Default suite still green: `npm test`
+- [x] 2.1 Isolation spec passes against local Supabase: `npm run test:integration`
+- [x] 2.2 Owner-can controls pass (denials are not vacuous)
+- [x] 2.3 Default suite still green: `npm test`
 
 #### Manual
 
-- [ ] 2.4 Loosening one policy locally fails the matching assertion (signal check); revert after
+- [x] 2.4 Loosening one policy locally fails the matching assertion (signal check); revert after
 
 ### Phase 3: Handler-layer 404-translation slices
 
