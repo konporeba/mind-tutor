@@ -33,7 +33,10 @@ interface ListResult {
 async function count(query: PromiseLike<ListResult>): Promise<number> {
   const { data, error } = await query;
   if (error) throw new Error(error.message);
-  return (data ?? []).length;
+  // Reject a degenerate null-data response rather than collapsing it to 0 — a denial
+  // assertion (=== 0) must never pass vacuously on `{ data: null, error: null }`.
+  if (data == null) throw new Error("[integration] expected an array result, got null");
+  return data.length;
 }
 
 describe("cross-learner isolation (RLS layer)", () => {
