@@ -403,12 +403,12 @@ None — additive test files plus documentation edits; no production code or sch
 
 #### Automated
 
-- [x] 3.1 §6.4 and §6.5 no longer contain "TBD — see §3 Phase 3"
-- [x] 3.2 §3 Phase 3 row Status reads `complete`
-- [x] 3.3 Markdown lints/formats clean
+- [x] 3.1 §6.4 and §6.5 no longer contain "TBD — see §3 Phase 3" — abc64ec
+- [x] 3.2 §3 Phase 3 row Status reads `complete` — abc64ec
+- [x] 3.3 Markdown lints/formats clean — abc64ec
 
 #### Manual
 
-- [x] 3.4 §6.4/§6.5 are sufficient to add a new test without re-reading the source
-- [x] 3.5 §7 entry accurately states what is not tested, why, and a re-evaluation trigger
-- [x] 3.6 §6.7 Phase 3 note captures the oracle discipline and the spy-not-called invariant
+- [x] 3.4 §6.4/§6.5 are sufficient to add a new test without re-reading the source — abc64ec
+- [x] 3.5 §7 entry accurately states what is not tested, why, and a re-evaluation trigger — abc64ec
+- [x] 3.6 §6.7 Phase 3 note captures the oracle discipline and the spy-not-called invariant — abc64ec

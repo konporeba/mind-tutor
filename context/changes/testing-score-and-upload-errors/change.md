@@ -1,7 +1,7 @@
 ---
 change_id: testing-score-and-upload-errors
 title: Test score correctness and upload/parse error surfacing (test-plan Phase 3)
-status: implementing
+status: implemented
 created: 2026-06-13
 updated: 2026-06-13
 archived_at: null
