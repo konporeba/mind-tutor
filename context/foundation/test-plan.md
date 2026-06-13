@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-10 (Phase 1 complete)
+> Last updated: 2026-06-13 (Phase 3 complete)
 
 ## 1. Strategy
 
@@ -79,12 +79,12 @@ Each row is a discrete rollout phase that will open its own change folder
 via `/10x-new`. Status moves left-to-right through the values below; the
 orchestrator updates Status as artifacts appear on disk.
 
-| #   | Phase name                                       | Goal (one line)                                                                                                                                                | Risks covered     | Test types                                             | Status        | Change folder                                         |
-| --- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------ | ------------- | ----------------------------------------------------- |
-| 1   | Generation pipeline contract & failure modes     | Prove valid input never silently fails, malformed LLM JSON yields a clean recoverable error, and output is schema-valid and structurally drawn from the source | #2, structural #1 | unit + integration (OpenRouter stubbed)                | complete      | context/changes/testing-generation-pipeline-contract/ |
-| 2   | Cross-learner isolation across the session API   | Prove a non-owner is denied (403/404) on every session-scoped read and mutation endpoint                                                                       | #3                | integration (second identity) + server-side validation | change opened | context/changes/testing-cross-learner-isolation/      |
-| 3   | Score correctness + upload/parse error surfacing | Prove score equals independently-computed percent correct, and bad input yields a clean explanatory error rather than a silent break                           | #4, #5            | unit + integration                                     | not started   | —                                                     |
-| 4   | Grounding fidelity (the wedge)                   | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch                                                                  | semantic #1       | AI-native LLM-judge                                    | not started   | —                                                     |
+| #   | Phase name                                       | Goal (one line)                                                                                                                                                | Risks covered     | Test types                                             | Status      | Change folder                                               |
+| --- | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- | ------------------------------------------------------ | ----------- | ----------------------------------------------------------- |
+| 1   | Generation pipeline contract & failure modes     | Prove valid input never silently fails, malformed LLM JSON yields a clean recoverable error, and output is schema-valid and structurally drawn from the source | #2, structural #1 | unit + integration (OpenRouter stubbed)                | complete    | context/changes/testing-generation-pipeline-contract/       |
+| 2   | Cross-learner isolation across the session API   | Prove a non-owner is denied (403/404) on every session-scoped read and mutation endpoint                                                                       | #3                | integration (second identity) + server-side validation | complete    | context/archive/2026-06-10-testing-cross-learner-isolation/ |
+| 3   | Score correctness + upload/parse error surfacing | Prove score equals independently-computed percent correct, and bad input yields a clean explanatory error rather than a silent break                           | #4, #5            | unit + integration                                     | complete    | context/changes/testing-score-and-upload-errors/            |
+| 4   | Grounding fidelity (the wedge)                   | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch                                                                  | semantic #1       | AI-native LLM-judge                                    | not started | —                                                           |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
 `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -214,13 +214,46 @@ with `npm run test:integration` after `npx supabase start` (keys auto-load from
 
 ### 6.4 Adding a score / aggregation test
 
-- TBD — see §3 Phase 3 for the "score equals independently-computed percent
-  correct over a known-answer fixture" pattern.
+Pattern landed in Phase 3. Reference: `src/lib/services/scoring.test.ts` — a pure unit
+beside the module (§6.1 style, no mocks). Run with `npm test`.
+
+- **Independent oracle, never a lifted value.** Compute each expected percentage by hand
+  from the fixture rows (`score = round(correct/total*100)`, empty set → 0); do NOT copy
+  expected values out of `computeScore` (the §2 Risk #4 oracle anti-pattern).
+- **Pin the whole contract, not just the happy case.** Cover empty→0, all-correct→100, a
+  rounding pair (1/3→33, 2/3→67), the `.5` boundary (1/8→13 — `Math.round` rounds toward
+  +∞), unanswered-`null`-counts-as-incorrect (2 of 5 → 40), and a **mixed-kind** fixture
+  proving aggregation never inspects `kind`.
+- **Fixture shape:** `Pick<Exercise, "is_correct" | "kind">[]`. `computeScore` reads only
+  `is_correct`, so a future exercise kind aggregates for free once its own endpoint
+  populates `is_correct` (correctness _determination_ is per-kind; _aggregation_ is not).
 
 ### 6.5 Adding an upload / parse error-path test
 
-- TBD — see §3 Phase 3 for the "bad input surfaces a clean explanatory error
-  before generation" pattern.
+Pattern landed in Phase 3. Two layers, both under default `npm test` (node env, no DB, no
+network):
+
+- **Client type/size gate (pure unit).** Reference:
+  `src/components/session/lib/parseFile.test.ts`. `validateFile`/`extensionOf` are pure and
+  import-safe (pdf.js is lazily imported inside `parsePdf` only, per `lessons.md`), so no
+  mocks/jsdom. Override `File.size` via `Object.defineProperty` to hit the oversize branch
+  without allocating 20 MB. Cover unsupported type, oversize, each allowed type, the size
+  boundary (the guard is `> MAX`, so `=== MAX` must pass), and extension edges (no dot,
+  uppercase, leading-dot dotfile, multi-dot).
+- **Server guard (route-level test).** Reference: `src/pages/api/sessions/index.test.ts`.
+  `vi.mock("@/lib/supabase")` so `createClient` returns a dummy **non-null** (clears the
+  `if (!supabase)` 500 guard); `vi.mock` the generation module so `generateSession` is a
+  `vi.hoisted` spy. Fake the `APIContext` with a `request.formData()` that returns a
+  `FormData` **directly** (no multipart round-trip — an overridden `File.size` survives).
+  Invoke `POST` and assert, for each of the four bad inputs: `400` + the exact message
+  **AND** `expect(generateSession).not.toHaveBeenCalled()` — this pins the "before
+  generation runs" ordering invariant. The empty-`extractedText` case is the §2
+  must-challenge ("empty means no content, so proceed").
+- **Guard ordering.** The four guards run in sequence (file → text → extension → size), so
+  each fixture must be otherwise-valid up to the guard under test.
+- **Drift guard.** `MAX_SIZE_BYTES`/`ALLOWED_EXTENSIONS` are duplicated in `parseFile.ts`
+  and `sessions/index.ts` (not shared); assert the same `.docx` / 21 MB inputs at both
+  layers so the two copies cannot drift apart silently.
 
 ### 6.6 Adding an AI-native grounding check
 
@@ -246,6 +279,16 @@ here capturing anything surprising the rollout phase taught.)
   forged INSERT **raises** (`with check`). Suite is **local-only first** (no CI YAML this
   rollout); local Supabase keys auto-load from `supabase status`. Gotcha: a Windows
   Docker-socket issue can wedge the `vector`/Kong pipeline — `supabase stop && start` clears it.
+- **Phase 3 (score correctness + upload/parse errors):** the score is one pure function
+  (`computeScore`, single call site), so its cheapest real signal is a unit with a
+  **hand-computed** oracle — the §2 anti-pattern is lifting expected values from the code.
+  The DB-backed wiring integration was deliberately skipped (cost×signal — Phase 2's
+  owner-200 control already touches answer→aggregate→persist). Risk #5's load-bearing
+  surface is the **server** re-validation: four guards return `400` **before** generation,
+  pinned by a `generateSession` spy-not-called assertion (the ordering invariant).
+  `MAX_SIZE_BYTES`/`ALLOWED_EXTENSIONS` are duplicated client/server → asserted at both
+  layers to catch drift. The React form's own empty/corrupt surfacing is NOT tested (no
+  jsdom/RTL — see §7).
 
 ## 7. What We Deliberately Don't Test
 
@@ -261,6 +304,11 @@ contributors should respect these unless the underlying assumption changes.
 - **Exact LLM output wording** — non-deterministic; asserting verbatim text
   is brittle and catches nothing. Test structure, schema-validity, and
   grounding instead (see Risks #1, #2). (Watch-item, not from Q5.)
+- **New-Session form's client-side empty/corrupt surfacing** — the React form's own
+  empty-extraction guard and corrupt-file catch (`NewSessionForm.tsx`) are not unit-tested:
+  there is no jsdom/RTL in the stack (§4), and the trust boundary is the server, which is
+  covered (§6.5 server guard). Re-evaluate if jsdom/RTL is added or the form's error
+  branching grows. (Source: Phase 3 plan decision.)
 
 ## 8. Freshness Ledger
 

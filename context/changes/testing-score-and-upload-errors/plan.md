@@ -77,7 +77,7 @@ location/naming/reference-test/run-command guidance; §3 row 3 = `complete`.
 ## What We're NOT Doing
 
 - **No DB-backed integration test for #4.** Decision (cost×signal): the pure unit fully
-  pins the score *math*; the answer→aggregate→persist *wiring* is asserted indirectly by
+  pins the score _math_; the answer→aggregate→persist _wiring_ is asserted indirectly by
   Phase 2's existing owner-200 control (`complete.integration.test.ts` asserts
   `typeof body.score === "number"`). We do **not** extend `createSessionGraph` to seed
   multiple exercises this phase.
@@ -107,14 +107,14 @@ moved validation after generation.
 ## Critical Implementation Details
 
 - **Guard ordering (Phase 2 route test).** The four guards run in sequence
-  (`sessions/index.ts:60-71`). To exercise guard *N*, the fixture must satisfy guards
-  *1..N-1*. E.g. the "unsupported extension" case needs a real `File` **and** a non-empty
+  (`sessions/index.ts:60-71`). To exercise guard _N_, the fixture must satisfy guards
+  _1..N-1_. E.g. the "unsupported extension" case needs a real `File` **and** a non-empty
   `extractedText`; the "oversize" case additionally needs an allowed extension. Build each
   bad-input `FormData` as otherwise-valid up to the guard under test.
 - **Two mock seams, no DB/network (Phase 2 route test).** `createClient` (`@/lib/supabase`)
   must be mocked to return a dummy **non-null** object (to clear the `:51` 500 guard);
   `generateSession` (`@/lib/services/generation/generate`) must be a `vi.fn` spy. Both the
-  profile read (`:90`) and generation (`:96`) sit *after* the guards, so neither real
+  profile read (`:90`) and generation (`:96`) sit _after_ the guards, so neither real
   Supabase nor real OpenRouter is touched. Follow the `vi.hoisted` + `vi.mock` pattern from
   §6.2 / `src/test/generation/openrouter-mock.ts` (the spy must be hoisted because `vi.mock`
   is hoisted above imports).
@@ -145,6 +145,7 @@ and avoiding the oracle anti-pattern. Co-located beside `scoring.ts` per §6.1; 
 **Contract**: Calls `computeScore(fixture)` and asserts the hand-computed expected integer.
 Fixture rows are `Pick<Exercise, "is_correct">` (plus a `kind` field on the mixed-kind row to
 demonstrate kind-agnosticism — `computeScore` ignores it). Required cases:
+
 - `[]` → `0` (empty-set rule)
 - 3 × `is_correct: true` → `100` (all-correct)
 - 1 true / 3 total → `33`; 2 true / 3 total → `67` (the rounding pair)
@@ -195,12 +196,13 @@ import-safe, so the test runs in `node` env with no mocks and no jsdom (§6.1).
 **Contract**: Imports `validateFile`, `extensionOf`, `MAX_SIZE_BYTES`, `ALLOWED_EXTENSIONS`
 from `parseFile.ts`. `validateFile` cases (construct `File` objects; oversize via a
 `File` whose `size` exceeds the limit — a sparse blob or a stubbed `size`):
+
 - unsupported extension (e.g. `notes.docx`) → `"Unsupported file type. Upload a PDF, .txt, or .md file."`
 - oversize (21 MB, allowed extension) → `"File exceeds the 20 MB limit."`
 - each allowed type (`.pdf`, `.txt`, `.md`, within size) → `null`
-`extensionOf` edge cases: no dot (`"README"` → `""`), uppercase (`"a.PDF"` → `"pdf"`),
-dotfile (`".gitignore"` → `"gitignore"`), double extension (`"notes.pdf.exe"` → `"exe"`,
-`"archive.tar.gz"` → `"gz"`).
+  `extensionOf` edge cases: no dot (`"README"` → `""`), uppercase (`"a.PDF"` → `"pdf"`),
+  dotfile (`".gitignore"` → `"gitignore"`), double extension (`"notes.pdf.exe"` → `"exe"`,
+  `"archive.tar.gz"` → `"gz"`).
 
 #### 2. Server bad-input guard route test
 
@@ -217,6 +219,7 @@ means no content, so proceed"). Runs under default `npm test` (no DB, no network
 context: `locals.user` = a dummy user, `request` = a `Request` carrying a real `FormData`
 body, plus `cookies`. One case per guard (each FormData otherwise-valid up to its guard, per
 Critical Implementation Details → guard ordering):
+
 - no file (omit `file`) → `400` `"No file provided"`
 - empty `extractedText` (real file present) → `400` `"Could not read any text from the file"`
 - unsupported extension (`.docx`, valid file + non-empty text) → `400` `"Unsupported file type. Upload a PDF, .txt, or .md file."`
@@ -384,28 +387,28 @@ None — additive test files plus documentation edits; no production code or sch
 
 #### Automated
 
-- [x] 2.1 New files `parseFile.test.ts` and `sessions/index.test.ts` exist and are picked up by Vitest
-- [x] 2.2 Unit + route tests pass: `npm test`
-- [x] 2.3 Type checking passes: `npx astro check`
-- [x] 2.4 Linting passes: `npm run lint`
-- [x] 2.5 No real Supabase or OpenRouter is contacted (test runs offline)
+- [x] 2.1 New files `parseFile.test.ts` and `sessions/index.test.ts` exist and are picked up by Vitest — d692c3d
+- [x] 2.2 Unit + route tests pass: `npm test` — d692c3d
+- [x] 2.3 Type checking passes: `npx astro check` — d692c3d
+- [x] 2.4 Linting passes: `npm run lint` — d692c3d
+- [x] 2.5 No real Supabase or OpenRouter is contacted (test runs offline) — d692c3d
 
 #### Manual
 
-- [x] 2.6 Each route case asserts the `400` + exact message **and** `generateSession` not called
-- [x] 2.7 The empty-`extractedText` case is present (the §2 must-challenge scenario)
-- [x] 2.8 `.docx` and 21 MB inputs are asserted at both the client unit and the server route (drift guard)
+- [x] 2.6 Each route case asserts the `400` + exact message **and** `generateSession` not called — d692c3d
+- [x] 2.7 The empty-`extractedText` case is present (the §2 must-challenge scenario) — d692c3d
+- [x] 2.8 `.docx` and 21 MB inputs are asserted at both the client unit and the server route (drift guard) — d692c3d
 
 ### Phase 3: Cookbook & plan docs
 
 #### Automated
 
-- [ ] 3.1 §6.4 and §6.5 no longer contain "TBD — see §3 Phase 3"
-- [ ] 3.2 §3 Phase 3 row Status reads `complete`
-- [ ] 3.3 Markdown lints/formats clean
+- [x] 3.1 §6.4 and §6.5 no longer contain "TBD — see §3 Phase 3"
+- [x] 3.2 §3 Phase 3 row Status reads `complete`
+- [x] 3.3 Markdown lints/formats clean
 
 #### Manual
 
-- [ ] 3.4 §6.4/§6.5 are sufficient to add a new test without re-reading the source
-- [ ] 3.5 §7 entry accurately states what is not tested, why, and a re-evaluation trigger
-- [ ] 3.6 §6.7 Phase 3 note captures the oracle discipline and the spy-not-called invariant
+- [x] 3.4 §6.4/§6.5 are sufficient to add a new test without re-reading the source
+- [x] 3.5 §7 entry accurately states what is not tested, why, and a re-evaluation trigger
+- [x] 3.6 §6.7 Phase 3 note captures the oracle discipline and the spy-not-called invariant
