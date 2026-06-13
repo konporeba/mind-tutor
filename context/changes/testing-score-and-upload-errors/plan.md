@@ -370,31 +370,31 @@ None — additive test files plus documentation edits; no production code or sch
 
 #### Automated
 
-- [x] 1.1 New file `src/lib/services/scoring.test.ts` exists and is picked up by Vitest
-- [x] 1.2 Unit tests pass: `npm test`
-- [x] 1.3 Type checking passes: `npx astro check`
-- [x] 1.4 Linting passes: `npm run lint`
+- [x] 1.1 New file `src/lib/services/scoring.test.ts` exists and is picked up by Vitest — cb4f11b
+- [x] 1.2 Unit tests pass: `npm test` — cb4f11b
+- [x] 1.3 Type checking passes: `npx astro check` — cb4f11b
+- [x] 1.4 Linting passes: `npm run lint` — cb4f11b
 
 #### Manual
 
-- [x] 1.5 Every expected value is independently hand-derivable (no value lifted from `computeScore`)
-- [x] 1.6 The unanswered-`null` case and the half-rounding case are present and asserted
+- [x] 1.5 Every expected value is independently hand-derivable (no value lifted from `computeScore`) — cb4f11b
+- [x] 1.6 The unanswered-`null` case and the half-rounding case are present and asserted — cb4f11b
 
 ### Phase 2: Upload/parse error surfacing (Risk #5)
 
 #### Automated
 
-- [ ] 2.1 New files `parseFile.test.ts` and `sessions/index.test.ts` exist and are picked up by Vitest
-- [ ] 2.2 Unit + route tests pass: `npm test`
-- [ ] 2.3 Type checking passes: `npx astro check`
-- [ ] 2.4 Linting passes: `npm run lint`
-- [ ] 2.5 No real Supabase or OpenRouter is contacted (test runs offline)
+- [x] 2.1 New files `parseFile.test.ts` and `sessions/index.test.ts` exist and are picked up by Vitest
+- [x] 2.2 Unit + route tests pass: `npm test`
+- [x] 2.3 Type checking passes: `npx astro check`
+- [x] 2.4 Linting passes: `npm run lint`
+- [x] 2.5 No real Supabase or OpenRouter is contacted (test runs offline)
 
 #### Manual
 
-- [ ] 2.6 Each route case asserts the `400` + exact message **and** `generateSession` not called
-- [ ] 2.7 The empty-`extractedText` case is present (the §2 must-challenge scenario)
-- [ ] 2.8 `.docx` and 21 MB inputs are asserted at both the client unit and the server route (drift guard)
+- [x] 2.6 Each route case asserts the `400` + exact message **and** `generateSession` not called
+- [x] 2.7 The empty-`extractedText` case is present (the §2 must-challenge scenario)
+- [x] 2.8 `.docx` and 21 MB inputs are asserted at both the client unit and the server route (drift guard)
 
 ### Phase 3: Cookbook & plan docs
 
