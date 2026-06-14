@@ -1,1 +1,6 @@
 npx lint-staged
+
+# Typecheck gate (test-plan §5 "lint + typecheck"). astro check is whole-project
+# and ~16s; lint above is ~9s — both too slow for a per-edit agent hook, so the
+# "lint + typecheck" gate runs here at commit time instead.
+npx astro check
