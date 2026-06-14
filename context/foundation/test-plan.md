@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-13 (Phase 4 researched)
+> Last updated: 2026-06-14 (Phase 4 complete — all 4 rollout phases done)
 
 ## 1. Strategy
 
@@ -84,7 +84,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 1   | Generation pipeline contract & failure modes     | Prove valid input never silently fails, malformed LLM JSON yields a clean recoverable error, and output is schema-valid and structurally drawn from the source | #2, structural #1 | unit + integration (OpenRouter stubbed)                | complete    | context/changes/testing-generation-pipeline-contract/       |
 | 2   | Cross-learner isolation across the session API   | Prove a non-owner is denied (403/404) on every session-scoped read and mutation endpoint                                                                       | #3                | integration (second identity) + server-side validation | complete    | context/archive/2026-06-10-testing-cross-learner-isolation/ |
 | 3   | Score correctness + upload/parse error surfacing | Prove score equals independently-computed percent correct, and bad input yields a clean explanatory error rather than a silent break                           | #4, #5            | unit + integration                                     | complete    | context/changes/testing-score-and-upload-errors/            |
-| 4   | Grounding fidelity (the wedge)                   | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch                                                                  | semantic #1       | AI-native LLM-judge                                    | implementing | context/changes/testing-grounding-judge/                  |
+| 4   | Grounding fidelity (the wedge)                   | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch                                                                  | semantic #1       | AI-native LLM-judge                                    | complete | context/archive/2026-06-13-testing-grounding-judge/                  |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
 `change opened` → `researched` → `planned` → `implementing` → `complete`.
