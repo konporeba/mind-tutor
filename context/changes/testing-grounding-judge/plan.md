@@ -392,11 +392,11 @@ None — additive. No schema, DB, or production-path changes.
 - [x] 2.1 `npm test` still passes and still excludes the live suite — f76dff3
 - [x] 2.2 Linting passes: `npm run lint` — f76dff3
 - [x] 2.3 Type checking passes: `astro check` — f76dff3
-- [x] 2.4 With `OPENROUTER_API_KEY` set: `npm run test:livejudge` passes against all fixtures
+- [x] 2.4 With `OPENROUTER_API_KEY` set: `npm run test:livejudge` passes against all fixtures — 18d2fac
 - [x] 2.5 Without `OPENROUTER_API_KEY`: `npm run test:livejudge` fails fast with a clear message — f76dff3
 
 #### Manual
 
-- [x] 2.6 Each fixture's PASS/FLAG outcome matches its authored label across a couple of live runs
-- [x] 2.7 The legitimate-distractor control does not get flagged
-- [x] 2.8 test-plan §6.6 reads as a usable cookbook entry and §6.7 records the independence watch-item
+- [x] 2.6 Each fixture's PASS/FLAG outcome matches its authored label across a couple of live runs — 18d2fac
+- [x] 2.7 The legitimate-distractor control does not get flagged — 18d2fac
+- [x] 2.8 test-plan §6.6 reads as a usable cookbook entry and §6.7 records the independence watch-item — 18d2fac

@@ -1,7 +1,7 @@
 ---
 change_id: testing-grounding-judge
 title: Grounding fidelity LLM-judge — Phase 4 (semantic remainder of Risk #1)
-status: implementing
+status: implemented
 created: 2026-06-13
 updated: 2026-06-14
 archived_at: null
