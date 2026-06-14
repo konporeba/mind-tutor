@@ -6,7 +6,7 @@
 >
 > Refresh: re-run `/10x-test-plan --refresh` when stale (see §8).
 >
-> Last updated: 2026-06-13 (Phase 3 complete)
+> Last updated: 2026-06-13 (Phase 4 researched)
 
 ## 1. Strategy
 
@@ -84,7 +84,7 @@ orchestrator updates Status as artifacts appear on disk.
 | 1   | Generation pipeline contract & failure modes     | Prove valid input never silently fails, malformed LLM JSON yields a clean recoverable error, and output is schema-valid and structurally drawn from the source | #2, structural #1 | unit + integration (OpenRouter stubbed)                | complete    | context/changes/testing-generation-pipeline-contract/       |
 | 2   | Cross-learner isolation across the session API   | Prove a non-owner is denied (403/404) on every session-scoped read and mutation endpoint                                                                       | #3                | integration (second identity) + server-side validation | complete    | context/archive/2026-06-10-testing-cross-learner-isolation/ |
 | 3   | Score correctness + upload/parse error surfacing | Prove score equals independently-computed percent correct, and bad input yields a clean explanatory error rather than a silent break                           | #4, #5            | unit + integration                                     | complete    | context/changes/testing-score-and-upload-errors/            |
-| 4   | Grounding fidelity (the wedge)                   | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch                                                                  | semantic #1       | AI-native LLM-judge                                    | not started | —                                                           |
+| 4   | Grounding fidelity (the wedge)                   | Detect off-source claims in generated content that the Phase 1 structural checks cannot catch                                                                  | semantic #1       | AI-native LLM-judge                                    | implementing | context/changes/testing-grounding-judge/                  |
 
 **Status vocabulary** (fixed — parser literals): `not started` →
 `change opened` → `researched` → `planned` → `implementing` → `complete`.
@@ -132,10 +132,12 @@ phase lands; before that, the gate is `planned`.
 | score + upload-error tests | local + CI                     | required after §3 Phase 3 | miscomputed score; unhandled bad-input paths              |
 | AI-native grounding judge  | CI on PR (or pre-merge)        | optional after §3 Phase 4 | off-source claims classic checks miss                     |
 
-CI today (`.github/workflows/ci.yml`) runs lint + build only; wiring the
-test step into CI is owned by the named rollout phases above plus the
-Module-1/Module-2 CI lessons — this guide names the gates, it does not write
-the YAML.
+CI today (`.github/workflows/ci.yml`) runs lint + the unit suite
+(`npm run test`) + build. The DB-backed integration suite
+(`npm run test:integration`) and the AI-native grounding judge are **not** yet
+wired into CI — that wiring is owned by the named rollout phases above plus the
+Module-1/Module-2 CI lessons. This guide names the gates, it does not write the
+YAML.
 
 ## 6. Cookbook Patterns
 
@@ -257,8 +259,42 @@ network):
 
 ### 6.6 Adding an AI-native grounding check
 
-- TBD — see §3 Phase 4 for the LLM-judge "no off-source claims" pattern and
-  its "When NOT to use" boundary (§4).
+Pattern landed in Phase 4. The judge lives in `src/lib/services/grounding/`
+(`schema.ts` = zod verdict contract, `judge.ts` = the judge) and is split into a
+**deterministic core** (runs in `npm test`) and an **opt-in live suite**
+(`npm run test:livejudge`).
+
+- **Only the semantic remainder — never re-check a deterministic gate.** The judge
+  grades prose `findUngroundedCitation` can't see: `theory[].body`/`heading`, MCQ
+  `prompt`, the **correct** option, `feedback`, `title`. It must NOT re-assert that
+  `theory[].citation` occurs in the source — that is Phase 1's structural check, and
+  re-checking it is the §4 "When NOT to use the judge" anti-pattern.
+- **Exempt distractors — they are intentionally off-source.** `buildGroundingClaims`
+  submits only `options[correctIndex]` (the McqSchema refine guarantees it is in range);
+  the other options are plausible-but-wrong by design and must never be sent for
+  grounding, or the judge false-flags every one. The `distractorControl` fixture proves
+  the exemption holds end-to-end.
+- **Ground against the 60k slice the generator saw.** `judgeGrounding` truncates the
+  source to `MAX_SOURCE_CHARS` before the call, so a claim grounded only beyond the cap
+  is correctly flagged (the `truncation` fixture pins this; mirrors `generate.session.test.ts`).
+- **The fixture label is the oracle — never the model's own verdict.** `src/test/grounding/fixtures.ts`
+  hand-authors a source + sessions with author-assigned PASS/FLAG labels (faithful
+  paraphrase → PASS; planted contradiction → FLAG; truncated-away → FLAG; distractor
+  control → PASS). Asserting the judge's output against the model's own output would
+  green-light current hallucination (the §2 Risk #1 oracle anti-pattern).
+- **Live, keyed, opt-in.** The judge makes ONE real OpenRouter call (temperature 0 +
+  `json_object` for reproducibility) through the existing `getOpenRouterClient` seam —
+  via OpenRouter, not the Anthropic SDK. The `*.livejudge.test.ts` suffix is excluded
+  from `npm test` (`vitest.config.ts`); the suite runs via `npm run test:livejudge`
+  (`vitest.livejudge.config.ts`), which auto-loads `OPENROUTER_API_KEY` from
+  `.dev.vars`/`.env` and **fails fast** (never silently passes) when it is absent.
+- **Wiring is deterministic — don't pay a model to test it.** `judge.test.ts` stubs the
+  seam (reusing `src/test/generation/openrouter-mock.ts`) and asserts the distractor
+  exemption, verdict parse/aggregation, and malformed-response throws — all in `npm test`.
+- **Optional CI gate (not wired here).** Per §5 this gate is `CI on PR (or pre-merge)`,
+  `optional after Phase 4`. Wiring it needs an `OPENROUTER_API_KEY` repo secret + a
+  conditional `npm run test:livejudge` step; this lesson names the gate but does not
+  author the YAML.
 
 ### 6.7 Per-rollout-phase notes
 
@@ -289,6 +325,18 @@ here capturing anything surprising the rollout phase taught.)
   `MAX_SIZE_BYTES`/`ALLOWED_EXTENSIONS` are duplicated client/server → asserted at both
   layers to catch drift. The React form's own empty/corrupt surfacing is NOT tested (no
   jsdom/RTL — see §7).
+- **Phase 4 (grounding fidelity LLM-judge):** the judge covers the **complement of one
+  substring check** — the prose `findUngroundedCitation` (citation-only) can't reach; it
+  must never re-grade `theory[].citation` (§4 boundary). The load-bearing subtlety is the
+  **distractor exemption**: only `options[correctIndex]` is submitted, never the
+  intentionally-off-source distractors. Split into a **deterministic wiring unit** (stubbed
+  seam, in `npm test`) and an **opt-in live suite** (`npm run test:livejudge`, real keyed
+  call, excluded from `npm test`); fixtures are hand-labeled (the oracle is ours, not the
+  model's output). **Watch-item:** the judge reuses `OPENROUTER_MODEL` (the generator's own
+  gpt-4o-mini) — fine for the test (labels are ours) but it could share a blind spot with
+  the generator on *real* output; `JUDGE` model selection is a one-line change for a future
+  cross-family phase. The optional CI gate (§5) is documented but not wired (CLAUDE.md: no
+  CI/CD authoring this lesson).
 
 ## 7. What We Deliberately Don't Test
 
@@ -312,9 +360,9 @@ contributors should respect these unless the underlying assumption changes.
 
 ## 8. Freshness Ledger
 
-- Strategy (§1–§5) last reviewed: 2026-06-09
-- Stack versions last verified: 2026-06-09
-- AI-native tool references last verified: 2026-06-09
+- Strategy (§1–§5) last reviewed: 2026-06-13 (§5 CI line corrected)
+- Stack versions last verified: 2026-06-13
+- AI-native tool references last verified: 2026-06-13
 
 Refresh (`/10x-test-plan --refresh`) when:
 

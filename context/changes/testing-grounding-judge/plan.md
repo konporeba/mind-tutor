@@ -375,25 +375,25 @@ None — additive. No schema, DB, or production-path changes.
 
 #### Automated
 
-- [x] 1.1 Unit tests pass: `npm test`
-- [x] 1.2 Type checking passes: `astro check` (or `npm run build`)
-- [x] 1.3 Linting passes: `npm run lint`
-- [x] 1.4 `npm test` makes no network call and requires no `OPENROUTER_API_KEY`
+- [x] 1.1 Unit tests pass: `npm test` — 61abc71
+- [x] 1.2 Type checking passes: `astro check` (or `npm run build`) — 61abc71
+- [x] 1.3 Linting passes: `npm run lint` — 61abc71
+- [x] 1.4 `npm test` makes no network call and requires no `OPENROUTER_API_KEY` — 61abc71
 
 #### Manual
 
-- [x] 1.5 `judge.ts` imported only by tests (no `src/pages/**` import)
-- [x] 1.6 Verdict schema + claim-set rule read as the intended contract (distractors excluded; citation not re-graded)
+- [x] 1.5 `judge.ts` imported only by tests (no `src/pages/**` import) — 61abc71
+- [x] 1.6 Verdict schema + claim-set rule read as the intended contract (distractors excluded; citation not re-graded) — 61abc71
 
 ### Phase 2: Adversarial fixtures + live keyed suite + docs
 
 #### Automated
 
-- [ ] 2.1 `npm test` still passes and still excludes the live suite
-- [ ] 2.2 Linting passes: `npm run lint`
-- [ ] 2.3 Type checking passes: `astro check`
+- [x] 2.1 `npm test` still passes and still excludes the live suite
+- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.3 Type checking passes: `astro check`
 - [ ] 2.4 With `OPENROUTER_API_KEY` set: `npm run test:livejudge` passes against all fixtures
-- [ ] 2.5 Without `OPENROUTER_API_KEY`: `npm run test:livejudge` fails fast with a clear message
+- [x] 2.5 Without `OPENROUTER_API_KEY`: `npm run test:livejudge` fails fast with a clear message
 
 #### Manual
 

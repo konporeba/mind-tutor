@@ -16,7 +16,9 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:integration": "vitest run --config vitest.integration.config.ts",
-    "test:integration:watch": "vitest --config vitest.integration.config.ts"
+    "test:integration:watch": "vitest --config vitest.integration.config.ts",
+    "test:livejudge": "vitest run --config vitest.livejudge.config.ts",
+    "test:livejudge:watch": "vitest --config vitest.livejudge.config.ts"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.8",

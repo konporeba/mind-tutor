@@ -16,9 +16,10 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["src/**/*.test.ts"],
-    // DB-backed integration specs (`*.integration.test.ts`) require local Supabase and
-    // run via `npm run test:integration` (vitest.integration.config.ts) — keep them out
-    // of the default suite so `npm test` needs no Supabase.
-    exclude: [...configDefaults.exclude, "**/*.integration.test.ts"],
+    // DB-backed integration specs (`*.integration.test.ts`) require local Supabase, and
+    // live AI-native grounding specs (`*.livejudge.test.ts`) make a real, keyed model
+    // call — both run via their own config/script (`test:integration`, `test:livejudge`).
+    // Keep them out of the default suite so `npm test` needs no Supabase, no network, no key.
+    exclude: [...configDefaults.exclude, "**/*.integration.test.ts", "**/*.livejudge.test.ts"],
   },
 });
