@@ -1,2 +1,4 @@
-SUPABASE_URL=https://<project-ref>.supabase.co
-SUPABASE_KEY=<anon-or-service-role-key>
+SUPABASE_URL=###
+SUPABASE_KEY=###
+OPENROUTER_API_KEY=###
+OPENROUTER_MODEL=###
