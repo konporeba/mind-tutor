@@ -13,7 +13,14 @@ import { createClient } from "@/lib/supabase";
 import { generateSession } from "@/lib/services/generation/generate";
 import { GenerationError } from "@/lib/services/generation/openrouter";
 import type { TheoryBody } from "@/lib/services/generation/schema";
-import { KNOWLEDGE_LEVELS, LEARNING_GOAL_MAX, TIME_BUDGETS, type SessionIntake, type TimeBudget } from "@/types";
+import {
+  KNOWLEDGE_LEVELS,
+  LEARNING_GOAL_MAX,
+  TIME_BUDGETS,
+  type ExerciseInsert,
+  type SessionIntake,
+  type TimeBudget,
+} from "@/types";
 
 export const prerender = false;
 
@@ -39,6 +46,18 @@ function json(body: unknown, status: number): Response {
 function extensionOf(filename: string): string {
   const dot = filename.lastIndexOf(".");
   return dot === -1 ? "" : filename.slice(dot + 1).toLowerCase();
+}
+
+/** Fisher–Yates shuffle (returns a new array). Used to scramble a matching
+ *  exercise's right column ONCE at persistence time so the displayed order is
+ *  stable across renders and never reveals the correct pairing. */
+function shuffle<T>(items: T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
 }
 
 export const POST: APIRoute = async (context) => {
@@ -148,16 +167,37 @@ export const POST: APIRoute = async (context) => {
     body: { heading: step.heading, body: step.body, citation: step.citation } satisfies TheoryBody,
   }));
 
-  const exerciseRows = generated.exercises.map((mcq) => ({
-    user_id: user.id,
-    session_id: session.id,
-    kind: "mcq",
-    position: mcq.position,
-    prompt: mcq.prompt,
-    options: mcq.options,
-    correct_answer: mcq.options[mcq.correctIndex],
-    feedback: mcq.feedback,
-  }));
+  // Flatten each generated exercise into an `exercises` row by kind. `options`
+  // holds only displayable data (never the solution); `correct_answer` holds the
+  // gated truth used server-side by the grading path. For matching, the right
+  // column is shuffled ONCE here so the stored display order is stable.
+  const exerciseRows: ExerciseInsert[] = generated.exercises.map((ex) => {
+    const base = {
+      user_id: user.id,
+      session_id: session.id,
+      position: ex.position,
+      prompt: ex.prompt,
+      feedback: ex.feedback,
+    };
+    switch (ex.kind) {
+      case "mcq":
+        return { ...base, kind: "mcq", options: ex.options, correct_answer: ex.options[ex.correctIndex] };
+      case "fill_blank":
+        return {
+          ...base,
+          kind: "fill_blank",
+          options: null,
+          correct_answer: { answer: ex.answer, acceptable: ex.acceptable },
+        };
+      case "matching":
+        return {
+          ...base,
+          kind: "matching",
+          options: { left: ex.pairs.map((p) => p.left), right: shuffle(ex.pairs.map((p) => p.right)) },
+          correct_answer: { pairs: ex.pairs },
+        };
+    }
+  });
 
   const { error: contentError } = await supabase.from("generated_content").insert(theoryRows);
   const { error: exerciseError } = await supabase.from("exercises").insert(exerciseRows);

@@ -8,23 +8,45 @@ export interface TheoryStepView {
   citation: string;
 }
 
-export interface ExerciseView {
+interface ExerciseBase {
   id: string;
   position: number;
   prompt: string;
-  options: string[];
-  learner_answer: string | null;
   is_correct: boolean | null;
   feedback: string | null;
+}
+
+export interface McqExerciseView extends ExerciseBase {
+  kind: "mcq";
+  options: string[];
+  learner_answer: string | null;
   // Populated only for already-answered exercises (never leaked before answering).
   correct_answer: string | null;
 }
 
+export interface FillBlankExerciseView extends ExerciseBase {
+  kind: "fill_blank";
+  learner_answer: string | null;
+  correct_answer: { answer: string; acceptable?: string[] } | null;
+}
+
+export interface MatchingExerciseView extends ExerciseBase {
+  kind: "matching";
+  left: string[];
+  right: string[];
+  learner_answer: Record<string, string> | null;
+  correct_answer: { pairs: { left: string; right: string }[] } | null;
+}
+
+export type ExerciseView = McqExerciseView | FillBlankExerciseView | MatchingExerciseView;
+
 interface Result {
   is_correct: boolean;
   feedback: string | null;
-  correct_answer: string | null;
-  picked: string | null;
+  /** Persisted truth, shape varies by kind; only present once answered. */
+  correct_answer: unknown;
+  /** The learner's submitted answer (string or left→right mapping). */
+  picked: unknown;
 }
 
 interface Props {
@@ -34,6 +56,221 @@ interface Props {
   initialScore: number | null;
   theory: TheoryStepView[];
   exercises: ExerciseView[];
+}
+
+// --- reveal helpers (interpret the per-kind correct_answer payload) ----------
+
+function fillAnswerText(correctAnswer: unknown): string | null {
+  if (correctAnswer && typeof correctAnswer === "object" && "answer" in correctAnswer) {
+    const answer = (correctAnswer as { answer?: unknown }).answer;
+    return typeof answer === "string" ? answer : null;
+  }
+  return null;
+}
+
+function matchingTruth(correctAnswer: unknown): Record<string, string> | null {
+  if (!correctAnswer || typeof correctAnswer !== "object" || !("pairs" in correctAnswer)) return null;
+  const pairs = (correctAnswer as { pairs?: unknown }).pairs;
+  if (!Array.isArray(pairs)) return null;
+  const map: Record<string, string> = {};
+  for (const pair of pairs) {
+    if (pair && typeof pair === "object") {
+      const { left, right } = pair as { left?: unknown; right?: unknown };
+      if (typeof left === "string" && typeof right === "string") map[left] = right;
+    }
+  }
+  return map;
+}
+
+/** The learner's submitted answer as a string (mcq/fill_blank), or "" if absent. */
+function pickedString(result: Result | undefined): string {
+  return result && typeof result.picked === "string" ? result.picked : "";
+}
+
+/** The learner's submitted matching as a left→right map, or {} if absent. */
+function pickedMap(result: Result | undefined): Record<string, string> {
+  return result?.picked && typeof result.picked === "object" ? (result.picked as Record<string, string>) : {};
+}
+
+// --- per-kind question renderers ---------------------------------------------
+
+const optionButtonBase = "w-full rounded-lg border px-4 py-2.5 text-left text-sm transition-colors ";
+
+function McqQuestion({
+  exercise,
+  result,
+  pending,
+  onAnswer,
+}: {
+  exercise: McqExerciseView;
+  result: Result | undefined;
+  pending: boolean;
+  onAnswer: (option: string) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      {exercise.options.map((option) => {
+        const isCorrectOption = result?.correct_answer === option;
+        const wasPicked = result?.picked === option;
+        return (
+          <button
+            key={option}
+            type="button"
+            disabled={!!result || pending}
+            onClick={() => {
+              onAnswer(option);
+            }}
+            className={
+              optionButtonBase +
+              (result
+                ? isCorrectOption
+                  ? "border-green-400/60 bg-green-500/20"
+                  : wasPicked
+                    ? "border-red-400/60 bg-red-500/20"
+                    : "border-white/10 bg-white/5 opacity-60"
+                : "border-white/15 bg-white/5 hover:bg-white/15")
+            }
+          >
+            {option}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function FillBlankQuestion({
+  result,
+  pending,
+  draft,
+  onDraft,
+  onSubmit,
+}: {
+  result: Result | undefined;
+  pending: boolean;
+  draft: string;
+  onDraft: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  const answered = !!result;
+  const correctText = fillAnswerText(result?.correct_answer);
+  const value = answered ? pickedString(result) : draft;
+  return (
+    <div className="space-y-3">
+      <label className="block space-y-1.5">
+        <span className="text-sm text-blue-100/70">Your answer</span>
+        <input
+          type="text"
+          value={value}
+          disabled={answered || pending}
+          placeholder="Type your answer"
+          onChange={(e) => {
+            onDraft(e.target.value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && draft.trim() && !answered) onSubmit();
+          }}
+          className="w-full rounded-lg border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-blue-100/40 focus:border-blue-300/60 focus:outline-none disabled:opacity-70"
+        />
+      </label>
+      {!answered && (
+        <button
+          type="button"
+          disabled={!draft.trim() || pending}
+          onClick={onSubmit}
+          className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          Submit answer
+        </button>
+      )}
+      {result && !result.is_correct && correctText && (
+        <p className="text-sm text-blue-100/90">
+          Correct answer: <span className="font-semibold text-white">{correctText}</span>
+        </p>
+      )}
+    </div>
+  );
+}
+
+function MatchingQuestion({
+  exercise,
+  result,
+  pending,
+  draft,
+  onDraft,
+  onSubmit,
+}: {
+  exercise: MatchingExerciseView;
+  result: Result | undefined;
+  pending: boolean;
+  draft: Record<string, string>;
+  onDraft: (leftItem: string, right: string) => void;
+  onSubmit: () => void;
+}) {
+  const answered = !!result;
+  const selection = answered ? pickedMap(result) : draft;
+  const truth = matchingTruth(result?.correct_answer);
+  const allSelected = exercise.left.every((leftItem) => selection[leftItem]);
+  return (
+    <div className="space-y-3">
+      <ul className="space-y-2">
+        {exercise.left.map((leftItem) => {
+          const picked = selection[leftItem] ?? "";
+          const isRight = answered && truth ? picked === truth[leftItem] : undefined;
+          return (
+            <li key={leftItem} className="flex items-center gap-2">
+              <span className="min-w-0 flex-1 truncate text-sm text-white">{leftItem}</span>
+              <select
+                aria-label={`Match for ${leftItem}`}
+                value={picked}
+                disabled={answered || pending}
+                onChange={(e) => {
+                  onDraft(leftItem, e.target.value);
+                }}
+                className={
+                  "flex-1 rounded-lg border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none disabled:opacity-80 " +
+                  (answered
+                    ? isRight
+                      ? "border-green-400/60 bg-green-500/20"
+                      : "border-red-400/60 bg-red-500/20"
+                    : "border-white/15 focus:border-blue-300/60")
+                }
+              >
+                <option value="" disabled>
+                  Choose…
+                </option>
+                {exercise.right.map((rightItem) => (
+                  <option key={rightItem} value={rightItem} className="text-slate-900">
+                    {rightItem}
+                  </option>
+                ))}
+              </select>
+              {answered &&
+                (isRight ? <Check className="size-4 text-green-300" /> : <X className="size-4 text-red-300" />)}
+            </li>
+          );
+        })}
+      </ul>
+      {!answered && (
+        <button
+          type="button"
+          disabled={!allSelected || pending}
+          onClick={onSubmit}
+          className="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-1.5 text-sm font-medium transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          Submit matches
+        </button>
+      )}
+      {result && !result.is_correct && truth && (
+        <p className="text-sm text-blue-100/90">
+          Correct matches:{" "}
+          <span className="font-semibold text-white">
+            {exercise.left.map((leftItem) => `${leftItem} → ${truth[leftItem]}`).join("; ")}
+          </span>
+        </p>
+      )}
+    </div>
+  );
 }
 
 export default function SessionRunner({ sessionId, title, initialStatus, initialScore, theory, exercises }: Props) {
@@ -54,6 +291,8 @@ export default function SessionRunner({ sessionId, title, initialStatus, initial
   }, [exercises]);
 
   const [results, setResults] = useState<Map<string, Result>>(seededResults);
+  // In-progress answers for the typed (fill_blank) / selected (matching) inputs.
+  const [drafts, setDrafts] = useState<Map<string, string | Record<string, string>>>(new Map());
   const firstUnanswered = exercises.findIndex((ex) => !seededResults.has(ex.id));
   const [current, setCurrent] = useState(firstUnanswered === -1 ? exercises.length - 1 : firstUnanswered);
   const [score, setScore] = useState<number | null>(initialScore);
@@ -62,25 +301,34 @@ export default function SessionRunner({ sessionId, title, initialStatus, initial
 
   const allAnswered = results.size === exercises.length;
 
-  async function answer(exercise: ExerciseView, option: string) {
+  async function submit(exercise: ExerciseView, payload: string | Record<string, string>) {
     if (pending || results.has(exercise.id)) return;
     setPending(true);
     try {
       const res = await fetch(`/api/sessions/${sessionId}/exercises/${exercise.id}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answer: option }),
+        body: JSON.stringify({ answer: payload }),
       });
       if (!res.ok) return;
-      const data = (await res.json()) as {
-        is_correct: boolean;
-        feedback: string | null;
-        correct_answer: string | null;
-      };
-      setResults((prev) => new Map(prev).set(exercise.id, { ...data, picked: option }));
+      const data = (await res.json()) as { is_correct: boolean; feedback: string | null; correct_answer: unknown };
+      setResults((prev) => new Map(prev).set(exercise.id, { ...data, picked: payload }));
     } finally {
       setPending(false);
     }
+  }
+
+  function setFillDraft(id: string, value: string) {
+    setDrafts((prev) => new Map(prev).set(id, value));
+  }
+
+  function setMatchDraft(id: string, leftItem: string, right: string) {
+    setDrafts((prev) => {
+      const next = new Map(prev);
+      const cur = (next.get(id) as Record<string, string> | undefined) ?? {};
+      next.set(id, { ...cur, [leftItem]: right });
+      return next;
+    });
   }
 
   async function finish() {
@@ -179,32 +427,38 @@ export default function SessionRunner({ sessionId, title, initialStatus, initial
           </h2>
           <div className="space-y-4">
             <p className="font-medium text-white">{exercise.prompt}</p>
-            <div className="space-y-2">
-              {exercise.options.map((option) => {
-                const isCorrectOption = currentResult?.correct_answer === option;
-                const wasPicked = currentResult?.picked === option;
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    disabled={!!currentResult || pending}
-                    onClick={() => answer(exercise, option)}
-                    className={
-                      "w-full rounded-lg border px-4 py-2.5 text-left text-sm transition-colors " +
-                      (currentResult
-                        ? isCorrectOption
-                          ? "border-green-400/60 bg-green-500/20"
-                          : wasPicked
-                            ? "border-red-400/60 bg-red-500/20"
-                            : "border-white/10 bg-white/5 opacity-60"
-                        : "border-white/15 bg-white/5 hover:bg-white/15")
-                    }
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
+
+            {exercise.kind === "mcq" && (
+              <McqQuestion
+                exercise={exercise}
+                result={currentResult}
+                pending={pending}
+                onAnswer={(option) => submit(exercise, option)}
+              />
+            )}
+            {exercise.kind === "fill_blank" && (
+              <FillBlankQuestion
+                result={currentResult}
+                pending={pending}
+                draft={(drafts.get(exercise.id) as string | undefined) ?? ""}
+                onDraft={(value) => {
+                  setFillDraft(exercise.id, value);
+                }}
+                onSubmit={() => submit(exercise, (drafts.get(exercise.id) as string | undefined) ?? "")}
+              />
+            )}
+            {exercise.kind === "matching" && (
+              <MatchingQuestion
+                exercise={exercise}
+                result={currentResult}
+                pending={pending}
+                draft={(drafts.get(exercise.id) as Record<string, string> | undefined) ?? {}}
+                onDraft={(leftItem, right) => {
+                  setMatchDraft(exercise.id, leftItem, right);
+                }}
+                onSubmit={() => submit(exercise, (drafts.get(exercise.id) as Record<string, string> | undefined) ?? {})}
+              />
+            )}
 
             {currentResult && (
               <div

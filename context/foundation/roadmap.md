@@ -35,7 +35,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-01 | first-grounded-session       | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score        | F-01          | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | done     |
 | S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | done     |
 | S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | done     |
-| S-04 | multi-type-exercises         | encounter fill-in-the-blank and a domain-specific exercise type alongside MCQ                          | S-01          | US-01, FR-009 (full)                                                                              | proposed |
+| S-04 | multi-type-exercises         | encounter fill-in-the-blank and matching-pairs exercises alongside MCQ                                  | S-01          | US-01, FR-009 (full)                                                                              | proposed |
 | S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | proposed |
 | S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | proposed |
 | S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
@@ -132,7 +132,8 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Parallel with:** S-02, S-03, S-05, S-09.
 - **Blockers:** —
 - **Unknowns:**
-  - What's the third (domain-specific) exercise type? The PRD doesn't pin it. Owner: user. Block: no — but the user has to name a default before `/10x-plan` can plan this slice usefully.
+  - ~~What's the third (domain-specific) exercise type?~~ **Resolved 2026-06-14 (user):** third type = **matching pairs** (match terms to definitions/concepts drawn from the source). Chosen for deterministic scoring (no LLM grader in the score path), cross-domain robustness, and lowest grounding risk — the pragmatic reading of "domain-specific" for the MVP.
+- **Resolved in delivery:** three exercise types ship — MCQ (from S-01), fill-in-the-blank, and matching pairs. The score must aggregate correctly across all three.
 - **Risk:** The hard work is the third type — its UI, scoring, and prompt-level reliability across heterogeneous source materials. Sequenced after the north star because shipping multi-type before the basic loop works would amplify any grounding bugs.
 - **Status:** proposed
 
@@ -202,13 +203,13 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | ---------- | ---------------------------- | -------------------------------------------------------------------------- | --------------------- | --------------------------------------------------------------------------------- |
 | F-01       | domain-schema-rls-baseline   | Establish per-learner RLS template + minimum domain schema                 | — (done)              | Shipped 2026-06-08. Unlocked every later slice.                                   |
 | S-01       | first-grounded-session       | First grounded session (north star): upload → generate → exercises → score | — (done)              | Shipped 2026-06-08. PDF-parse (client-side) + LLM-provider (OpenRouter) resolved. |
-| S-02       | per-session-intake-tailoring | Per-session intake (level, goal, time) biases generation                   | yes                   | S-01 done — ready to plan.                                                        |
-| S-03       | onboarding-bio-tailoring     | One-time conversational onboarding captures bio                            | yes                   | S-01 done — ready to plan.                                                        |
-| S-04       | multi-type-exercises         | Fill-in-the-blank + domain-specific exercise types                         | no                    | S-01 done, but user must name the domain-specific type before `/10x-plan`.        |
+| S-02       | per-session-intake-tailoring | Per-session intake (level, goal, time) biases generation                   | — (done)              | Shipped 2026-06-08. Intake (level, goal, time) tailors generation.                |
+| S-03       | onboarding-bio-tailoring     | One-time conversational onboarding captures bio                            | — (done)              | Shipped 2026-06-09. One-time onboarding captures free-text bio reused per session. |
+| S-04       | multi-type-exercises         | Fill-in-the-blank + matching-pairs exercise types                          | yes                   | Third type = matching pairs (user-chosen 2026-06-14). Ready to plan.              |
 | S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                                | yes                   | S-01 done — ready to plan.                                                        |
 | S-06       | session-history-view         | Revisit a completed session from history                                   | yes                   | S-01 done — ready to plan.                                                        |
 | S-07       | delete-session               | Delete a completed session and all its data                                | no                    | Waiting on S-06.                                                                  |
-| S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | no                    | Waiting on S-03.                                                                  |
+| S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | yes                   | S-03 done — ready to plan.                                                        |
 | S-09       | password-change              | Change password with current-password confirmation                         | — (done)              | Shipped 2026-06-08. Extends auth scaffold; touches no domain tables.              |
 
 ## Open Roadmap Questions

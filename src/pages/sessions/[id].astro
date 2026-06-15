@@ -1,7 +1,13 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import SessionRunner from "@/components/session/SessionRunner";
-import type { TheoryStepView, ExerciseView } from "@/components/session/SessionRunner";
+import type {
+  TheoryStepView,
+  ExerciseView,
+  McqExerciseView,
+  FillBlankExerciseView,
+  MatchingExerciseView,
+} from "@/components/session/SessionRunner";
 import { createClient } from "@/lib/supabase";
 
 const { id } = Astro.params;
@@ -31,7 +37,7 @@ const { data: contentRows } = await supabase
 
 const { data: exerciseRows } = await supabase
   .from("exercises")
-  .select("id, position, prompt, options, correct_answer, learner_answer, is_correct, feedback, answered_at")
+  .select("id, kind, position, prompt, options, correct_answer, learner_answer, is_correct, feedback, answered_at")
   .eq("session_id", id)
   .order("position");
 
@@ -47,17 +53,50 @@ const theory: TheoryStepView[] = (contentRows ?? []).map((row) => {
 
 const exercises: ExerciseView[] = (exerciseRows ?? []).map((row) => {
   const answered = row.answered_at !== null;
-  return {
+  const base = {
     id: row.id,
     position: row.position,
     prompt: row.prompt,
-    options: Array.isArray(row.options) ? (row.options as string[]) : [],
-    learner_answer: typeof row.learner_answer === "string" ? row.learner_answer : null,
     is_correct: row.is_correct,
     feedback: row.feedback,
-    // Only expose the correct answer for exercises already answered.
+  };
+
+  // Only expose the correct answer / solution mapping for already-answered items;
+  // pre-answer, options carry just the displayable data (never the truth).
+  if (row.kind === "matching") {
+    const opts = (row.options ?? {}) as { left?: unknown; right?: unknown };
+    const matching: MatchingExerciseView = {
+      ...base,
+      kind: "matching",
+      left: Array.isArray(opts.left) ? (opts.left as string[]) : [],
+      right: Array.isArray(opts.right) ? (opts.right as string[]) : [],
+      learner_answer:
+        answered && row.learner_answer && typeof row.learner_answer === "object"
+          ? (row.learner_answer as Record<string, string>)
+          : null,
+      correct_answer: answered ? (row.correct_answer as MatchingExerciseView["correct_answer"]) : null,
+    };
+    return matching;
+  }
+
+  if (row.kind === "fill_blank") {
+    const fill: FillBlankExerciseView = {
+      ...base,
+      kind: "fill_blank",
+      learner_answer: answered && typeof row.learner_answer === "string" ? row.learner_answer : null,
+      correct_answer: answered ? (row.correct_answer as FillBlankExerciseView["correct_answer"]) : null,
+    };
+    return fill;
+  }
+
+  const mcq: McqExerciseView = {
+    ...base,
+    kind: "mcq",
+    options: Array.isArray(row.options) ? (row.options as string[]) : [],
+    learner_answer: typeof row.learner_answer === "string" ? row.learner_answer : null,
     correct_answer: answered && typeof row.correct_answer === "string" ? row.correct_answer : null,
   };
+  return mcq;
 });
 ---
 
