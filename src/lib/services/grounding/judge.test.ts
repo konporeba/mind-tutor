@@ -39,6 +39,7 @@ function sampleSession(): GeneratedSession {
     ],
     exercises: [
       {
+        kind: "mcq",
         position: 0,
         prompt: "What does photosynthesis convert light energy into?",
         options: ["Chemical energy", "Kinetic energy", "Sound energy"],

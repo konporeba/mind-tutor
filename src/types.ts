@@ -23,6 +23,15 @@ export type Exercise = Tables["exercises"]["Row"];
 export type ExerciseInsert = Tables["exercises"]["Insert"];
 export type ExerciseUpdate = Tables["exercises"]["Update"];
 
+// --- Exercise kinds (S-04) --------------------------------------------------
+// The three exercise types a session can contain. MCQ shipped in S-01;
+// fill-in-the-blank and matching-pairs land in S-04 (FR-009 full). Shared by the
+// generation schema, sizing, persistence, grading, and the kind CHECK constraint
+// on `exercises.kind`.
+
+export const EXERCISE_KINDS = ["mcq", "fill_blank", "matching"] as const;
+export type ExerciseKind = (typeof EXERCISE_KINDS)[number];
+
 export type Profile = Tables["profiles"]["Row"];
 export type ProfileInsert = Tables["profiles"]["Insert"];
 export type ProfileUpdate = Tables["profiles"]["Update"];

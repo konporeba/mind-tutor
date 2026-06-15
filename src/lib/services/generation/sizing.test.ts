@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { KNOWLEDGE_LEVELS, TIME_BUDGETS, type SessionIntake } from "@/types";
+import { EXERCISE_KINDS, KNOWLEDGE_LEVELS, TIME_BUDGETS, type SessionIntake } from "@/types";
 import { sizeFromIntake } from "./sizing";
 
 function intake(overrides: Partial<SessionIntake> = {}): SessionIntake {
@@ -12,35 +12,55 @@ function intake(overrides: Partial<SessionIntake> = {}): SessionIntake {
   };
 }
 
+function total(intakeArg: SessionIntake): number {
+  const { exerciseCounts } = sizeFromIntake(intakeArg);
+  return exerciseCounts.mcq + exerciseCounts.fill_blank + exerciseCounts.matching;
+}
+
 describe("sizeFromIntake", () => {
-  it("is monotonic in time budget — more time never yields fewer steps/MCQs", () => {
+  it("is monotonic in time budget — more time never yields fewer steps or exercises (per type or total)", () => {
     const s15 = sizeFromIntake(intake({ timeBudgetMinutes: 15 }));
     const s30 = sizeFromIntake(intake({ timeBudgetMinutes: 30 }));
     const s60 = sizeFromIntake(intake({ timeBudgetMinutes: 60 }));
 
-    expect(s30.theoryMin).toBeGreaterThanOrEqual(s15.theoryMin);
-    expect(s30.theoryMax).toBeGreaterThanOrEqual(s15.theoryMax);
-    expect(s30.mcqCount).toBeGreaterThanOrEqual(s15.mcqCount);
+    for (const [lower, higher] of [
+      [s15, s30],
+      [s30, s60],
+    ] as const) {
+      expect(higher.theoryMin).toBeGreaterThanOrEqual(lower.theoryMin);
+      expect(higher.theoryMax).toBeGreaterThanOrEqual(lower.theoryMax);
+      for (const kind of EXERCISE_KINDS) {
+        expect(higher.exerciseCounts[kind]).toBeGreaterThanOrEqual(lower.exerciseCounts[kind]);
+      }
+    }
 
-    expect(s60.theoryMin).toBeGreaterThanOrEqual(s30.theoryMin);
-    expect(s60.theoryMax).toBeGreaterThanOrEqual(s30.theoryMax);
-    expect(s60.mcqCount).toBeGreaterThanOrEqual(s30.mcqCount);
+    expect(total(intake({ timeBudgetMinutes: 30 }))).toBeGreaterThanOrEqual(total(intake({ timeBudgetMinutes: 15 })));
+    expect(total(intake({ timeBudgetMinutes: 60 }))).toBeGreaterThanOrEqual(total(intake({ timeBudgetMinutes: 30 })));
+  });
+
+  it("includes all three exercise types at every time budget (the FR-009 multi-type guarantee)", () => {
+    for (const timeBudgetMinutes of TIME_BUDGETS) {
+      const { exerciseCounts } = sizeFromIntake(intake({ timeBudgetMinutes }));
+      for (const kind of EXERCISE_KINDS) {
+        expect(exerciseCounts[kind]).toBeGreaterThan(0);
+      }
+    }
   });
 
   it("produces at least two distinct count-shapes across the three time buckets", () => {
     const shapes = TIME_BUDGETS.map((timeBudgetMinutes) => {
-      const { theoryMin, theoryMax, mcqCount } = sizeFromIntake(intake({ timeBudgetMinutes }));
-      return `${theoryMin}-${theoryMax}-${mcqCount}`;
+      const { theoryMin, theoryMax, exerciseCounts } = sizeFromIntake(intake({ timeBudgetMinutes }));
+      return `${theoryMin}-${theoryMax}-${exerciseCounts.mcq}-${exerciseCounts.fill_blank}-${exerciseCounts.matching}`;
     });
     expect(new Set(shapes).size).toBeGreaterThanOrEqual(2);
   });
 
-  it("keeps theory bounds well-formed (min <= max, positive counts)", () => {
+  it("keeps theory bounds well-formed (min <= max, positive total exercises)", () => {
     for (const timeBudgetMinutes of TIME_BUDGETS) {
       const sizing = sizeFromIntake(intake({ timeBudgetMinutes }));
       expect(sizing.theoryMin).toBeGreaterThan(0);
       expect(sizing.theoryMin).toBeLessThanOrEqual(sizing.theoryMax);
-      expect(sizing.mcqCount).toBeGreaterThan(0);
+      expect(total(intake({ timeBudgetMinutes }))).toBeGreaterThan(0);
     }
   });
 

@@ -44,6 +44,7 @@ export interface TheoryStepInput {
 }
 
 export interface McqInput {
+  kind: "mcq";
   position: number;
   prompt: string;
   options: string[];
@@ -51,19 +52,39 @@ export interface McqInput {
   feedback: string;
 }
 
+export interface FillBlankInput {
+  kind: "fill_blank";
+  position: number;
+  prompt: string;
+  answer: string;
+  acceptable: string[];
+  feedback: string;
+}
+
+export interface MatchingInput {
+  kind: "matching";
+  position: number;
+  prompt: string;
+  pairs: { left: string; right: string }[];
+  feedback: string;
+}
+
+export type ExerciseInput = McqInput | FillBlankInput | MatchingInput;
+
 export interface SessionShape {
   title: string;
   theory: TheoryStepInput[];
-  exercises: McqInput[];
+  exercises: ExerciseInput[];
 }
 
 /**
  * Build a schema-valid session object for `intake`'s sizing. Theory citations are drawn
  * from CITATIONS (verbatim substrings of SMALL_SOURCE), so the result is grounded when
- * generated against SMALL_SOURCE. `overrides` shallow-merges onto the result so a caller
- * can mutate exactly one field (e.g. an ungrounded citation, a bad MCQ count, or theory
- * citations matching a different source) to manufacture a single case while keeping
- * everything else valid.
+ * generated against SMALL_SOURCE. Exercises are emitted as the exact per-type mix the
+ * sizing map requires (mcq first, then fill_blank, then matching), with a single 0-based
+ * `position` sequence across the whole array. `overrides` shallow-merges onto the result
+ * so a caller can mutate exactly one field (e.g. an ungrounded citation, a bad count, or
+ * a bad MCQ index) to manufacture a single case while keeping everything else valid.
  */
 export function buildValidSession(
   intake: SessionIntake = DEFAULT_INTAKE,
@@ -78,13 +99,43 @@ export function buildValidSession(
     citation: CITATIONS[i % CITATIONS.length],
   }));
 
-  const exercises: McqInput[] = Array.from({ length: sizing.mcqCount }, (_, i) => ({
-    position: i,
-    prompt: `Question ${i + 1}?`,
-    options: ["Option A", "Option B", "Option C", "Option D"],
-    correctIndex: 0,
-    feedback: `Feedback for question ${i + 1}.`,
-  }));
+  const exercises: ExerciseInput[] = [];
+  let position = 0;
+
+  for (let i = 0; i < sizing.exerciseCounts.mcq; i++) {
+    exercises.push({
+      kind: "mcq",
+      position: position++,
+      prompt: `Question ${i + 1}?`,
+      options: ["Option A", "Option B", "Option C", "Option D"],
+      correctIndex: 0,
+      feedback: `Feedback for question ${i + 1}.`,
+    });
+  }
+  for (let i = 0; i < sizing.exerciseCounts.fill_blank; i++) {
+    exercises.push({
+      kind: "fill_blank",
+      position: position++,
+      prompt: `Fill in the blank ${i + 1}: the answer is ___.`,
+      answer: `answer ${i + 1}`,
+      acceptable: [],
+      feedback: `Feedback for blank ${i + 1}.`,
+    });
+  }
+  for (let i = 0; i < sizing.exerciseCounts.matching; i++) {
+    exercises.push({
+      kind: "matching",
+      position: position++,
+      prompt: `Match the terms ${i + 1}.`,
+      pairs: [
+        { left: "Left 1", right: "Right 1" },
+        { left: "Left 2", right: "Right 2" },
+        { left: "Left 3", right: "Right 3" },
+        { left: "Left 4", right: "Right 4" },
+      ],
+      feedback: `Feedback for matching ${i + 1}.`,
+    });
+  }
 
   return { title: "A Grounded Study Session", theory, exercises, ...overrides };
 }

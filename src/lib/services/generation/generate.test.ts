@@ -32,9 +32,12 @@ describe("buildMessages", () => {
     expect(prompt).toContain("master the Calvin cycle");
     expect(prompt).not.toContain("  master the Calvin cycle  ");
     expect(prompt).toContain("60");
-    // Target counts from the sizing map are present in the shape spec.
+    // Target counts from the sizing map are present in the shape spec — theory bounds
+    // plus the exact per-type exercise counts (S-04).
     expect(prompt).toContain(`between ${sizing.theoryMin} and ${sizing.theoryMax}`);
-    expect(prompt).toContain(`exactly ${sizing.mcqCount}`);
+    expect(prompt).toContain(`${sizing.exerciseCounts.mcq} multiple-choice`);
+    expect(prompt).toContain(`${sizing.exerciseCounts.fill_blank} fill-in-the-blank`);
+    expect(prompt).toContain(`${sizing.exerciseCounts.matching} matching`);
   });
 
   it("still carries the S-01 source-grounding rules", () => {

@@ -55,9 +55,13 @@ export function buildMessages(sourceText: string, intake: SessionIntake, sizing:
     "{",
     '  "title": string,',
     `  "theory": Array<{ "position": number, "heading": string, "body": string, "citation": string }> (between ${sizing.theoryMin} and ${sizing.theoryMax} items, positions starting at 0),`,
-    `  "exercises": Array<{ "position": number, "prompt": string, "options": string[] (3-5), "correctIndex": number, "feedback": string }> (exactly ${sizing.mcqCount} multiple-choice items, positions starting at 0)`,
+    '  "exercises": an array containing EXACTLY the following items, each tagged with its "kind", with unique "position" values starting at 0 across the whole array:',
+    `    - ${sizing.exerciseCounts.mcq} multiple-choice items: { "kind": "mcq", "position": number, "prompt": string, "options": string[] (3-5 options), "correctIndex": number, "feedback": string }`,
+    `    - ${sizing.exerciseCounts.fill_blank} fill-in-the-blank items: { "kind": "fill_blank", "position": number, "prompt": string (use "___" to mark where the missing answer goes), "answer": string (the missing text), "acceptable": string[] (other answers that should count as correct; may be empty), "feedback": string }`,
+    `    - ${sizing.exerciseCounts.matching} matching items: { "kind": "matching", "position": number, "prompt": string, "pairs": Array<{ "left": string, "right": string }> (4 to 6 correctly-matched pairs), "feedback": string }`,
     "}",
     "Each citation must be a substring that appears verbatim in the source text.",
+    "Every exercise — including each option, blank answer, and matching pair — must be answerable strictly from the source material.",
   ].join("\n");
 
   const user = `SOURCE MATERIAL:\n"""\n${sourceText}\n"""`;

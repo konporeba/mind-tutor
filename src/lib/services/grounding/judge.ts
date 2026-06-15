@@ -64,12 +64,16 @@ export function buildGroundingClaims(session: GeneratedSession): GroundingClaim[
     claims.push({ field: "theory.body", text: step.body });
   }
 
-  for (const mcq of session.exercises) {
-    claims.push({ field: "mcq.prompt", text: mcq.prompt });
-    // The McqSchema refine guarantees correctIndex is in range on any schema-valid
-    // session, so this resolves to the correct answer string — and never a distractor.
-    claims.push({ field: "mcq.correctOption", text: mcq.options[mcq.correctIndex] });
-    claims.push({ field: "mcq.feedback", text: mcq.feedback });
+  for (const ex of session.exercises) {
+    // Only MCQ prose surfaces are graded here. Grounding coverage for the S-04
+    // fill_blank / matching prose is deferred (the judge is an out-of-prod test
+    // asset; extending its field taxonomy is its own task, not part of S-04).
+    if (ex.kind !== "mcq") continue;
+    claims.push({ field: "mcq.prompt", text: ex.prompt });
+    // The schema's correctIndex-in-range check guarantees this resolves to the
+    // correct answer string on any schema-valid session — never a distractor.
+    claims.push({ field: "mcq.correctOption", text: ex.options[ex.correctIndex] });
+    claims.push({ field: "mcq.feedback", text: ex.feedback });
   }
 
   return claims;

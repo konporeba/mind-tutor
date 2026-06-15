@@ -49,6 +49,7 @@ const faithful: GeneratedSession = {
   ],
   exercises: [
     {
+      kind: "mcq",
       position: 0,
       prompt: "Why did engineers build arched bridges along some aqueducts?",
       options: [
@@ -75,6 +76,7 @@ const planted: GeneratedSession = {
   ],
   exercises: [
     {
+      kind: "mcq",
       position: 0,
       prompt: "How was the water in a Roman aqueduct kept moving?",
       options: ["By a slight downward gradient", "By steam-powered pumps", "By teams of rowers"],
@@ -99,6 +101,7 @@ const truncation: GeneratedSession = {
   ],
   exercises: [
     {
+      kind: "mcq",
       position: 0,
       prompt: "How often did the curator aquarum inspect each fountain?",
       options: ["Once a day", "Once a month", "Once a year"],
@@ -123,6 +126,7 @@ const distractorControl: GeneratedSession = {
   ],
   exercises: [
     {
+      kind: "mcq",
       position: 0,
       prompt: "Through what were aqueduct waters distributed in the city?",
       options: ["Lead pipes", "The aqueducts were built by alien visitors", "Rome never had any aqueducts at all"],

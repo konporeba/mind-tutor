@@ -50,13 +50,20 @@ describe("generateSession — happy path (Risk #2 success contract)", () => {
 
     const session = await generateSession(SMALL_SOURCE, DEFAULT_INTAKE);
     const sizing = sizeFromIntake(DEFAULT_INTAKE);
+    const { mcq, fill_blank, matching } = sizing.exerciseCounts;
 
     expect(session.title.length).toBeGreaterThan(0);
     expect(session.theory.length).toBeGreaterThanOrEqual(sizing.theoryMin);
     expect(session.theory.length).toBeLessThanOrEqual(sizing.theoryMax);
-    expect(session.exercises).toHaveLength(sizing.mcqCount);
-    for (const mcq of session.exercises) {
-      expect(mcq.correctIndex).toBeLessThan(mcq.options.length);
+    // Exact per-type mix from sizing, summed across the three kinds.
+    expect(session.exercises).toHaveLength(mcq + fill_blank + matching);
+    for (const kind of ["mcq", "fill_blank", "matching"] as const) {
+      expect(session.exercises.filter((ex) => ex.kind === kind)).toHaveLength(sizing.exerciseCounts[kind]);
+    }
+    for (const ex of session.exercises) {
+      if (ex.kind === "mcq") {
+        expect(ex.correctIndex).toBeLessThan(ex.options.length);
+      }
     }
     expect(create).toHaveBeenCalledTimes(1);
   });
@@ -110,7 +117,10 @@ describe("generateSession — failure modes (Risk #2: never a silent break)", ()
 
   it("(schema-invalid) rejects with GenerationError when correctIndex is out of range", async () => {
     const session = buildValidSession(DEFAULT_INTAKE);
-    session.exercises[0].correctIndex = 99; // valid count, invalid index → trips the schema refine
+    const firstMcq = session.exercises[0]; // builder emits MCQs first
+    if (firstMcq.kind === "mcq") {
+      firstMcq.correctIndex = 99; // valid count, invalid index → trips the array superRefine
+    }
     create.mockResolvedValue(makeCompletion(JSON.stringify(session)));
 
     const err = await rejection(generateSession(SMALL_SOURCE, DEFAULT_INTAKE));
