@@ -3,7 +3,7 @@ project: MindTutor
 version: 1
 status: draft
 created: 2026-05-28
-updated: 2026-06-09
+updated: 2026-06-15
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -35,7 +35,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-01 | first-grounded-session       | upload one file, see AI-generated theory + a small set of exercises grounded in it, and a score        | F-01          | US-01, FR-003, FR-004, FR-007, FR-009 (partial), FR-010, FR-011, FR-012, FR-013, FR-014 (partial) | done     |
 | S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | done     |
 | S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | done     |
-| S-04 | multi-type-exercises         | encounter fill-in-the-blank and matching-pairs exercises alongside MCQ                                  | S-01          | US-01, FR-009 (full)                                                                              | proposed |
+| S-04 | multi-type-exercises         | encounter fill-in-the-blank and matching-pairs exercises alongside MCQ                                  | S-01          | US-01, FR-009 (full)                                                                              | done     |
 | S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | proposed |
 | S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | proposed |
 | S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
@@ -135,7 +135,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
   - ~~What's the third (domain-specific) exercise type?~~ **Resolved 2026-06-14 (user):** third type = **matching pairs** (match terms to definitions/concepts drawn from the source). Chosen for deterministic scoring (no LLM grader in the score path), cross-domain robustness, and lowest grounding risk — the pragmatic reading of "domain-specific" for the MVP.
 - **Resolved in delivery:** three exercise types ship — MCQ (from S-01), fill-in-the-blank, and matching pairs. The score must aggregate correctly across all three.
 - **Risk:** The hard work is the third type — its UI, scoring, and prompt-level reliability across heterogeneous source materials. Sequenced after the north star because shipping multi-type before the basic loop works would amplify any grounding bugs.
-- **Status:** proposed
+- **Status:** done
 
 ### S-05: Ask the tutor mid-session
 
@@ -243,5 +243,6 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 | S-09       | password-change            | 2026-06-08 | Change password with current-password confirmation; no forced logout on token rotation. Verified live.                                                            |
 | S-02       | per-session-intake-tailoring | 2026-06-08 | Per-session intake (level, goal, time) tailors generation: typed nullable columns on `sessions`, pure sizing map drives theory/MCQ counts + prompt depth, gated 3-field intake UI, first Vitest harness. Archived → `context/archive/2026-06-08-per-session-intake-tailoring/`. |
 | S-03       | onboarding-bio-tailoring   | 2026-06-09 | One-time conversational onboarding captures a free-text bio (`profiles` table, F-01 RLS template, PK=`user_id`); distill service with raw-answers fallback; middleware gate forces not-yet-onboarded learners to `/onboarding`; bio injected as long-term framing in generation (counts stay intake-driven). Completes FR-005 + bio half of FR-006. Archived → `context/archive/2026-06-09-onboarding-bio-tailoring/`. |
+| S-04       | multi-type-exercises       | 2026-06-15 | Three exercise types ship — MCQ + fill-in-the-blank + matching pairs; deterministic scoring aggregates across all three. DB CHECK on `exercises.kind` (`20260614000000_exercise_kind_check`). Completes FR-009 (full). Deployed to prod via PR #2; impl-review APPROVED. Archived → `context/archive/2026-06-14-multi-type-exercises/`. |
 
 _`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._

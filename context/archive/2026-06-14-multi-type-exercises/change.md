@@ -1,10 +1,10 @@
 ---
 change_id: multi-type-exercises
 title: Multi-type exercises — add fill-in-the-blank and matching-pairs alongside MCQ
-status: impl_reviewed
+status: archived
 created: 2026-06-14
 updated: 2026-06-15
-archived_at: null
+archived_at: 2026-06-15T17:50:19Z
 ---
 
 ## Notes
