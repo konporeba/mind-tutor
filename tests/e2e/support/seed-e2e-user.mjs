@@ -55,7 +55,10 @@ async function main() {
   // Satisfy the onboarding gate (mirrors POST /api/onboarding).
   const { error: upsertError } = await admin
     .from("profiles")
-    .upsert({ user_id: userId, bio: "E2E test user", onboarded_at: new Date().toISOString() }, { onConflict: "user_id" });
+    .upsert(
+      { user_id: userId, bio: "E2E test user", onboarded_at: new Date().toISOString() },
+      { onConflict: "user_id" },
+    );
   if (upsertError) throw new Error(`profile upsert failed: ${upsertError.message}`);
 
   console.log(`✓ E2E user ready: ${E2E_EMAIL} (id ${userId}) — confirmed + onboarded`);

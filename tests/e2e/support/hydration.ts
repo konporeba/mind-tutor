@@ -7,11 +7,8 @@ import type { Page } from "@playwright/test";
 // hydration marker — not a locator for an interactive element — so it stays
 // within the role-based-locator rule while waiting for STATE, never time.
 export async function waitForIslandHydrated(page: Page, componentNameFragment: string): Promise<void> {
-  await page.waitForFunction(
-    (frag) => {
-      const el = document.querySelector(`astro-island[component-url*="${frag}"]`);
-      return !!el && !el.hasAttribute("ssr");
-    },
-    componentNameFragment,
-  );
+  await page.waitForFunction((frag) => {
+    const el = document.querySelector(`astro-island[component-url*="${frag}"]`);
+    return !!el && !el.hasAttribute("ssr");
+  }, componentNameFragment);
 }

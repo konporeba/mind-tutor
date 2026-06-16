@@ -36,7 +36,7 @@ export function admin(): SupabaseClient {
 export async function ensureUser(email: string): Promise<string> {
   const a = admin();
   const created = await a.auth.admin.createUser({ email, password: E2E_PASSWORD, email_confirm: true });
-  if (created.data?.user?.id) return created.data.user.id;
+  if (created.data.user?.id) return created.data.user.id;
   if (created.error && !/already.*(registered|exists)|email_exists/i.test(created.error.message)) {
     throw new Error(`[e2e] createUser failed for ${email}: ${created.error.message}`);
   }
