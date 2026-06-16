@@ -10,3 +10,4 @@ import { SUPABASE_URL as URL, SUPABASE_ANON_KEY } from "@/test/integration/env";
 
 export const SUPABASE_URL = URL;
 export const SUPABASE_KEY = SUPABASE_ANON_KEY;
+export const E2E_STUB_OPENROUTER = false;

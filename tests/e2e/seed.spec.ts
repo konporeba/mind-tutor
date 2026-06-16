@@ -42,11 +42,10 @@ test.afterEach(async () => {
   }
 });
 
-// SKIPPED (not broken): this exemplar runs green only with the OpenRouter
-// server-seam stub (E2E_STUB_OPENROUTER), deferred per the point-4 scope decision.
-// Without it, "Start session" would make a real, non-deterministic LLM call. The
-// pattern below is still the canonical exemplar; un-skip once the stub lands.
-test.skip("a generated session is created and persists after page reload", async ({ page }) => {
+// Runs deterministically because the dev server is started with
+// E2E_STUB_OPENROUTER=true (see tests/e2e/README.md), so generation returns a
+// canned session instead of a real OpenRouter call.
+test("a generated session is created and persists after page reload", async ({ page }) => {
   // Unique marker so this run's data never collides with a parallel run or a re-run.
   const learningGoal = `E2E seed — explain the core idea (${Date.now()})`;
 

@@ -7,6 +7,7 @@
 // response is parsed, zod-validated, and citation-checked; any failure retries
 // the call once before throwing GenerationError.
 
+import { E2E_STUB_OPENROUTER } from "astro:env/server";
 import type { SessionIntake } from "@/types";
 import { makeGeneratedSessionSchema, type GeneratedSession } from "./schema";
 import { GenerationError, getModel, getOpenRouterClient } from "./openrouter";
@@ -21,6 +22,28 @@ const MAX_ATTEMPTS = 2;
  *  that differs from the source only in line breaks / spacing still matches. */
 function normalizeWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
+}
+
+/** Canned, schema-shaped session returned when E2E_STUB_OPENROUTER is set, so the
+ *  E2E suite can drive the new-session flow without a real (non-deterministic, paid)
+ *  OpenRouter call. The generation pipeline itself is covered by the unit/integration
+ *  suites; the E2E only needs a deterministic, persistable result to exercise the
+ *  browser → API → DB → SSR boundary. Never reachable in production (flag is false). */
+function stubSession(intake: SessionIntake): GeneratedSession {
+  return {
+    title: `Study session: ${intake.learningGoal.trim().slice(0, 60)}`,
+    theory: [{ position: 0, heading: "Overview", body: "Deterministic E2E stub theory step.", citation: "stub" }],
+    exercises: [
+      {
+        kind: "mcq",
+        position: 1,
+        prompt: "Deterministic E2E stub question?",
+        options: ["First", "Second", "Third"],
+        correctIndex: 0,
+        feedback: "Stub feedback.",
+      },
+    ],
+  };
 }
 
 /** Build the system/user messages for a generation call. Pure: the same source +
@@ -101,6 +124,12 @@ export async function generateSession(
   if (trimmed.length === 0) {
     throw new GenerationError("Source material is empty; nothing to generate from");
   }
+
+  // Test-only deterministic seam (see stubSession). Off in production.
+  if (E2E_STUB_OPENROUTER) {
+    return stubSession(intake);
+  }
+
   const source = trimmed.slice(0, MAX_SOURCE_CHARS);
 
   // Compute sizing ONCE, before the retry loop, and derive both the prompt and the

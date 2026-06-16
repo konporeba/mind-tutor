@@ -9,3 +9,4 @@ import { OPENROUTER_API_KEY as KEY, OPENROUTER_MODEL as MODEL } from "@/test/gro
 
 export const OPENROUTER_API_KEY = KEY;
 export const OPENROUTER_MODEL = MODEL;
+export const E2E_STUB_OPENROUTER = false;
