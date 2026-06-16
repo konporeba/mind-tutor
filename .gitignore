@@ -19,7 +19,14 @@ pnpm-debug.log*
 
 # cloudflare
 .dev.vars
+.dev.vars.remote
 .wrangler/
+
+# playwright e2e (CLI exploration artifacts + saved auth state)
+.playwright-cli/
+playwright/.auth/
+test-results/
+playwright-report/
 
 # macOS-specific files
 .DS_Store

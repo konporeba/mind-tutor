@@ -7,6 +7,7 @@ import pluginReact from "eslint-plugin-react";
 import reactCompiler from "eslint-plugin-react-compiler";
 import eslintPluginReactHooks from "eslint-plugin-react-hooks";
 import path from "node:path";
+import globals from "globals";
 import tseslint from "typescript-eslint";
 
 const gitignorePath = path.resolve(import.meta.dirname, ".gitignore");
@@ -73,6 +74,15 @@ const astroConfig = tseslint.config({
   },
 });
 
+// Plain-JS Node helper scripts (e.g. the E2E user seeder run via `node`). They are
+// not part of the typed app graph, so the type-checked rules don't apply; give them
+// Node globals and drop the type-aware ruleset (prettier still applies).
+const nodeScriptsConfig = tseslint.config({
+  files: ["tests/**/*.mjs"],
+  extends: [tseslint.configs.disableTypeChecked],
+  languageOptions: { globals: { ...globals.node } },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   // Supabase-generated schema types — not subject to hand-written code style rules.
@@ -82,5 +92,6 @@ export default tseslint.config(
   eslintPluginAstro.configs["flat/recommended"],
   ...eslintPluginAstro.configs["flat/jsx-a11y-recommended"],
   astroConfig,
+  nodeScriptsConfig,
   eslintPluginPrettier,
 );
