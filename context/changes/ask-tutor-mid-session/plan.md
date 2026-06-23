@@ -487,15 +487,15 @@ grounding via the judge; requires a real key; not part of the default `npm test`
 
 #### Automated
 
-- [ ] 4.1 Type checking passes: `npm run lint`
-- [ ] 4.2 Build succeeds: `npm run build`
+- [x] 4.1 Type checking passes: `npm run lint` — 435a091
+- [x] 4.2 Build succeeds: `npm run build` — 435a091
 
 #### Manual
 
-- [ ] 4.3 Panel usable during theory, exercises, and after scoring
-- [ ] 4.4 Asking streams the answer token-by-token
-- [ ] 4.5 Reload restores the full transcript, including unanswered questions
-- [ ] 4.6 Off-source question shows the refusal in the panel
+- [x] 4.3 Panel usable during theory, exercises, and after scoring — 435a091
+- [x] 4.4 Asking streams the answer token-by-token — 435a091
+- [x] 4.5 Reload restores the full transcript, including unanswered questions — 435a091
+- [x] 4.6 Off-source question shows the refusal in the panel — 435a091
 
 ### Phase 5: Grounding eval + final verification
 
