@@ -445,28 +445,28 @@ grounding via the judge; requires a real key; not part of the default `npm test`
 
 #### Automated
 
-- [x] 1.1 Type checking passes: `npm run lint`
-- [x] 1.2 Production build succeeds with the probe present: `npm run build`
+- [x] 1.1 Type checking passes: `npm run lint` — 161c57d
+- [x] 1.2 Production build succeeds with the probe present: `npm run build` — 161c57d
 
 #### Manual
 
-- [x] 1.3 Probe delivers chunks incrementally under `npm run dev`
-- [x] 1.4 Streaming behaves the same under `npm run preview` (or buffered fallback selected)
-- [x] 1.5 OpenAI-SDK `stream: true` yields incremental deltas through OpenRouter
-- [x] 1.6 Transport decision recorded; `src/pages/api/_spike/` removed
+- [x] 1.3 Probe delivers chunks incrementally under `npm run dev` — 161c57d
+- [x] 1.4 Streaming behaves the same under `npm run preview` (or buffered fallback selected) — 161c57d
+- [x] 1.5 OpenAI-SDK `stream: true` yields incremental deltas through OpenRouter — 161c57d
+- [x] 1.6 Transport decision recorded; `src/pages/api/_spike/` removed — 161c57d
 
 ### Phase 2: conversation_messages table + RLS + isolation
 
 #### Automated
 
-- [ ] 2.1 RLS isolation tests pass: `npx supabase test db`
-- [ ] 2.2 Type checking passes: `npm run lint`
-- [ ] 2.3 Build succeeds: `npm run build`
+- [x] 2.1 RLS isolation tests pass: `npx supabase test db`
+- [x] 2.2 Type checking passes: `npm run lint`
+- [x] 2.3 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 2.4 Migration applies cleanly against local Supabase
-- [ ] 2.5 `database.types.ts` shows the table; `types.ts` exports `ConversationMessage`
+- [x] 2.4 Migration applies cleanly against local Supabase
+- [x] 2.5 `database.types.ts` shows the table; `types.ts` exports `ConversationMessage`
 
 ### Phase 3: Grounded Q&A service + ask endpoint + persistence
 

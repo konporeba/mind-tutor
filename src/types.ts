@@ -36,6 +36,19 @@ export type Profile = Tables["profiles"]["Row"];
 export type ProfileInsert = Tables["profiles"]["Insert"];
 export type ProfileUpdate = Tables["profiles"]["Update"];
 
+export type ConversationMessage = Tables["conversation_messages"]["Row"];
+export type ConversationMessageInsert = Tables["conversation_messages"]["Insert"];
+export type ConversationMessageUpdate = Tables["conversation_messages"]["Update"];
+
+// --- Ask-the-tutor conversation turns (S-05) -------------------------------
+// Persisted Q&A turns within a session (FR-008). Each turn is a learner question
+// ('user') or a grounded tutor answer ('assistant'), ordered by `position` and
+// stored append-only in `conversation_messages`. Persisting turns is what lets
+// S-06 (session history) replay the conversation.
+
+export const CONVERSATION_ROLES = ["user", "assistant"] as const;
+export type ConversationRole = (typeof CONVERSATION_ROLES)[number];
+
 // --- Onboarding bio (S-03) -------------------------------------------------
 // The free-text learner background captured once at onboarding (FR-005) and
 // reused on every later session to set long-term idiom/depth (the bio half of
