@@ -459,29 +459,29 @@ grounding via the judge; requires a real key; not part of the default `npm test`
 
 #### Automated
 
-- [x] 2.1 RLS isolation tests pass: `npx supabase test db`
-- [x] 2.2 Type checking passes: `npm run lint`
-- [x] 2.3 Build succeeds: `npm run build`
+- [x] 2.1 RLS isolation tests pass: `npx supabase test db` — 0f12f8b
+- [x] 2.2 Type checking passes: `npm run lint` — 0f12f8b
+- [x] 2.3 Build succeeds: `npm run build` — 0f12f8b
 
 #### Manual
 
-- [x] 2.4 Migration applies cleanly against local Supabase
-- [x] 2.5 `database.types.ts` shows the table; `types.ts` exports `ConversationMessage`
+- [x] 2.4 Migration applies cleanly against local Supabase — 0f12f8b
+- [x] 2.5 `database.types.ts` shows the table; `types.ts` exports `ConversationMessage` — 0f12f8b
 
 ### Phase 3: Grounded Q&A service + ask endpoint + persistence
 
 #### Automated
 
-- [ ] 3.1 Unit tests pass: `npm test`
-- [ ] 3.2 Integration tests pass: `npm test` (integration suite)
-- [ ] 3.3 Type checking passes: `npm run lint`
-- [ ] 3.4 Build succeeds: `npm run build`
+- [x] 3.1 Unit tests pass: `npm test`
+- [x] 3.2 Integration tests pass: `npm test` (integration suite)
+- [x] 3.3 Type checking passes: `npm run lint`
+- [x] 3.4 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 3.5 POST to ask endpoint streams/returns a grounded answer
-- [ ] 3.6 User turn persists on interruption; assistant turn only on completion
-- [ ] 3.7 Off-source question yields the on-source refusal
+- [x] 3.5 POST to ask endpoint streams/returns a grounded answer
+- [x] 3.6 User turn persists on interruption; assistant turn only on completion
+- [x] 3.7 Off-source question yields the on-source refusal
 
 ### Phase 4: AskTutorPanel UI + SSR history load
 
