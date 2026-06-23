@@ -8,6 +8,7 @@ import type {
   FillBlankExerciseView,
   MatchingExerciseView,
 } from "@/components/session/SessionRunner";
+import type { ChatTurn } from "@/components/session/AskTutorPanel";
 import { createClient } from "@/lib/supabase";
 
 const { id } = Astro.params;
@@ -40,6 +41,18 @@ const { data: exerciseRows } = await supabase
   .select("id, kind, position, prompt, options, correct_answer, learner_answer, is_correct, feedback, answered_at")
   .eq("session_id", id)
   .order("position");
+
+// Ask-the-tutor transcript (S-05): RLS-scoped to the owner, ordered for replay.
+const { data: turnRows } = await supabase
+  .from("conversation_messages")
+  .select("role, content")
+  .eq("session_id", id)
+  .order("position");
+
+const initialTurns: ChatTurn[] = (turnRows ?? []).map((row) => ({
+  role: row.role as ChatTurn["role"],
+  content: row.content,
+}));
 
 const theory: TheoryStepView[] = (contentRows ?? []).map((row) => {
   const body = row.body as { heading?: string; body?: string; citation?: string };
@@ -110,6 +123,7 @@ const exercises: ExerciseView[] = (exerciseRows ?? []).map((row) => {
       initialScore={session.score}
       theory={theory}
       exercises={exercises}
+      initialTurns={initialTurns}
     />
   </div>
 </Layout>

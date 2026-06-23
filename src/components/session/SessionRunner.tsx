@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { BookOpen, Check, Quote, Trophy, X } from "lucide-react";
+import AskTutorPanel, { type ChatTurn } from "./AskTutorPanel";
 
 export interface TheoryStepView {
   position: number;
@@ -56,6 +57,7 @@ interface Props {
   initialScore: number | null;
   theory: TheoryStepView[];
   exercises: ExerciseView[];
+  initialTurns: ChatTurn[];
 }
 
 // --- reveal helpers (interpret the per-kind correct_answer payload) ----------
@@ -273,7 +275,15 @@ function MatchingQuestion({
   );
 }
 
-export default function SessionRunner({ sessionId, title, initialStatus, initialScore, theory, exercises }: Props) {
+export default function SessionRunner({
+  sessionId,
+  title,
+  initialStatus,
+  initialScore,
+  theory,
+  exercises,
+  initialTurns,
+}: Props) {
   // Seed results from persisted (already-answered) exercises so a reload restores state.
   const seededResults = useMemo<Map<string, Result>>(() => {
     const seed = new Map<string, Result>();
@@ -518,6 +528,9 @@ export default function SessionRunner({ sessionId, title, initialStatus, initial
           </div>
         </section>
       </div>
+
+      {/* Ask-the-tutor (S-05): available throughout — during theory, exercises, and after scoring. */}
+      <AskTutorPanel sessionId={sessionId} initialTurns={initialTurns} />
     </div>
   );
 }

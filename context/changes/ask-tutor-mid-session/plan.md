@@ -472,16 +472,16 @@ grounding via the judge; requires a real key; not part of the default `npm test`
 
 #### Automated
 
-- [x] 3.1 Unit tests pass: `npm test`
-- [x] 3.2 Integration tests pass: `npm test` (integration suite)
-- [x] 3.3 Type checking passes: `npm run lint`
-- [x] 3.4 Build succeeds: `npm run build`
+- [x] 3.1 Unit tests pass: `npm test` — 2632731
+- [x] 3.2 Integration tests pass: `npm test` (integration suite) — 2632731
+- [x] 3.3 Type checking passes: `npm run lint` — 2632731
+- [x] 3.4 Build succeeds: `npm run build` — 2632731
 
 #### Manual
 
-- [x] 3.5 POST to ask endpoint streams/returns a grounded answer
-- [x] 3.6 User turn persists on interruption; assistant turn only on completion
-- [x] 3.7 Off-source question yields the on-source refusal
+- [x] 3.5 POST to ask endpoint streams/returns a grounded answer — 2632731
+- [x] 3.6 User turn persists on interruption; assistant turn only on completion — 2632731
+- [x] 3.7 Off-source question yields the on-source refusal — 2632731
 
 ### Phase 4: AskTutorPanel UI + SSR history load
 
