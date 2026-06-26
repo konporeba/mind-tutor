@@ -3,7 +3,7 @@ project: MindTutor
 version: 1
 status: draft
 created: 2026-05-28
-updated: 2026-06-15
+updated: 2026-06-26
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -37,7 +37,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | done     |
 | S-04 | multi-type-exercises         | encounter fill-in-the-blank and matching-pairs exercises alongside MCQ                                  | S-01          | US-01, FR-009 (full)                                                                              | done     |
 | S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | proposed |
-| S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | proposed |
+| S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | done     |
 | S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
 | S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | proposed |
 | S-09 | password-change              | change the account password by providing the current password and a new one                            | —             | FR-017                                                                                            | done     |
@@ -159,7 +159,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Straightforward read path, but the RLS policy template from F-01 must be applied correctly so a learner cannot list another learner's sessions even by guessing IDs. Verify with a deliberate cross-account read test.
-- **Status:** proposed
+- **Status:** done
 
 ### S-07: Delete session
 
@@ -244,5 +244,6 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 | S-02       | per-session-intake-tailoring | 2026-06-08 | Per-session intake (level, goal, time) tailors generation: typed nullable columns on `sessions`, pure sizing map drives theory/MCQ counts + prompt depth, gated 3-field intake UI, first Vitest harness. Archived → `context/archive/2026-06-08-per-session-intake-tailoring/`. |
 | S-03       | onboarding-bio-tailoring   | 2026-06-09 | One-time conversational onboarding captures a free-text bio (`profiles` table, F-01 RLS template, PK=`user_id`); distill service with raw-answers fallback; middleware gate forces not-yet-onboarded learners to `/onboarding`; bio injected as long-term framing in generation (counts stay intake-driven). Completes FR-005 + bio half of FR-006. Archived → `context/archive/2026-06-09-onboarding-bio-tailoring/`. |
 | S-04       | multi-type-exercises       | 2026-06-15 | Three exercise types ship — MCQ + fill-in-the-blank + matching pairs; deterministic scoring aggregates across all three. DB CHECK on `exercises.kind` (`20260614000000_exercise_kind_check`). Completes FR-009 (full). Deployed to prod via PR #2; impl-review APPROVED. Archived → `context/archive/2026-06-14-multi-type-exercises/`. |
+| S-06       | session-history-view       | 2026-06-26 | Revisit a completed session: dashboard history list + detail-view file download (signed URL) + read-only conversation transcript (read-only-split coexistence with S-05). RLS read path proven cross-account. Completes FR-014 (read). impl-review APPROVED. Archived → `context/archive/2026-06-23-session-history-view/`. |
 
 _`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._
