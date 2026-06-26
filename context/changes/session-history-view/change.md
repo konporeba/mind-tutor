@@ -1,9 +1,9 @@
 ---
 change_id: session-history-view
 title: Session history view
-status: implementing
+status: implemented
 created: 2026-06-23
-updated: 2026-06-23
+updated: 2026-06-26
 archived_at: null
 ---
 

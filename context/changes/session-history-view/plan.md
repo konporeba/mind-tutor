@@ -361,26 +361,26 @@ archiving.
 
 #### Automated
 
-- [x] 2.1 Type checking + lint passes: `npm run lint`
-- [x] 2.2 Build succeeds: `npm run build`
-- [x] 2.3 `loadSessionMaterials` / `loadConversation` tests pass: `npm test`
+- [x] 2.1 Type checking + lint passes: `npm run lint` — f07c54f
+- [x] 2.2 Build succeeds: `npm run build` — f07c54f
+- [x] 2.3 `loadSessionMaterials` / `loadConversation` tests pass: `npm test` — f07c54f
 
 #### Manual
 
-- [x] 2.4 Completed session shows the uploaded file with a working download link
-- [x] 2.5 Completed session with prior Q&A shows the read-only transcript in order, no send control
-- [x] 2.6 Completed session with no conversation renders gracefully
-- [x] 2.7 Material row with a missing `storage_path` shows filename-only without error
+- [x] 2.4 Completed session shows the uploaded file with a working download link — f07c54f
+- [x] 2.5 Completed session with prior Q&A shows the read-only transcript in order, no send control — f07c54f
+- [x] 2.6 Completed session with no conversation renders gracefully — f07c54f
+- [x] 2.7 Material row with a missing `storage_path` shows filename-only without error — f07c54f
 
 ### Phase 3: Cross-account RLS read verification + regression sweep
 
 #### Automated
 
-- [ ] 3.1 Cross-account read integration test passes: `npm test`
-- [ ] 3.2 RLS isolation tests pass: `npx supabase test db`
-- [ ] 3.3 Lint passes: `npm run lint`
-- [ ] 3.4 Build succeeds: `npm run build`
+- [x] 3.1 Cross-account read integration test passes: `npm test`
+- [x] 3.2 RLS isolation tests pass: `npx supabase test db`
+- [x] 3.3 Lint passes: `npm run lint`
+- [x] 3.4 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 3.5 With two accounts, learner B cannot see A's sessions on the dashboard and is redirected from A's `/sessions/[id]`
+- [x] 3.5 With two accounts, learner B cannot see A's sessions on the dashboard and is redirected from A's `/sessions/[id]`
