@@ -58,8 +58,18 @@ export const POST: APIRoute = async (context) => {
   if (exercise.answered_at) {
     return json({ error: "This exercise has already been answered" }, 409);
   }
-  const { data: sessionRow } = await supabase.from("sessions").select("status").eq("id", sessionId).single();
-  if (sessionRow?.status === "completed") {
+  const { data: sessionRow, error: sessionError } = await supabase
+    .from("sessions")
+    .select("status")
+    .eq("id", sessionId)
+    .single();
+  // Propagate a failed status read instead of swallowing it: a silent failure here
+  // would default the guard below to "not completed" and let an answer be written
+  // to an already-finalized session.
+  if (sessionError) {
+    return json({ error: "Failed to load the session" }, 500);
+  }
+  if (sessionRow.status === "completed") {
     return json({ error: "This session is already complete" }, 409);
   }
 
