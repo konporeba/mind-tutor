@@ -501,12 +501,12 @@ grounding via the judge; requires a real key; not part of the default `npm test`
 
 #### Automated
 
-- [ ] 5.1 Full unit + integration suite passes: `npm test`
-- [ ] 5.2 RLS isolation tests pass: `npx supabase test db`
-- [ ] 5.3 Lint passes: `npm run lint`
-- [ ] 5.4 Build succeeds: `npm run build`
+- [x] 5.1 Full unit + integration suite passes: `npm test`
+- [x] 5.2 RLS isolation tests pass: `npx supabase test db`
+- [x] 5.3 Lint passes: `npm run lint`
+- [x] 5.4 Build succeeds: `npm run build`
 
 #### Manual
 
-- [ ] 5.5 Opt-in Q&A grounding eval passes against fixtures with a real key
-- [ ] 5.6 Spot-check: source-answerable question answered; off-source refused
+- [x] 5.5 Opt-in Q&A grounding eval passes against fixtures with a real key
+- [x] 5.6 Spot-check: source-answerable question answered; off-source refused
