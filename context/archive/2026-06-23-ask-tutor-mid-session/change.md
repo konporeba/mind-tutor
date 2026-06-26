@@ -1,10 +1,10 @@
 ---
 change_id: ask-tutor-mid-session
 title: Ask tutor mid session
-status: impl_reviewed
+status: archived
 created: 2026-06-23
 updated: 2026-06-26
-archived_at: null
+archived_at: 2026-06-26T17:43:12Z
 ---
 
 ## Notes

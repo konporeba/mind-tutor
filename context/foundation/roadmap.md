@@ -36,7 +36,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-02 | per-session-intake-tailoring | answer a brief intake at session start (knowledge level, goal, available time) that tailors generation | S-01          | US-01, FR-018, FR-006 (partial)                                                                   | done     |
 | S-03 | onboarding-bio-tailoring     | complete a one-time conversational onboarding that captures a bio reused on every later session        | S-01          | US-01, FR-005, FR-006 (full)                                                                      | done     |
 | S-04 | multi-type-exercises         | encounter fill-in-the-blank and matching-pairs exercises alongside MCQ                                  | S-01          | US-01, FR-009 (full)                                                                              | done     |
-| S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | proposed |
+| S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | done     |
 | S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | done     |
 | S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
 | S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | proposed |
@@ -147,7 +147,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Open Q&A is scope-risky if it isn't bounded at the prompt level — generic chat answers erode the wedge. Reuse the same grounding discipline (no off-source claims) from S-01's generation prompt.
-- **Status:** proposed
+- **Status:** done
 
 ### S-06: Session history view
 
@@ -245,5 +245,6 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 | S-03       | onboarding-bio-tailoring   | 2026-06-09 | One-time conversational onboarding captures a free-text bio (`profiles` table, F-01 RLS template, PK=`user_id`); distill service with raw-answers fallback; middleware gate forces not-yet-onboarded learners to `/onboarding`; bio injected as long-term framing in generation (counts stay intake-driven). Completes FR-005 + bio half of FR-006. Archived → `context/archive/2026-06-09-onboarding-bio-tailoring/`. |
 | S-04       | multi-type-exercises       | 2026-06-15 | Three exercise types ship — MCQ + fill-in-the-blank + matching pairs; deterministic scoring aggregates across all three. DB CHECK on `exercises.kind` (`20260614000000_exercise_kind_check`). Completes FR-009 (full). Deployed to prod via PR #2; impl-review APPROVED. Archived → `context/archive/2026-06-14-multi-type-exercises/`. |
 | S-06       | session-history-view       | 2026-06-26 | Revisit a completed session: dashboard history list + detail-view file download (signed URL) + read-only conversation transcript (read-only-split coexistence with S-05). RLS read path proven cross-account. Completes FR-014 (read). impl-review APPROVED. Archived → `context/archive/2026-06-23-session-history-view/`. |
+| S-05       | ask-tutor-mid-session      | 2026-06-26 | Ask the AI tutor mid-session: grounded answers streamed (SSE, proven on Cloudflare Workers) and persisted as `conversation_messages` under per-learner RLS with `unique(session_id, position)`. Live panel in-progress; S-06 read-only log when completed. Off-source questions refused (wedge held), verified by opt-in live grounding eval. Completes FR-008. impl-review findings F1/F2/F4 fixed, F3 addendum, F5 skipped. Archived → `context/archive/2026-06-23-ask-tutor-mid-session/`. |
 
 _`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._
