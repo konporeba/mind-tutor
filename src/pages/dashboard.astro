@@ -1,41 +1,98 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import SessionStatusBadge from "@/components/session/SessionStatusBadge.astro";
+import { createClient } from "@/lib/supabase";
+import { listSessions, type SessionListItem } from "@/lib/services/history/sessions";
 
 const { user } = Astro.locals;
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const sessions: SessionListItem[] = supabase ? await listSessions(supabase) : [];
+
+const dateFmt = new Intl.DateTimeFormat("en", { dateStyle: "medium" });
+function formatDate(iso: string): string {
+  return dateFmt.format(new Date(iso));
+}
 ---
 
 <Layout title="Dashboard">
-  <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="rounded-2xl border border-white/10 bg-white/10 p-8 text-center text-white backdrop-blur-xl">
-      <h1 class="mb-4 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-3xl font-bold text-transparent">
-        Dashboard
-      </h1>
-      <p class="text-blue-100/80">
-        Welcome, <span class="font-semibold text-white">{user?.email}</span>
-      </p>
-      <p class="mt-2 text-sm text-blue-100/50">This page is only for authenticated users.</p>
-      <div class="mt-6 flex items-center justify-center gap-3">
-        <a
-          href="/sessions/new"
-          class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
-        >
-          Start new session
-        </a>
-        <a
-          href="/account"
-          class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
-        >
-          Account
-        </a>
-        <form method="POST" action="/api/auth/signout">
-          <button
-            type="submit"
+  <div class="bg-cosmic min-h-screen p-4">
+    <div class="mx-auto max-w-3xl space-y-6 py-8 text-white">
+      <header
+        class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between"
+      >
+        <div>
+          <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+            Dashboard
+          </h1>
+          <p class="text-sm text-blue-100/80">
+            Welcome, <span class="font-semibold text-white">{user?.email}</span>
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <a
+            href="/sessions/new"
+            class="rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+          >
+            Start new session
+          </a>
+          <a
+            href="/account"
             class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
           >
-            Sign out
-          </button>
-        </form>
-      </div>
+            Account
+          </a>
+          <form method="POST" action="/api/auth/signout">
+            <button
+              type="submit"
+              class="rounded-lg border border-white/20 bg-white/10 px-4 py-2 text-sm transition-colors hover:bg-white/20"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
+      </header>
+
+      <section class="space-y-3 rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+        <h2 class="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Your sessions</h2>
+
+        {
+          sessions.length === 0 ? (
+            <div class="space-y-3 py-6 text-center">
+              <p class="text-blue-100/80">You haven't started any sessions yet.</p>
+              <a
+                href="/sessions/new"
+                class="inline-block rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
+              >
+                Start your first session
+              </a>
+            </div>
+          ) : (
+            <ul class="space-y-2">
+              {sessions.map((s) => (
+                <li>
+                  <a
+                    href={`/sessions/${s.id}`}
+                    class="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 transition-colors hover:bg-white/15"
+                  >
+                    <span class="min-w-0">
+                      <span class="block truncate font-medium text-white">{s.title ?? "Untitled session"}</span>
+                      <span class="text-xs text-blue-100/60">{formatDate(s.created_at)}</span>
+                    </span>
+                    <span class="flex shrink-0 items-center gap-3">
+                      {s.status === "completed" && s.score !== null && (
+                        <span class="text-sm font-semibold text-white">{s.score}%</span>
+                      )}
+                      {s.status === "active" && <span class="text-sm text-blue-200">Resume →</span>}
+                      <SessionStatusBadge status={s.status} />
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
     </div>
   </div>
 </Layout>

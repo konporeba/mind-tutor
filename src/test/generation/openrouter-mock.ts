@@ -32,3 +32,18 @@ export function makeCompletion(content: string | null) {
 export function fakeOpenRouterClient(create: Mock) {
   return { chat: { completions: { create } } };
 }
+
+/** An async-iterable streaming completion (S-05): yields one delta chunk per piece,
+ *  matching the shape answerQuestion reads: choices[0].delta.content. Use as the
+ *  resolved value of the `create` mock when `stream: true` is requested. */
+export function makeStreamingCompletion(pieces: string[]) {
+  return {
+    async *[Symbol.asyncIterator]() {
+      for (const piece of pieces) {
+        // Yield to a microtask so this faithfully models async delta arrival.
+        await Promise.resolve();
+        yield { choices: [{ delta: { content: piece } }] };
+      }
+    },
+  };
+}
