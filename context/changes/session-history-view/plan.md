@@ -376,11 +376,11 @@ archiving.
 
 #### Automated
 
-- [x] 3.1 Cross-account read integration test passes: `npm test`
-- [x] 3.2 RLS isolation tests pass: `npx supabase test db`
-- [x] 3.3 Lint passes: `npm run lint`
-- [x] 3.4 Build succeeds: `npm run build`
+- [x] 3.1 Cross-account read integration test passes: `npm test` — 7354096
+- [x] 3.2 RLS isolation tests pass: `npx supabase test db` — 7354096
+- [x] 3.3 Lint passes: `npm run lint` — 7354096
+- [x] 3.4 Build succeeds: `npm run build` — 7354096
 
 #### Manual
 
-- [x] 3.5 With two accounts, learner B cannot see A's sessions on the dashboard and is redirected from A's `/sessions/[id]`
+- [x] 3.5 With two accounts, learner B cannot see A's sessions on the dashboard and is redirected from A's `/sessions/[id]` — 7354096
