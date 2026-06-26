@@ -9,7 +9,10 @@ import type {
   MatchingExerciseView,
 } from "@/components/session/SessionRunner";
 import type { ChatTurn } from "@/components/session/AskTutorPanel";
+import ConversationLog from "@/components/session/ConversationLog.astro";
 import { createClient } from "@/lib/supabase";
+import { loadSessionMaterials } from "@/lib/services/history/materials";
+import { loadConversation } from "@/lib/services/history/conversation";
 
 const { id } = Astro.params;
 const supabase = createClient(Astro.request.headers, Astro.cookies);
@@ -42,17 +45,31 @@ const { data: exerciseRows } = await supabase
   .eq("session_id", id)
   .order("position");
 
-// Ask-the-tutor transcript (S-05): RLS-scoped to the owner, ordered for replay.
-const { data: turnRows } = await supabase
-  .from("conversation_messages")
-  .select("role, content")
-  .eq("session_id", id)
-  .order("position");
+// Ask-the-tutor transcript (S-05/S-06): RLS-scoped, ordered for replay. Seeds the
+// live panel on an in-progress session and the read-only ConversationLog on a
+// completed one.
+const turns = await loadConversation(supabase, id);
+const initialTurns: ChatTurn[] = turns.map((t) => ({ role: t.role as ChatTurn["role"], content: t.content }));
 
-const initialTurns: ChatTurn[] = (turnRows ?? []).map((row) => ({
-  role: row.role as ChatTurn["role"],
-  content: row.content,
-}));
+// Uploaded file(s) with a short-lived signed download URL (S-06). A missing
+// storage_path or a signing failure yields a filename-only entry (no throw).
+const materials = await loadSessionMaterials(supabase, id);
+const materialViews = await Promise.all(
+  materials.map(async (m) => {
+    let downloadUrl: string | null = null;
+    if (m.storage_path) {
+      const { data: signed } = await supabase.storage.from("materials").createSignedUrl(m.storage_path, 60);
+      downloadUrl = signed?.signedUrl ?? null;
+    }
+    return { filename: m.filename, sizeBytes: m.size_bytes, downloadUrl };
+  }),
+);
+
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
 
 const theory: TheoryStepView[] = (contentRows ?? []).map((row) => {
   const body = row.body as { heading?: string; body?: string; citation?: string };
@@ -125,5 +142,38 @@ const exercises: ExerciseView[] = (exerciseRows ?? []).map((row) => {
       exercises={exercises}
       initialTurns={initialTurns}
     />
+
+    <div class="mx-auto max-w-5xl space-y-6 p-4 pt-0 text-white">
+      {
+        materialViews.length > 0 && (
+          <section class="space-y-3 rounded-2xl border border-white/10 bg-white/10 p-6 backdrop-blur-xl">
+            <h2 class="text-sm font-semibold tracking-wide text-blue-100/60 uppercase">Materials</h2>
+            <ul class="space-y-2">
+              {materialViews.map((m) => (
+                <li class="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                  <span class="min-w-0">
+                    <span class="block truncate text-white">{m.filename}</span>
+                    <span class="text-xs text-blue-100/60">{formatBytes(m.sizeBytes)}</span>
+                  </span>
+                  {m.downloadUrl ? (
+                    <a
+                      href={m.downloadUrl}
+                      download
+                      class="shrink-0 text-sm text-blue-200 transition-colors hover:text-white"
+                    >
+                      Download
+                    </a>
+                  ) : (
+                    <span class="shrink-0 text-xs text-blue-100/40">Unavailable</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      {session.status === "completed" && <ConversationLog turns={turns} />}
+    </div>
   </div>
 </Layout>

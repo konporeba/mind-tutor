@@ -347,30 +347,30 @@ archiving.
 
 #### Automated
 
-- [x] 1.1 Type checking + lint passes: `npm run lint`
-- [x] 1.2 Build succeeds: `npm run build`
-- [x] 1.3 `listSessions` unit/integration test passes: `npm test`
+- [x] 1.1 Type checking + lint passes: `npm run lint` — 435a091
+- [x] 1.2 Build succeeds: `npm run build` — 435a091
+- [x] 1.3 `listSessions` unit/integration test passes: `npm test` — 435a091
 
 #### Manual
 
-- [x] 1.4 Dashboard lists the learner's sessions newest-first, each linking to its detail view
-- [x] 1.5 Rows show title, status badge, date, and score (for completed sessions); active rows read "In progress · Resume"
-- [x] 1.6 A learner with no sessions sees the empty state and the new-session CTA
+- [x] 1.4 Dashboard lists the learner's sessions newest-first, each linking to its detail view — 435a091
+- [x] 1.5 Rows show title, status badge, date, and score (for completed sessions); active rows read "In progress · Resume" — 435a091
+- [x] 1.6 A learner with no sessions sees the empty state and the new-session CTA — 435a091
 
 ### Phase 2: Detail view — uploaded files + read-only conversation log
 
 #### Automated
 
-- [ ] 2.1 Type checking + lint passes: `npm run lint`
-- [ ] 2.2 Build succeeds: `npm run build`
-- [ ] 2.3 `loadSessionMaterials` / `loadConversation` tests pass: `npm test`
+- [x] 2.1 Type checking + lint passes: `npm run lint`
+- [x] 2.2 Build succeeds: `npm run build`
+- [x] 2.3 `loadSessionMaterials` / `loadConversation` tests pass: `npm test`
 
 #### Manual
 
-- [ ] 2.4 Completed session shows the uploaded file with a working download link
-- [ ] 2.5 Completed session with prior Q&A shows the read-only transcript in order, no send control
-- [ ] 2.6 Completed session with no conversation renders gracefully
-- [ ] 2.7 Material row with a missing `storage_path` shows filename-only without error
+- [x] 2.4 Completed session shows the uploaded file with a working download link
+- [x] 2.5 Completed session with prior Q&A shows the read-only transcript in order, no send control
+- [x] 2.6 Completed session with no conversation renders gracefully
+- [x] 2.7 Material row with a missing `storage_path` shows filename-only without error
 
 ### Phase 3: Cross-account RLS read verification + regression sweep
 

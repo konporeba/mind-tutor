@@ -529,8 +529,10 @@ export default function SessionRunner({
         </section>
       </div>
 
-      {/* Ask-the-tutor (S-05): available throughout — during theory, exercises, and after scoring. */}
-      <AskTutorPanel sessionId={sessionId} initialTurns={initialTurns} />
+      {/* Ask-the-tutor (S-05): live during an in-progress session (theory + exercises).
+          A session loaded as completed is read-only history — S-06 renders the transcript
+          via ConversationLog instead, so the interactive panel is suppressed here. */}
+      {initialStatus !== "completed" && <AskTutorPanel sessionId={sessionId} initialTurns={initialTurns} />}
     </div>
   );
 }
