@@ -437,6 +437,17 @@ grounding via the judge; requires a real key; not part of the default `npm test`
 - In-session island: `src/components/session/SessionRunner.tsx:407,520`
 - Grounding judge (offline eval model): `src/lib/services/grounding/judge.ts`
 
+## Addenda
+
+- **2026-06-26 (impl-review F3): completed-session gating.** Phase 4 specified the ask
+  panel as "available during theory, exercises, and after scoring." During delivery, the
+  parallel S-06 (`session-history-view`) slice added a read-only `ConversationLog` for
+  completed sessions and gated the live `AskTutorPanel` to `initialStatus !== "completed"`
+  (`SessionRunner.tsx:535`). Accepted as the S-05/S-06 boundary: the **live** panel is
+  available while a session is in progress; once completed, S-06's read-only conversation
+  log owns the transcript. This supersedes the "after scoring" availability for the live
+  panel and avoids two conversation surfaces on a completed session.
+
 ## Progress
 
 > Convention: `- [ ]` pending, `- [x]` done. Append ` — <commit sha>` when a step lands. Do not rename step titles. See `references/progress-format.md`.

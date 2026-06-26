@@ -18,7 +18,9 @@ import type { ConversationRole } from "@/types";
 // stays within model context and bounded cost. Prior turns are bounded too, so a
 // long conversation can't blow the token budget.
 const MAX_SOURCE_CHARS = 60_000;
-const MAX_PRIOR_TURNS = 10;
+/** Most recent turns kept as follow-up context. Exported so the endpoint can bound its
+ *  conversation read to the same window instead of loading the whole transcript. */
+export const MAX_PRIOR_TURNS = 10;
 
 /** One persisted conversation turn, as fed back into the prompt for follow-ups. */
 export interface QaTurn {

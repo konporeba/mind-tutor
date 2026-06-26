@@ -94,6 +94,9 @@ export default function AskTutorPanel({ sessionId, initialTurns }: Props) {
           if (typeof payload === "string") {
             assistant += payload;
             renderAssistant();
+          } else if (payload && typeof payload === "object" && "warning" in payload) {
+            // Answer streamed but failed to persist — show it, but flag that it won't survive reload.
+            setError((payload as { warning?: string }).warning ?? "This answer may not have been saved.");
           } else if (payload && typeof payload === "object" && "error" in payload) {
             setError((payload as { error?: string }).error ?? "The tutor couldn't answer that.");
           }

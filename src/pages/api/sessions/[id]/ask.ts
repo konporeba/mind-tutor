@@ -16,7 +16,7 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase";
-import { answerQuestion, type QaTurn } from "@/lib/services/qa/answer";
+import { answerQuestion, MAX_PRIOR_TURNS, type QaTurn } from "@/lib/services/qa/answer";
 
 export const prerender = false;
 
@@ -87,17 +87,23 @@ export const POST: APIRoute = async (context) => {
     return json({ error: "This session has no source material to answer from" }, 422);
   }
 
-  // Prior turns (ordered) for follow-up context and to compute the next position.
-  const { data: priorRows, error: priorError } = await supabase
+  // Load only the most recent turns needed for follow-up context (newest first), bounded
+  // so a long session never triggers a full-table read. The newest row's position gives
+  // the next position (max + 1); the rows are reversed to chronological order for the prompt.
+  const { data: recentRows, error: priorError } = await supabase
     .from("conversation_messages")
-    .select("role, content")
+    .select("role, content, position")
     .eq("session_id", sessionId)
-    .order("position", { ascending: true });
+    .order("position", { ascending: false })
+    .limit(MAX_PRIOR_TURNS);
   if (priorError) {
     return json({ error: "Failed to load conversation" }, 500);
   }
-  const priorTurns: QaTurn[] = priorRows.map((r) => ({ role: r.role as QaTurn["role"], content: r.content }));
-  const userPosition = priorTurns.length;
+  const userPosition = recentRows.length > 0 ? recentRows[0].position + 1 : 0;
+  const priorTurns: QaTurn[] = recentRows
+    .slice()
+    .reverse()
+    .map((r) => ({ role: r.role as QaTurn["role"], content: r.content }));
 
   // Persist the user turn BEFORE the model call so it is never lost on abort.
   const { error: userInsertError } = await supabase.from("conversation_messages").insert({
@@ -121,13 +127,20 @@ export const POST: APIRoute = async (context) => {
           controller.enqueue(sse(delta));
         }
         if (answer) {
-          await supabase.from("conversation_messages").insert({
+          const { error: assistantInsertError } = await supabase.from("conversation_messages").insert({
             user_id: user.id,
             session_id: sessionId,
             role: "assistant",
             position: userPosition + 1,
             content: answer,
           });
+          if (assistantInsertError) {
+            // The answer was already streamed to the client, but persistence failed
+            // (e.g. a position collision from a concurrent ask). Log it and warn the UI
+            // so the learner knows this turn won't survive a reload — never a silent desync.
+            console.error("[api/sessions/ask] assistant turn insert failed:", assistantInsertError.message);
+            controller.enqueue(sse({ warning: "This answer could not be saved and may disappear on reload." }));
+          }
         }
         controller.enqueue(sse("[DONE]"));
       } catch (err) {
