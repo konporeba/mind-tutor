@@ -1,9 +1,9 @@
 ---
 change_id: ask-tutor-mid-session
 title: Ask tutor mid session
-status: implementing
+status: implemented
 created: 2026-06-23
-updated: 2026-06-23
+updated: 2026-06-26
 archived_at: null
 ---
 
