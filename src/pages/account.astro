@@ -1,21 +1,44 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import ChangePasswordForm from "@/components/auth/ChangePasswordForm";
+import EditBioForm from "@/components/account/EditBioForm";
+import { createClient } from "@/lib/supabase";
 
 const error = Astro.url.searchParams.get("error");
 const success = Astro.url.searchParams.get("success");
+const bioError = Astro.url.searchParams.get("bioError");
+const bioSuccess = Astro.url.searchParams.get("bioSuccess");
+
+// The user is guaranteed present + onboarded here by the middleware, so the
+// profile row exists. Fetch the current bio to pre-fill the editor.
+let initialBio = "";
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+if (supabase && Astro.locals.user) {
+  const { data } = await supabase.from("profiles").select("bio").eq("user_id", Astro.locals.user.id).maybeSingle();
+  initialBio = data?.bio ?? "";
+}
 ---
 
 <Layout title="Account">
   <div class="bg-cosmic flex min-h-screen items-center justify-center p-4">
-    <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-white/10 p-8 text-white backdrop-blur-xl">
+    <div class="w-full max-w-md space-y-6 text-white">
       <h1
-        class="mb-6 bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
+        class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-center text-2xl font-bold text-transparent"
       >
-        Change password
+        Account
       </h1>
-      <ChangePasswordForm serverError={error} serverSuccess={success} client:load />
-      <p class="mt-4 text-center text-sm text-blue-100/60">
+
+      <div class="rounded-2xl border border-white/10 bg-white/10 p-8 backdrop-blur-xl">
+        <h2 class="mb-6 text-center text-lg font-semibold text-blue-100">Your bio</h2>
+        <EditBioForm initialBio={initialBio} serverError={bioError} serverSuccess={bioSuccess} client:load />
+      </div>
+
+      <div class="rounded-2xl border border-white/10 bg-white/10 p-8 backdrop-blur-xl">
+        <h2 class="mb-6 text-center text-lg font-semibold text-blue-100">Change password</h2>
+        <ChangePasswordForm serverError={error} serverSuccess={success} client:load />
+      </div>
+
+      <p class="text-center text-sm text-blue-100/60">
         <a href="/dashboard" class="text-purple-300 hover:underline">Back to dashboard</a>
       </p>
     </div>
