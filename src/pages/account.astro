@@ -10,7 +10,9 @@ const bioError = Astro.url.searchParams.get("bioError");
 const bioSuccess = Astro.url.searchParams.get("bioSuccess");
 
 // The user is guaranteed present + onboarded here by the middleware, so the
-// profile row exists. Fetch the current bio to pre-fill the editor.
+// profile row exists. Fetch the current bio to pre-fill the editor. On a
+// transient read failure the editor falls back to empty; that is acceptable
+// because saving requires non-empty input, so it cannot silently wipe the bio.
 let initialBio = "";
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 if (supabase && Astro.locals.user) {

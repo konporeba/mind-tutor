@@ -18,14 +18,14 @@ export const POST: APIRoute = async (context) => {
   const form = await context.request.formData();
   const rawBio = form.get("bio");
 
-  const supabase = createClient(context.request.headers, context.cookies);
-  if (!supabase) {
-    return fail(context, "Supabase is not configured");
-  }
-
   const user = context.locals.user;
   if (!user) {
     return context.redirect("/auth/signin");
+  }
+
+  const supabase = createClient(context.request.headers, context.cookies);
+  if (!supabase) {
+    return fail(context, "Supabase is not configured");
   }
 
   const parsed = BioSchema.safeParse(rawBio);
@@ -38,7 +38,8 @@ export const POST: APIRoute = async (context) => {
   // and RLS profiles_update_own scopes the write to the caller.
   const { error: updateError } = await supabase.from("profiles").update({ bio: parsed.data }).eq("user_id", user.id);
   if (updateError) {
-    return fail(context, updateError.message);
+    console.error("[api/profiles/bio] bio update failed:", updateError.message);
+    return fail(context, "Couldn't save your bio. Please try again.");
   }
 
   return context.redirect(`/account?bioSuccess=${encodeURIComponent("Bio updated")}`);
