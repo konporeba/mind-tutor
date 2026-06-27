@@ -39,7 +39,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | done     |
 | S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | done     |
 | S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | done     |
-| S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | proposed |
+| S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | done     |
 | S-09 | password-change              | change the account password by providing the current password and a new one                            | —             | FR-017                                                                                            | done     |
 
 ## Streams
@@ -183,7 +183,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Mid-session edit is a non-goal — the UI must disable the bio edit surface while a session is in progress. The detector for "session is active" is the load-bearing piece; if it misfires the user either gets blocked unfairly or edits land mid-session (the explicit non-goal).
-- **Status:** proposed
+- **Status:** done
 
 ### S-09: Password change
 
@@ -247,5 +247,6 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 | S-06       | session-history-view       | 2026-06-26 | Revisit a completed session: dashboard history list + detail-view file download (signed URL) + read-only conversation transcript (read-only-split coexistence with S-05). RLS read path proven cross-account. Completes FR-014 (read). impl-review APPROVED. Archived → `context/archive/2026-06-23-session-history-view/`. |
 | S-05       | ask-tutor-mid-session      | 2026-06-26 | Ask the AI tutor mid-session: grounded answers streamed (SSE, proven on Cloudflare Workers) and persisted as `conversation_messages` under per-learner RLS with `unique(session_id, position)`. Live panel in-progress; S-06 read-only log when completed. Off-source questions refused (wedge held), verified by opt-in live grounding eval. Completes FR-008. impl-review findings F1/F2/F4 fixed, F3 addendum, F5 skipped. Archived → `context/archive/2026-06-23-ask-tutor-mid-session/`. |
 | S-07       | delete-session             | 2026-06-27 | Hard-delete a session from the dashboard: per-row delete → accessible `<dialog>` confirm → `DELETE /api/sessions/[id]` collects Storage paths, removes the objects, then cascade-deletes the row (RLS-scoped). No migration — F-01 cascade + `sessions_delete_own` already supported it. Cascade completeness + cross-user isolation proven via RLS-harness integration tests. impl-review APPROVED (F1 orphaned-badge removal, F2 dialog Escape guard). Completes US-03/FR-016. Archived → `context/archive/2026-06-26-delete-session/`. |
+| S-08       | edit-profile-bio           | 2026-06-27 | Edit profile bio from `/account`: new `POST /api/profiles/bio` (auth + zod, RLS-scoped `profiles.bio` update) and `EditBioForm` island in a two-card account page (namespaced `bioError`/`bioSuccess` banners isolate it from password change). Raw save (no re-distill); non-empty required so a blank can't wipe the bio. No migration — `profiles` + `profiles_update_own` already existed. Mid-session edit needs no gate: bio is read only at session creation, so in-progress sessions are unaffected by construction. impl-review APPROVED (F1–F3 fixed). Completes US-02/FR-015. Archived → `context/archive/2026-06-27-edit-profile-bio/`. |
 
 _`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._
