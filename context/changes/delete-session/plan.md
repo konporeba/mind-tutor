@@ -215,16 +215,16 @@ None. The schema, cascade, and `sessions_delete_own` RLS policy already exist (b
 
 #### Automated
 
-- [x] 2.1 Type checking passes (`npm run build`)
-- [x] 2.2 Linting passes (`npm run lint`)
-- [x] 2.3 Formatting clean (`npm run format`)
-- [x] 2.4 Full test suite still green (`npx vitest run`)
+- [x] 2.1 Type checking passes (`npm run build`) — 0ede1eb
+- [x] 2.2 Linting passes (`npm run lint`) — 0ede1eb
+- [x] 2.3 Formatting clean (`npm run format`) — 0ede1eb
+- [x] 2.4 Full test suite still green (`npx vitest run`) — 0ede1eb
 
 #### Manual
 
-- [x] 2.5 Dashboard list renders unchanged for existing sessions
-- [x] 2.6 Delete opens a confirm dialog naming the session; Escape and Cancel dismiss without deleting
-- [x] 2.7 Confirming delete removes the row in place (no reload); reload confirms it's gone
-- [x] 2.8 Deleting the only session shows the empty state without reload
-- [x] 2.9 Dialog is keyboard-operable with sensible focus return
-- [x] 2.10 Other sessions remain intact after a delete
+- [x] 2.5 Dashboard list renders unchanged for existing sessions — 0ede1eb
+- [x] 2.6 Delete opens a confirm dialog naming the session; Escape and Cancel dismiss without deleting — 0ede1eb
+- [x] 2.7 Confirming delete removes the row in place (no reload); reload confirms it's gone — 0ede1eb
+- [x] 2.8 Deleting the only session shows the empty state without reload — 0ede1eb
+- [x] 2.9 Dialog is keyboard-operable with sensible focus return — 0ede1eb
+- [x] 2.10 Other sessions remain intact after a delete — 0ede1eb

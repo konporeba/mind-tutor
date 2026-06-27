@@ -1,9 +1,9 @@
 ---
 change_id: delete-session
 title: Delete session
-status: implementing
+status: implemented
 created: 2026-06-26
-updated: 2026-06-26
+updated: 2026-06-27
 archived_at: null
 ---
 
