@@ -3,7 +3,7 @@ project: MindTutor
 version: 1
 status: draft
 created: 2026-05-28
-updated: 2026-06-26
+updated: 2026-06-27
 prd_version: 1
 main_goal: market-feedback
 top_blocker: time
@@ -246,5 +246,6 @@ _No roadmap-wide Open Questions. The PRD's `## Open Questions` section is empty 
 | S-04       | multi-type-exercises       | 2026-06-15 | Three exercise types ship — MCQ + fill-in-the-blank + matching pairs; deterministic scoring aggregates across all three. DB CHECK on `exercises.kind` (`20260614000000_exercise_kind_check`). Completes FR-009 (full). Deployed to prod via PR #2; impl-review APPROVED. Archived → `context/archive/2026-06-14-multi-type-exercises/`. |
 | S-06       | session-history-view       | 2026-06-26 | Revisit a completed session: dashboard history list + detail-view file download (signed URL) + read-only conversation transcript (read-only-split coexistence with S-05). RLS read path proven cross-account. Completes FR-014 (read). impl-review APPROVED. Archived → `context/archive/2026-06-23-session-history-view/`. |
 | S-05       | ask-tutor-mid-session      | 2026-06-26 | Ask the AI tutor mid-session: grounded answers streamed (SSE, proven on Cloudflare Workers) and persisted as `conversation_messages` under per-learner RLS with `unique(session_id, position)`. Live panel in-progress; S-06 read-only log when completed. Off-source questions refused (wedge held), verified by opt-in live grounding eval. Completes FR-008. impl-review findings F1/F2/F4 fixed, F3 addendum, F5 skipped. Archived → `context/archive/2026-06-23-ask-tutor-mid-session/`. |
+| S-07       | delete-session             | 2026-06-27 | Hard-delete a session from the dashboard: per-row delete → accessible `<dialog>` confirm → `DELETE /api/sessions/[id]` collects Storage paths, removes the objects, then cascade-deletes the row (RLS-scoped). No migration — F-01 cascade + `sessions_delete_own` already supported it. Cascade completeness + cross-user isolation proven via RLS-harness integration tests. impl-review APPROVED (F1 orphaned-badge removal, F2 dialog Escape guard). Completes US-03/FR-016. Archived → `context/archive/2026-06-26-delete-session/`. |
 
 _`/10x-archive` appends entries here — and flips the matching `Status` to `done` — when a change archives._
