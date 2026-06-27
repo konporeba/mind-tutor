@@ -143,6 +143,10 @@ export default function SessionHistoryList({ sessions: initialSessions }: Props)
 
       <dialog
         ref={dialogRef}
+        onCancel={(e) => {
+          // Don't let Escape dismiss the dialog while a delete is in flight.
+          if (deleting) e.preventDefault();
+        }}
         onClose={() => {
           setPending(null);
         }}
