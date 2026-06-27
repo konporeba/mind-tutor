@@ -188,21 +188,21 @@ None — no schema or data migration. The `profiles` row and `bio` column alread
 
 #### Manual
 
-- [x] 1.3 Valid bio POST updates `profiles.bio` and redirects to `/account?bioSuccess=...`
-- [x] 1.4 Blank/whitespace bio POST redirects to `/account?bioError=...` and leaves stored bio unchanged
-- [x] 1.5 POST while signed out redirects to `/auth/signin`
+- [x] 1.3 Valid bio POST updates `profiles.bio` and redirects to `/account?bioSuccess=...` — 637b540
+- [x] 1.4 Blank/whitespace bio POST redirects to `/account?bioError=...` and leaves stored bio unchanged — 637b540
+- [x] 1.5 POST while signed out redirects to `/auth/signin` — 637b540
 
 ### Phase 2: Account page bio card + form
 
 #### Automated
 
-- [x] 2.1 Type checking passes: `npm run build`
-- [x] 2.2 Linting passes: `npm run lint`
+- [x] 2.1 Type checking passes: `npm run build` — 637b540
+- [x] 2.2 Linting passes: `npm run lint` — 637b540
 
 #### Manual
 
-- [x] 2.3 `/account` shows the bio textarea pre-filled with the stored bio and a working character counter
-- [x] 2.4 Editing + "Save bio" persists the change and shows the success banner on the bio card only
-- [x] 2.5 Blank submission shows an error and does not overwrite the stored bio
-- [x] 2.6 Password change still works, banner on the password card only (no regression)
-- [x] 2.7 The 1000-char cap is enforced in the textarea
+- [x] 2.3 `/account` shows the bio textarea pre-filled with the stored bio and a working character counter — 637b540
+- [x] 2.4 Editing + "Save bio" persists the change and shows the success banner on the bio card only — 637b540
+- [x] 2.5 Blank submission shows an error and does not overwrite the stored bio — 637b540
+- [x] 2.6 Password change still works, banner on the password card only (no regression) — 637b540
+- [x] 2.7 The 1000-char cap is enforced in the textarea — 637b540
