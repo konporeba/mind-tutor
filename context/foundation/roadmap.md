@@ -1,7 +1,7 @@
 ---
 project: MindTutor
 version: 1
-status: draft
+status: delivered
 created: 2026-05-28
 updated: 2026-06-27
 prd_version: 1
@@ -209,7 +209,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                                | — (done)              | Shipped 2026-06-26. Grounded streamed (SSE) answers persisted under RLS; off-source refused. Archived. |
 | S-06       | session-history-view         | Revisit a completed session from history                                   | — (done)              | Shipped 2026-06-26. Dashboard history list + signed-URL file download + read-only conversation. Archived. |
 | S-07       | delete-session               | Delete a completed session and all its data                                | — (done)              | Shipped 2026-06-26. Dashboard per-row delete → confirm dialog → Storage-then-cascade hard delete under RLS. |
-| S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | yes                   | S-03 done — ready to plan.                                                        |
+| S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | — (done)              | Shipped 2026-06-27. Account-page bio editor; raw save, non-empty, namespaced banners. Archived. |
 | S-09       | password-change              | Change password with current-password confirmation                         | — (done)              | Shipped 2026-06-08. Extends auth scaffold; touches no domain tables.              |
 
 ## Open Roadmap Questions
