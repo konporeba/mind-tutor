@@ -200,31 +200,31 @@ None. The schema, cascade, and `sessions_delete_own` RLS policy already exist (b
 
 #### Automated
 
-- [x] 1.1 Type checking passes (`npm run build`)
-- [x] 1.2 Linting passes (`npm run lint`)
-- [x] 1.3 Delete endpoint integration tests pass
-- [x] 1.4 Full integration suite still green (`npx vitest run`)
+- [x] 1.1 Type checking passes (`npm run build`) — c4da847
+- [x] 1.2 Linting passes (`npm run lint`) — c4da847
+- [x] 1.3 Delete endpoint integration tests pass — c4da847
+- [x] 1.4 Full integration suite still green (`npx vitest run`) — c4da847
 
 #### Manual
 
-- [x] 1.5 `DELETE /api/sessions/<own-id>` returns 200 and session disappears from dashboard
-- [x] 1.6 No Storage object remains under `materials/${user.id}/${session.id}/`
-- [x] 1.7 `DELETE` of another user's session id returns 404; their data intact
+- [x] 1.5 `DELETE /api/sessions/<own-id>` returns 200 and session disappears from dashboard — c4da847
+- [x] 1.6 No Storage object remains under `materials/${user.id}/${session.id}/` — c4da847
+- [x] 1.7 `DELETE` of another user's session id returns 404; their data intact — c4da847
 
 ### Phase 2: Dashboard delete UI
 
 #### Automated
 
-- [ ] 2.1 Type checking passes (`npm run build`)
-- [ ] 2.2 Linting passes (`npm run lint`)
-- [ ] 2.3 Formatting clean (`npm run format`)
-- [ ] 2.4 Full test suite still green (`npx vitest run`)
+- [x] 2.1 Type checking passes (`npm run build`)
+- [x] 2.2 Linting passes (`npm run lint`)
+- [x] 2.3 Formatting clean (`npm run format`)
+- [x] 2.4 Full test suite still green (`npx vitest run`)
 
 #### Manual
 
-- [ ] 2.5 Dashboard list renders unchanged for existing sessions
-- [ ] 2.6 Delete opens a confirm dialog naming the session; Escape and Cancel dismiss without deleting
-- [ ] 2.7 Confirming delete removes the row in place (no reload); reload confirms it's gone
-- [ ] 2.8 Deleting the only session shows the empty state without reload
-- [ ] 2.9 Dialog is keyboard-operable with sensible focus return
-- [ ] 2.10 Other sessions remain intact after a delete
+- [x] 2.5 Dashboard list renders unchanged for existing sessions
+- [x] 2.6 Delete opens a confirm dialog naming the session; Escape and Cancel dismiss without deleting
+- [x] 2.7 Confirming delete removes the row in place (no reload); reload confirms it's gone
+- [x] 2.8 Deleting the only session shows the empty state without reload
+- [x] 2.9 Dialog is keyboard-operable with sensible focus return
+- [x] 2.10 Other sessions remain intact after a delete

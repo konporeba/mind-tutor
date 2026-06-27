@@ -38,7 +38,7 @@ The product **wedge** — the one trait that, if removed, makes MindTutor indist
 | S-04 | multi-type-exercises         | encounter fill-in-the-blank and matching-pairs exercises alongside MCQ                                  | S-01          | US-01, FR-009 (full)                                                                              | done     |
 | S-05 | ask-tutor-mid-session        | ask the AI tutor questions about the uploaded material at any point in the session                     | S-01          | US-01, FR-008                                                                                     | done     |
 | S-06 | session-history-view         | open a completed session from history and revisit its theory, exercises, score, and conversation       | S-01          | FR-014 (read)                                                                                     | done     |
-| S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | proposed |
+| S-07 | delete-session               | delete a completed session with confirmation, removing all its data                                    | S-06          | US-03, FR-016                                                                                     | done     |
 | S-08 | edit-profile-bio             | edit the profile bio outside an active session; the next session uses the updated bio                  | S-03          | US-02, FR-015                                                                                     | proposed |
 | S-09 | password-change              | change the account password by providing the current password and a new one                            | —             | FR-017                                                                                            | done     |
 
@@ -171,7 +171,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Hard-delete is irreversible. The cascade across tables AND Supabase Storage objects (uploaded PDFs) must be airtight; orphaned storage objects after delete would violate the PRD's "no longer retrievable through any product surface" criterion.
-- **Status:** proposed
+- **Status:** done
 
 ### S-08: Edit profile bio
 
@@ -208,7 +208,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | S-04       | multi-type-exercises         | Fill-in-the-blank + matching-pairs exercise types                          | — (done)              | Shipped 2026-06-15. MCQ + fill-in-the-blank + matching pairs; deterministic scoring across all three. |
 | S-05       | ask-tutor-mid-session        | Ask the AI tutor questions during a session                                | — (done)              | Shipped 2026-06-26. Grounded streamed (SSE) answers persisted under RLS; off-source refused. Archived. |
 | S-06       | session-history-view         | Revisit a completed session from history                                   | — (done)              | Shipped 2026-06-26. Dashboard history list + signed-URL file download + read-only conversation. Archived. |
-| S-07       | delete-session               | Delete a completed session and all its data                                | yes                   | S-06 done — ready to plan.                                                        |
+| S-07       | delete-session               | Delete a completed session and all its data                                | — (done)              | Shipped 2026-06-26. Dashboard per-row delete → confirm dialog → Storage-then-cascade hard delete under RLS. |
 | S-08       | edit-profile-bio             | Edit profile bio outside an active session                                 | yes                   | S-03 done — ready to plan.                                                        |
 | S-09       | password-change              | Change password with current-password confirmation                         | — (done)              | Shipped 2026-06-08. Extends auth scaffold; touches no domain tables.              |
 
